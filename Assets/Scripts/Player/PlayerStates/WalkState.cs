@@ -10,20 +10,23 @@ namespace Player.PlayerStates {
             stateMachine, controller) {
             _moveSpeed = Player.MoveSpeed;
         }
-        
+
+        public override void EnterState() => PlayerEvents.OnPlayerStartWalkingEvent();
+
         public override void FrameUpdate() {
             if (!Player.IsGrounded) AttachedStateMachine.ChangeState(Player.States.AirborneState);
             
             if (!Player.IsMoving) AttachedStateMachine.ChangeState(Player.States.IdleState);
             
-            if (Player.JumpKey.IsPressed() && Player.CanJump())
-                AttachedStateMachine.ChangeState(Player.States.JumpState);
+            if (Player.JumpKey.IsPressed()) AttachedStateMachine.ChangeState(Player.States.JumpState);
             
-            if (Player.DashKey.IsPressed() && !Player.dashInCooldown)
+            if (Player.DashKey.IsPressed() && !Player.DashInCooldown)
                 AttachedStateMachine.ChangeState(Player.States.DashState);
             
             var moveVector = Player.GetCameraRelativeVector(_moveSpeed);
             Player.Controller.Move(moveVector * Time.deltaTime);
         }
+
+        public override void ExitState() => PlayerEvents.OnPlayerStoppedWalkingEvent();
     }
 }

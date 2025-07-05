@@ -21,9 +21,9 @@ namespace Player.PlayerStates {
             // If standing still -> dash forward
             _dashVector = Player.CameraForward * Player.DashSpeed;
             _dashVector.y = 0;
+            
+            PlayerEvents.OnPlayerDashedEvent();
         }
-
-        public override void ExitState() => Player.dashInCooldown = true;
 
         public override void FrameUpdate() {
             if (_currentDashDuration <= _dashDuration) {
@@ -31,8 +31,14 @@ namespace Player.PlayerStates {
                 Player.Controller.Move(_dashVector * Time.deltaTime);
             }
             else {
-                AttachedStateMachine.ChangeState(Player.States.IdleState);
+                Player.CurrentAirborneTime += _currentDashDuration;
+                AttachedStateMachine.ChangeState(Player.States.AirborneState);
             }
+        }
+
+        public override void ExitState() {
+            Player.StartDashCooldown();
+            PlayerEvents.OnPlayerExitedDashEvent();
         }
     }
 }

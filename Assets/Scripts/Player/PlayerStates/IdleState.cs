@@ -11,10 +11,9 @@ namespace Player.PlayerStates {
             
             if (Player.IsMoving) AttachedStateMachine.ChangeState(Player.States.WalkState);
             
-            if (Player.JumpKey.IsPressed() && Player.CanJump())
-                AttachedStateMachine.ChangeState(Player.States.JumpState);
+            if (Player.JumpKey.IsPressed()) AttachedStateMachine.ChangeState(Player.States.JumpState);
             
-            if (Player.DashKey.IsPressed() && !Player.dashInCooldown)
+            if (Player.DashKey.IsPressed() && !Player.DashInCooldown)
                 AttachedStateMachine.ChangeState(Player.States.DashState);
         }
     }

@@ -1,3 +1,4 @@
+using System.Collections;
 using Core.StateMachine.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,37 +21,39 @@ namespace Player {
         #region Player Settings
 
         [Header("Mouse Settings")]
-        [SerializeField] private float mouseSensitivity = 30f;
-        private Vector2 _lookDirection; // Store data from OnLook method
+        [SerializeField] private float mouseSensitivity = 50f;
+        [SerializeField] private Vector2 cameraPitchBounds = new Vector2(-80f, 80f);
         private float _cameraRotation; // Camera rotation along X axis only
         private float _bodyRotation; // Rotation of player along Y axis
         
         [Header("Movement Settings")]
-        [SerializeField] public float gravityMultiplier = 1.2f;
+        [SerializeField] public float gravityMultiplier = 0.85f;
         private Vector2 _moveDirection; // Store data from OnMove method
-        [SerializeField] private float moveSpeed = 8f;
+        [SerializeField] private float moveSpeed = 10f;
         
         public float MoveSpeed => moveSpeed;
         
         // TODO: Add minimum jump duration
         [Header("Jump Settings")]
         [SerializeField] private float coyoteTime = 0.2f;
-        [SerializeField] private float verticalJumpSpeed = 10f;
-        [SerializeField] private float jumpMaxDuration = 0.2f;
-        [SerializeField] private float airborneMoveSpeed = 4f;
+        [SerializeField] private float verticalJumpSpeed = 5f;
+        [SerializeField] private Vector2 jumpDurationBounds = new Vector2(0.15f, 0.35f);
+        [SerializeField] private float airborneMoveSpeed = 5f;
         [SerializeField] private float forwardJumpSpeedMultiplier = 3f;
-        private float _currentAirborneTime;
         
+        public float CurrentAirborneTime { get; internal set; }
+
+        public float CoyoteTime => coyoteTime;
         public float VerticalJumpSpeed => verticalJumpSpeed;
-        public float JumpMaxDuration => jumpMaxDuration;
+        public Vector2 JumpDurationBounds => jumpDurationBounds;
         public float AirborneMoveSpeed => airborneMoveSpeed;
         public float ForwardJumpSpeedMultiplier => forwardJumpSpeedMultiplier;
         
         [Header("Dash Settings")]
         [SerializeField] private float dashCooldownTime = 1.2f;
         [SerializeField] private float dashDuration = 0.2f;
-        [SerializeField] private float dashSpeed = 20f;
-        public bool dashInCooldown;
+        [SerializeField] private float dashSpeed = 25f;
+        public bool DashInCooldown { get; private set; }
         private float _currentDashCooldown;
         
         public float DashDuration => dashDuration;
@@ -65,14 +68,23 @@ namespace Player {
         public Vector3 CameraForward => attachedCamera.forward;
         
         public Vector3 GetCameraRelativeVector(float vectorMultiplier) {
-            Vector3 playerRelativeVector = (_moveDirection.y * attachedCamera.forward +
+            Vector3 playerRelativeVector = (_moveDirection.y * CameraForward +
                                             _moveDirection.x * attachedCamera.right) *
                                            vectorMultiplier;
             playerRelativeVector.y = 0;
             return playerRelativeVector;
         }
 
-        public bool CanJump() => IsGrounded || _currentAirborneTime < coyoteTime;
+        private IEnumerator RestoreDashLater() {
+            yield return new WaitForSeconds(dashCooldownTime);
+            yield return new WaitUntil(() => IsGrounded);
+            DashInCooldown = false;
+        }
+
+        public void StartDashCooldown() {
+            DashInCooldown = true;
+            StartCoroutine(RestoreDashLater());
+        }
 
         #region Event Functions
         
@@ -89,45 +101,24 @@ namespace Player {
             DashKey = playerInput.actions["Dash"];
         }
 
-        private void Update() {
-            _stateMachine.CurrentState.FrameUpdate();
-            // TODO: Make it with invoke
-            if (dashInCooldown) {
-                _currentDashCooldown += Time.deltaTime;
-
-                // Refresh only on ground
-                if (_currentDashCooldown >= dashCooldownTime && IsGrounded) {
-                    dashInCooldown = false;
-                    _currentDashCooldown = 0f;
-                }
-            }
-            
-            if (IsGrounded) {
-                _currentAirborneTime = 0;
-            }
-            else {
-                _currentAirborneTime += Time.deltaTime;
-            }
-            
-            // Get mouse position
-            var lookDirection = _lookDirection * (mouseSensitivity * Time.deltaTime);
-
-            // Rotate player instead of camera
-            _bodyRotation += lookDirection.x;
-            transform.rotation = Quaternion.Euler(0f, _bodyRotation, 0f);
-
-            // Camera rotate here
-            _cameraRotation -= lookDirection.y;
-            _cameraRotation = Mathf.Clamp(_cameraRotation, -70f, 70f);
-            attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
-        }
+        private void Update() => _stateMachine.CurrentState.FrameUpdate();
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
-        public void OnMove(InputValue currentMoveDirection) => this._moveDirection = currentMoveDirection.Get<Vector2>();
+        public void OnMove(InputValue currentMoveDirection) => _moveDirection = currentMoveDirection.Get<Vector2>();
 
-        public void OnLook(InputValue lookDirection) => _lookDirection = lookDirection.Get<Vector2>();
-        
+        public void OnLook(InputValue lookDirection) {
+            // Get mouse position
+            var look = lookDirection.Get<Vector2>() * (mouseSensitivity * Time.deltaTime);
+            // Rotate player instead of camera
+            _bodyRotation += look.x;
+            transform.rotation = Quaternion.Euler(0f, _bodyRotation, 0f);
+            // Camera rotate here
+            _cameraRotation -= look.y;
+            _cameraRotation = Mathf.Clamp(_cameraRotation, cameraPitchBounds.x, cameraPitchBounds.y);
+            attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
+        }
+
         #endregion
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Player.PlayerStates {
     public class JumpState : PlayerState {
         private readonly float _jumpUpwardsSpeed;
-        private readonly float _jumpMaxDuration;
+        private readonly Vector2 _jumpDurationBounds;
         private readonly float _airborneMoveSpeed;
         private readonly float _forwardJumpSpeedMultiplier;
         private float _currentJumpDuration;
@@ -13,18 +13,23 @@ namespace Player.PlayerStates {
         public JumpState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) {
             _jumpUpwardsSpeed = Player.VerticalJumpSpeed;
-            _jumpMaxDuration = Player.JumpMaxDuration;
+            _jumpDurationBounds = Player.JumpDurationBounds;
             _airborneMoveSpeed = Player.AirborneMoveSpeed;
             _forwardJumpSpeedMultiplier = Player.ForwardJumpSpeedMultiplier;
         }
 
-        public override void EnterState() => _currentJumpDuration = 0f;
+        public override void EnterState() {
+            PlayerEvents.OnPlayerJumpedEvent();
+            _currentJumpDuration = 0f;
+        }
 
         public override void FrameUpdate() {
-            if (Player.IsJumping && _currentJumpDuration < _jumpMaxDuration) {
+            if (_currentJumpDuration < _jumpDurationBounds.x || 
+                (Player.IsJumping && _currentJumpDuration < _jumpDurationBounds.y))  {
+                
                 _currentJumpDuration += Time.deltaTime;
                 
-                if (Player.DashKey.IsPressed() && !Player.dashInCooldown)
+                if (Player.DashKey.IsPressed() && !Player.DashInCooldown)
                     AttachedStateMachine.ChangeState(Player.States.DashState);
 
                 Vector3 playerRelativeVector = Player.GetCameraRelativeVector(_airborneMoveSpeed);
@@ -33,6 +38,7 @@ namespace Player.PlayerStates {
                 Player.Controller.Move(playerRelativeVector * Time.deltaTime);
             }
             else {
+                Player.CurrentAirborneTime += _currentJumpDuration;
                 AttachedStateMachine.ChangeState(Player.States.AirborneState);
             }
         }
