@@ -22,7 +22,7 @@ namespace Player.PlayerStates {
             _dashVector = Player.CameraForward * Player.DashSpeed;
             _dashVector.y = 0;
             
-            PlayerEvents.OnPlayerDashedEvent();
+            PlayerEvents.OnDashedEvent();
         }
 
         public override void FrameUpdate() {
@@ -38,7 +38,7 @@ namespace Player.PlayerStates {
 
         public override void ExitState() {
             Player.StartDashCooldown();
-            PlayerEvents.OnPlayerExitedDashEvent();
+            PlayerEvents.OnExitedDashEvent();
         }
     }
 }

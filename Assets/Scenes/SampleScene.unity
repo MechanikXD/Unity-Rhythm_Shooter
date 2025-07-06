@@ -8773,12 +8773,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0ef9ebb181b0f4dbe83f21ef888140, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  beatSprite: {fileID: 7095060724241679291, guid: 855ac30c59d34f04583b3d49e08ff352, type: 3}
+  beatPrefab: {fileID: 7095060724241679291, guid: 855ac30c59d34f04583b3d49e08ff352, type: 3}
+  normalBeatObjectLeft: {fileID: 11400000, guid: 1bafdecf0ba66e84eb97cd0d5eaee70e, type: 2}
+  normalBeatObjectRight: {fileID: 11400000, guid: a5c42cc0c1c7f904aa0b4aa7fe1500ec, type: 2}
   leftBeatArea: {fileID: 828702790}
   rightBeatArea: {fileID: 521989024}
-  beatAreaWidth: 300
   singleBeatTime: 1
-  fadeInOutTime: 0.1
 --- !u!1 &1800735243
 GameObject:
   m_ObjectHideFlags: 0

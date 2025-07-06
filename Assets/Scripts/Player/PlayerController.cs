@@ -9,8 +9,16 @@ namespace Player {
         [SerializeField] private CharacterController controller;
         [SerializeField] private Transform attachedCamera;
         [SerializeField] private PlayerInput playerInput;
+        [SerializeField] private PlayerActionTypes currentActionType;
         private StateMachine _stateMachine;
 
+        private bool _leftActionBuffered;
+        private bool _rightActionBuffered;
+        private float _currentBufferTime;
+        private bool _doBufferCounting;
+        [SerializeField] private float maxInputBufferTime = 0.1f;
+        
+        
         public States States { get; private set; }
         public CharacterController Controller => controller;
         
@@ -101,7 +109,25 @@ namespace Player {
             DashKey = playerInput.actions["Dash"];
         }
 
-        private void Update() => _stateMachine.CurrentState.FrameUpdate();
+        private void Update() {
+            _stateMachine.CurrentState.FrameUpdate();
+
+            if (_doBufferCounting) {
+                _currentBufferTime += Time.deltaTime;
+                if (_currentBufferTime <= maxInputBufferTime) return;
+
+                _currentBufferTime = 0f;
+                _doBufferCounting = false;
+
+                if (currentActionType == PlayerActionTypes.Any && _leftActionBuffered)
+                    PlayerEvents.OnLeftAction();
+                if (currentActionType == PlayerActionTypes.Any && _rightActionBuffered)
+                    PlayerEvents.OnRightAction();
+                
+                _leftActionBuffered = false;
+                _rightActionBuffered = false;
+            }
+        }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
@@ -117,6 +143,48 @@ namespace Player {
             _cameraRotation -= look.y;
             _cameraRotation = Mathf.Clamp(_cameraRotation, cameraPitchBounds.x, cameraPitchBounds.y);
             attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
+        }
+
+        public void OnLeftAction() {
+            switch (currentActionType) {
+                case PlayerActionTypes.None or PlayerActionTypes.OnlyRight:
+                    return;
+                case PlayerActionTypes.Directional or PlayerActionTypes.OnlyLeft:
+                    PlayerEvents.OnLeftAction();
+                    break;
+                case PlayerActionTypes.Both or PlayerActionTypes.Any when _rightActionBuffered:
+                    PlayerEvents.OnBothActions();
+                    _rightActionBuffered = false;
+                    _doBufferCounting = false;
+                    _currentBufferTime = 0f;
+                    break;
+                case PlayerActionTypes.Both or PlayerActionTypes.Any:
+                    _leftActionBuffered = true;
+                    _doBufferCounting = true;
+                    _currentBufferTime = 0f;
+                    break;
+            }
+        }
+
+        public void OnRightAction() {
+            switch (currentActionType) {
+                case PlayerActionTypes.None or PlayerActionTypes.OnlyLeft:
+                    return;
+                case PlayerActionTypes.Directional or PlayerActionTypes.OnlyRight:
+                    PlayerEvents.OnRightAction();
+                    break;
+                case PlayerActionTypes.Both or PlayerActionTypes.Any when _leftActionBuffered:
+                    PlayerEvents.OnBothActions();
+                    _leftActionBuffered = false;
+                    _doBufferCounting = false;
+                    _currentBufferTime = 0f;
+                    break;
+                case PlayerActionTypes.Both or PlayerActionTypes.Any:
+                    _rightActionBuffered = true;
+                    _doBufferCounting = true;
+                    _currentBufferTime = 0f;
+                    break;
+            }
         }
 
         #endregion
