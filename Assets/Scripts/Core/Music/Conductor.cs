@@ -1,9 +1,13 @@
-﻿using UnityEngine;
+﻿using Player;
+using UnityEngine;
 
 namespace Core.Music {
     public class Conductor : MonoBehaviour {
         private static Conductor _instance;
         private bool _isInitialized;
+        
+        [SerializeField] private float perfectHitWindow = 0.13f;
+        [SerializeField] private float goodHitWindow = 0.18f;
 
         public static Conductor Instance {
             get {
@@ -15,37 +19,74 @@ namespace Core.Music {
             }
         }
         
-        [SerializeField] private SongData songData;
-        [SerializeField] private AudioSource songSource;
+        private SongData _songData;
+        private AudioSource _songSource;
+        
         private float _songPosition;
-        private float _songBeatPosition;
+        private int _songBeatPosition;
+        private int _loopBeatPosition;
+        
         private float _dspSongTime;
         private float _lastBeat;
+        private int _completedLoops;
 
-        public SongData SongData => songData;
+        public SongData SongData => _songData;
         public float SongPosition => _songPosition;
-        public float BeatPosition => _songBeatPosition;
+        public int BeatPosition => _songBeatPosition;
         public float LastBeat => _lastBeat;
 
-        public void Initialize() {
+        private void OnEnable() {
+            PlayerEvents.LeftActionEvent += DetermineHitQuality;
+            PlayerEvents.RightActionEvent += DetermineHitQuality;
+            PlayerEvents.BothActionsEvent += DetermineHitQuality;
+        }
+
+        public void Initialize(SongData songData, AudioSource audioSource) {
+            _songData = songData;
+            _songSource = audioSource;
+            
             _lastBeat = 0f;
-            songSource.clip = songData.Audio;
+            _songSource.clip = songData.Audio;
             songData.Crotchet = 60f / songData.Bpm;
             _dspSongTime = (float)AudioSettings.dspTime;
-            songSource.Play();
+            _songSource.Play();
             _isInitialized = true;
+        }
+        
+        private void OnDisable() {
+            PlayerEvents.LeftActionEvent -= DetermineHitQuality;
+            PlayerEvents.RightActionEvent -= DetermineHitQuality;
+            PlayerEvents.BothActionsEvent -= DetermineHitQuality;
+        }
+
+        private void DetermineHitQuality(float songPosition) {
+            var lastBeatTime = _lastBeat;
+            var nextBeatTime = _lastBeat + SongData.Crotchet;
+
+            var relativeToBeat = Mathf.Min(
+                Mathf.Abs(songPosition - lastBeatTime),
+                Mathf.Abs(nextBeatTime - songPosition));
+            // Late perfect || Early perfect
+            if (relativeToBeat <= perfectHitWindow) ConductorEvents.OnPerfectBeatHit();
+            // Late good  || Early good
+            else if (relativeToBeat <= goodHitWindow) ConductorEvents.OnGoodBeatHit();
+            else ConductorEvents.OnBeatMissed();
         }
 
         private void Update() {
             if (!_isInitialized) return;
             
-            _songPosition = (float)(AudioSettings.dspTime - _dspSongTime) * songSource.pitch - songData.Offset;
-            _songBeatPosition = _songPosition / songData.Crotchet;
+            _songPosition = (float)(AudioSettings.dspTime - _dspSongTime) * _songSource.pitch - _songData.Offset;
+            _songBeatPosition = (int)(_songPosition / _songData.Crotchet);
             
-            if (_songPosition > _lastBeat + songData.Crotchet) {
+            if (_songPosition > _lastBeat + _songData.Crotchet) {
                 ConductorEvents.OnOnNextBeat();
-                _lastBeat += songData.Crotchet;
+                _lastBeat += _songData.Crotchet;
             }
+
+            if (_loopBeatPosition >= _songData.BeatsPerLoop)
+                _completedLoops++;
+            _loopBeatPosition = _songBeatPosition - _completedLoops * _songData.BeatsPerLoop;
         }
     }
 }

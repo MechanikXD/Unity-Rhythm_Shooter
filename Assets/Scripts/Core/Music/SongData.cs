@@ -8,6 +8,17 @@ namespace Core.Music {
         [SerializeField] private float songBpm;
         [SerializeField] private float startOffset;
         private float _crotchet;
+
+        private int _beatsPerLoop;
+
+        public int BeatsPerLoop {
+            get {
+                if (_beatsPerLoop != 0) return _beatsPerLoop;
+                
+                _beatsPerLoop = (int)((song.length - startOffset) / _crotchet);
+                return _beatsPerLoop;
+            }
+        } 
         
         public AudioClip Audio => song;
         public float Bpm => songBpm;

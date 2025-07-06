@@ -1,6 +1,7 @@
-using System.Collections;
+using Core.Music;
 using DG.Tweening;
 using Player;
+using TMPro;
 using UI.ScriptableObjects.Base;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,21 +24,28 @@ namespace UI.Managers {
         
         [SerializeField] private float singleBeatTime = 1f;
 
+        [SerializeField] private TextMeshProUGUI perfectText;
+        [SerializeField] private TextMeshProUGUI goodText;
+        [SerializeField] private TextMeshProUGUI missText;
+        private Sequence _currentPopUp;
+
         private readonly Color _transparentWhite = new Color(255, 255, 255, 0);
+        private readonly Color _transparentBlack = new Color(0, 0, 0, 0);
 
         private void OnEnable() {
             PlayerEvents.LeftActionEvent += ShowLeftGradient;
             PlayerEvents.RightActionEvent += ShowRightGradient;
             PlayerEvents.BothActionsEvent += ShowLeftGradient;
             PlayerEvents.BothActionsEvent += ShowRightGradient;
+
+            ConductorEvents.BeatMissedEvent += ShowMissPopUp;
+            ConductorEvents.GoodBeatHitEvent += ShowGoodPopUp;
+            ConductorEvents.PerfectBeatHitEvent += ShowPerfectPopUp;
         }
 
         private void Start() {
             // This will skip first beat
-            /*singleBeatTime = Conductor.Instance.SongData.Crotchet;
-            ConductorEvents.NextBeatEvent += Spawn;*/
-
-            StartCoroutine(SpawnEachHalfSeconds());
+            ConductorEvents.NextBeatEvent += Spawn;
         }
 
         private void OnDisable() {
@@ -45,6 +53,10 @@ namespace UI.Managers {
             PlayerEvents.RightActionEvent -= ShowRightGradient;
             PlayerEvents.BothActionsEvent -= ShowLeftGradient;
             PlayerEvents.BothActionsEvent -= ShowRightGradient;
+            
+            ConductorEvents.BeatMissedEvent -= ShowMissPopUp;
+            ConductorEvents.GoodBeatHitEvent -= ShowGoodPopUp;
+            ConductorEvents.PerfectBeatHitEvent -= ShowPerfectPopUp;
         }
 
         private (GameObject leftBeat, GameObject rightBeat) InstantiateNewBeats() {
@@ -59,7 +71,7 @@ namespace UI.Managers {
             return (newLeftBeat, newRightBeat);
         }
 
-        private void ShowLeftGradient() {
+        private void ShowLeftGradient(float _) {
             if (_leftGradientAnimation is { active: true }) {
                 _leftGradientAnimation.Restart();
             }
@@ -73,7 +85,7 @@ namespace UI.Managers {
             }
         }
 
-        private void ShowRightGradient() {
+        private void ShowRightGradient(float _) {
             if (_rightGradientAnimation is { active: true }) {
                 _rightGradientAnimation.Restart();
             }
@@ -87,17 +99,22 @@ namespace UI.Managers {
             }
         }
 
+        private void ShowPopUp(TextMeshProUGUI textField) {
+            _currentPopUp?.Complete();
+            _currentPopUp = DOTween.Sequence();
+            _currentPopUp.Append(textField.DOColor(Color.black, gradientFadeInOutTime.x));
+            _currentPopUp.Append(textField.DOColor(_transparentBlack, gradientFadeInOutTime.y));
+            _currentPopUp.Play();
+        }
+
+        private void ShowPerfectPopUp() => ShowPopUp(perfectText);
+        private void ShowGoodPopUp() => ShowPopUp(goodText);
+        private void ShowMissPopUp() => ShowPopUp(missText);
+
         private void Spawn() {
             var newBeats = InstantiateNewBeats();
             leftBeatParams.Animate(singleBeatTime).OnComplete(() => Destroy(newBeats.leftBeat));
             rightBeatParams.Animate(singleBeatTime).OnComplete(() => Destroy(newBeats.rightBeat));
-        }
-
-        private IEnumerator SpawnEachHalfSeconds() {
-            while (true) {
-                Spawn();
-                yield return new WaitForSeconds(0.5f);
-            }
         }
     }
 }

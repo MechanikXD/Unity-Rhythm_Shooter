@@ -27,11 +27,12 @@ namespace UI.ScriptableObjects.Base {
         public TweenerCore<Vector3, Vector3, VectorOptions> Animate(float travelTime) {
              // Fate in
             _attachedImage.DOColor(beatColor, fadeInOutTime.x);
-            return
             // Move to destination
-            _attachedTransform.DOLocalMove(new Vector3(startEndPosition.y, 0, 0), travelTime)
-                // Fate out
-                .OnComplete(() => _attachedImage.DOColor(_selfTransparentColor, fadeInOutTime.y));
+            var move = _attachedTransform.DOLocalMove(new Vector3(startEndPosition.y, 0, 0), travelTime);
+            move.SetEase(Ease.Linear);
+            // Fate out
+            move.OnComplete(() => _attachedImage.DOColor(_selfTransparentColor, fadeInOutTime.y));
+            return move;
         }
     }
 }

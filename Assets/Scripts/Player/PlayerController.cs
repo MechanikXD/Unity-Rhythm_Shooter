@@ -1,4 +1,5 @@
 using System.Collections;
+using Core.Music;
 using Core.StateMachine.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -11,6 +12,9 @@ namespace Player {
         [SerializeField] private PlayerInput playerInput;
         [SerializeField] private PlayerActionTypes currentActionType;
         private StateMachine _stateMachine;
+        [Header("MOVE SOMEWHERE ELSE")]
+        [SerializeField] private SongData songData;
+        [SerializeField] private AudioSource songSource;
 
         private bool _leftActionBuffered;
         private bool _rightActionBuffered;
@@ -41,7 +45,6 @@ namespace Player {
         
         public float MoveSpeed => moveSpeed;
         
-        // TODO: Add minimum jump duration
         [Header("Jump Settings")]
         [SerializeField] private float coyoteTime = 0.2f;
         [SerializeField] private float verticalJumpSpeed = 5f;
@@ -107,6 +110,8 @@ namespace Player {
             MoveKey = playerInput.actions["Move"];
             JumpKey = playerInput.actions["Jump"];
             DashKey = playerInput.actions["Dash"];
+            
+            Conductor.Instance.Initialize(songData, songSource);
         }
 
         private void Update() {
@@ -115,15 +120,15 @@ namespace Player {
             if (_doBufferCounting) {
                 _currentBufferTime += Time.deltaTime;
                 if (_currentBufferTime <= maxInputBufferTime) return;
-
-                _currentBufferTime = 0f;
-                _doBufferCounting = false;
-
-                if (currentActionType == PlayerActionTypes.Any && _leftActionBuffered)
-                    PlayerEvents.OnLeftAction();
-                if (currentActionType == PlayerActionTypes.Any && _rightActionBuffered)
-                    PlayerEvents.OnRightAction();
                 
+                var songPositionWhenHit = Conductor.Instance.SongPosition - _currentBufferTime;
+                if (currentActionType == PlayerActionTypes.Any && _leftActionBuffered)
+                    PlayerEvents.OnLeftAction(songPositionWhenHit);
+                if (currentActionType == PlayerActionTypes.Any && _rightActionBuffered)
+                    PlayerEvents.OnRightAction(songPositionWhenHit);
+                
+                _doBufferCounting = false;
+                _currentBufferTime = 0f;
                 _leftActionBuffered = false;
                 _rightActionBuffered = false;
             }
@@ -146,14 +151,15 @@ namespace Player {
         }
 
         public void OnLeftAction() {
+            var currentSongPosition = Conductor.Instance.SongPosition;
             switch (currentActionType) {
                 case PlayerActionTypes.None or PlayerActionTypes.OnlyRight:
                     return;
                 case PlayerActionTypes.Directional or PlayerActionTypes.OnlyLeft:
-                    PlayerEvents.OnLeftAction();
+                    PlayerEvents.OnLeftAction(currentSongPosition);
                     break;
                 case PlayerActionTypes.Both or PlayerActionTypes.Any when _rightActionBuffered:
-                    PlayerEvents.OnBothActions();
+                    PlayerEvents.OnBothActions(currentSongPosition);
                     _rightActionBuffered = false;
                     _doBufferCounting = false;
                     _currentBufferTime = 0f;
@@ -167,14 +173,15 @@ namespace Player {
         }
 
         public void OnRightAction() {
+            var currentSongPosition = Conductor.Instance.SongPosition;
             switch (currentActionType) {
                 case PlayerActionTypes.None or PlayerActionTypes.OnlyLeft:
                     return;
                 case PlayerActionTypes.Directional or PlayerActionTypes.OnlyRight:
-                    PlayerEvents.OnRightAction();
+                    PlayerEvents.OnRightAction(currentSongPosition);
                     break;
                 case PlayerActionTypes.Both or PlayerActionTypes.Any when _leftActionBuffered:
-                    PlayerEvents.OnBothActions();
+                    PlayerEvents.OnBothActions(currentSongPosition);
                     _leftActionBuffered = false;
                     _doBufferCounting = false;
                     _currentBufferTime = 0f;

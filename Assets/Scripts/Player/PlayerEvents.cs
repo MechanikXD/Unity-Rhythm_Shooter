@@ -9,9 +9,9 @@ namespace Player {
         public static event Action StartWalkingEvent;
         public static event Action StoppedWalkingEvent;
         
-        public static event Action LeftActionEvent;
-        public static event Action RightActionEvent;
-        public static event Action BothActionsEvent;
+        public static event Action<float> LeftActionEvent;
+        public static event Action<float> RightActionEvent;
+        public static event Action<float> BothActionsEvent;
 
         public static void OnBecomeGrounded() => BecomeGroundedEvent?.Invoke();
         public static void OnStoppedWalkingEvent() => StoppedWalkingEvent?.Invoke();
@@ -20,8 +20,13 @@ namespace Player {
         public static void OnJumpedEvent() => JumpedEvent?.Invoke();
         public static void OnDashedEvent() => DashedEvent?.Invoke();
 
-        public static void OnLeftAction() => LeftActionEvent?.Invoke();
-        public static void OnRightAction() => RightActionEvent?.Invoke();
-        public static void OnBothActions() => BothActionsEvent?.Invoke();
+        public static void OnLeftAction(float actionTimeInSongPosition) =>
+            LeftActionEvent?.Invoke(actionTimeInSongPosition);
+
+        public static void OnRightAction(float actionTimeInSongPosition) =>
+            RightActionEvent?.Invoke(actionTimeInSongPosition);
+
+        public static void OnBothActions(float actionTimeInSongPosition) =>
+            BothActionsEvent?.Invoke(actionTimeInSongPosition);
     }
 }
