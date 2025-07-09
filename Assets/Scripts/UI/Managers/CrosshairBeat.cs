@@ -8,21 +8,23 @@ using UnityEngine.UI;
 
 namespace UI.Managers {
     public class CrosshairBeat : MonoBehaviour {
-        [SerializeField] private GameObject beatPrefab;
+        [SerializeField] private Image beatPrefab;
+        [SerializeField] private int maxBeatsPerSide = 5;
+        private (Beat left, Beat right)[] _beatPool;
+        private int _beatPoolIndex;
         
-        [SerializeField] private BeatInstance leftBeatParams;
-        [SerializeField] private BeatInstance rightBeatParams;
+        [SerializeField] private BeatSettings beatSettings;
 
         [SerializeField] private Image leftGradientImage;
         [SerializeField] private Image rightGradientImage;
-        [SerializeField] private Vector2 gradientFadeInOutTime = new Vector2(0.05f, 0.5f);
+        [SerializeField] private Vector2 fadeInOutTime = new Vector2(0.05f, 0.5f);
         private Sequence _leftGradientAnimation;
         private Sequence _rightGradientAnimation;
 
         [SerializeField] private RectTransform leftBeatArea;
         [SerializeField] private RectTransform rightBeatArea;
         
-        [SerializeField] private float singleBeatTime = 1f;
+        [SerializeField] private float singleBeatTime = 1.1f;
 
         [SerializeField] private TextMeshProUGUI perfectText;
         [SerializeField] private TextMeshProUGUI goodText;
@@ -45,7 +47,12 @@ namespace UI.Managers {
 
         private void Start() {
             // This will skip first beat
-            ConductorEvents.NextBeatEvent += Spawn;
+            ConductorEvents.NextBeatEvent += SpawnBeatFromPool;
+
+            _beatPool = new (Beat left, Beat right)[maxBeatsPerSide];
+            for (var i = 0; i < maxBeatsPerSide; i++) {
+                _beatPool[i] = InstantiateNewBeats();
+            }
         }
 
         private void OnDisable() {
@@ -59,16 +66,16 @@ namespace UI.Managers {
             ConductorEvents.PerfectBeatHitEvent -= ShowPerfectPopUp;
         }
 
-        private (GameObject leftBeat, GameObject rightBeat) InstantiateNewBeats() {
-            var newLeftBeat = Instantiate(beatPrefab, leftBeatArea, false);
-            leftBeatParams.SetupSelf(newLeftBeat.transform, newLeftBeat.GetComponent<Image>());
-            
-            var newRightBeat = Instantiate(beatPrefab, rightBeatArea, false);
-            var rightBeatTransform = newRightBeat.transform;
-            rightBeatTransform.localScale = new Vector3(-1, -1, 1);
-            rightBeatParams.SetupSelf(rightBeatTransform, newRightBeat.GetComponent<Image>());
+        private (Beat leftBeat, Beat rightBeat) InstantiateNewBeats() {
+            var left = new Beat();
+            left.InstantiateSelf(beatPrefab, leftBeatArea, false);
+            left.SetDefaultState(beatSettings);
 
-            return (newLeftBeat, newRightBeat);
+            var right = new Beat();
+            right.InstantiateSelf(beatPrefab, rightBeatArea, true);
+            right.SetDefaultState(beatSettings);
+
+            return (left, right);
         }
 
         private void ShowLeftGradient(float _) {
@@ -78,9 +85,9 @@ namespace UI.Managers {
             else {
                 _leftGradientAnimation = DOTween.Sequence();
                 _leftGradientAnimation.Append(leftGradientImage.DOColor(Color.white,
-                    gradientFadeInOutTime.x));
+                    fadeInOutTime.x));
                 _leftGradientAnimation.Append(leftGradientImage.DOColor(_transparentWhite,
-                    gradientFadeInOutTime.y));
+                    fadeInOutTime.y));
                 _leftGradientAnimation.Play();
             }
         }
@@ -92,9 +99,9 @@ namespace UI.Managers {
             else {
                 _rightGradientAnimation = DOTween.Sequence();
                 _rightGradientAnimation.Append(rightGradientImage
-                    .DOColor(Color.white, gradientFadeInOutTime.x));
+                    .DOColor(Color.white, fadeInOutTime.x));
                 _rightGradientAnimation.Append(
-                    rightGradientImage.DOColor(_transparentWhite, gradientFadeInOutTime.y));
+                    rightGradientImage.DOColor(_transparentWhite, fadeInOutTime.y));
                 _rightGradientAnimation.Play();
             }
         }
@@ -102,8 +109,8 @@ namespace UI.Managers {
         private void ShowPopUp(TextMeshProUGUI textField) {
             _currentPopUp?.Complete();
             _currentPopUp = DOTween.Sequence();
-            _currentPopUp.Append(textField.DOColor(Color.black, gradientFadeInOutTime.x));
-            _currentPopUp.Append(textField.DOColor(_transparentBlack, gradientFadeInOutTime.y));
+            _currentPopUp.Append(textField.DOColor(Color.black, fadeInOutTime.x));
+            _currentPopUp.Append(textField.DOColor(_transparentBlack, fadeInOutTime.y));
             _currentPopUp.Play();
         }
 
@@ -111,10 +118,16 @@ namespace UI.Managers {
         private void ShowGoodPopUp() => ShowPopUp(goodText);
         private void ShowMissPopUp() => ShowPopUp(missText);
 
-        private void Spawn() {
-            var newBeats = InstantiateNewBeats();
-            leftBeatParams.Animate(singleBeatTime).OnComplete(() => Destroy(newBeats.leftBeat));
-            rightBeatParams.Animate(singleBeatTime).OnComplete(() => Destroy(newBeats.rightBeat));
+        private void SpawnBeatFromPool() {
+            Spawn(_beatPoolIndex);
+
+            _beatPoolIndex++;
+            if (_beatPoolIndex >= _beatPool.Length) _beatPoolIndex = 0;
+        }
+
+        private void Spawn(int index) {
+            _beatPool[index].left.Animate(beatSettings, singleBeatTime);
+            _beatPool[index].right.Animate(beatSettings, singleBeatTime);
         }
     }
 }

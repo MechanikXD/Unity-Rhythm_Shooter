@@ -1,5 +1,4 @@
-﻿using Player;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Core.Music {
     public class Conductor : MonoBehaviour {
@@ -30,16 +29,13 @@ namespace Core.Music {
         private float _lastBeat;
         private int _completedLoops;
 
+        private bool _interactionsDisabled;
+        private int _disabledInteractionsCount;
+
         public SongData SongData => _songData;
         public float SongPosition => _songPosition;
         public int BeatPosition => _songBeatPosition;
         public float LastBeat => _lastBeat;
-
-        private void OnEnable() {
-            PlayerEvents.LeftActionEvent += DetermineHitQuality;
-            PlayerEvents.RightActionEvent += DetermineHitQuality;
-            PlayerEvents.BothActionsEvent += DetermineHitQuality;
-        }
 
         public void Initialize(SongData songData, AudioSource audioSource) {
             _songData = songData;
@@ -52,14 +48,10 @@ namespace Core.Music {
             _songSource.Play();
             _isInitialized = true;
         }
-        
-        private void OnDisable() {
-            PlayerEvents.LeftActionEvent -= DetermineHitQuality;
-            PlayerEvents.RightActionEvent -= DetermineHitQuality;
-            PlayerEvents.BothActionsEvent -= DetermineHitQuality;
-        }
 
-        private void DetermineHitQuality(float songPosition) {
+        public BeatHitType DetermineHitQuality(float songPosition) {
+            if (_interactionsDisabled) return BeatHitType.Disabled;
+            
             var lastBeatTime = _lastBeat;
             var nextBeatTime = _lastBeat + SongData.Crotchet;
 
@@ -67,10 +59,24 @@ namespace Core.Music {
                 Mathf.Abs(songPosition - lastBeatTime),
                 Mathf.Abs(nextBeatTime - songPosition));
             // Late perfect || Early perfect
-            if (relativeToBeat <= perfectHitWindow) ConductorEvents.OnPerfectBeatHit();
+            if (relativeToBeat <= perfectHitWindow) {
+                ConductorEvents.OnPerfectBeatHit();
+                return BeatHitType.Perfect;
+            }
             // Late good  || Early good
-            else if (relativeToBeat <= goodHitWindow) ConductorEvents.OnGoodBeatHit();
-            else ConductorEvents.OnBeatMissed();
+            else if (relativeToBeat <= goodHitWindow) {
+                ConductorEvents.OnGoodBeatHit();
+                return BeatHitType.Good;
+            }
+            else {
+                ConductorEvents.OnBeatMissed();
+                return BeatHitType.Miss;
+            }
+        }
+
+        public void DisableNextInteractions(int count) {
+            _interactionsDisabled = true;
+            _disabledInteractionsCount = count + 1;
         }
 
         private void Update() {
@@ -82,6 +88,11 @@ namespace Core.Music {
             if (_songPosition > _lastBeat + _songData.Crotchet) {
                 ConductorEvents.OnOnNextBeat();
                 _lastBeat += _songData.Crotchet;
+                
+                if (_interactionsDisabled) {
+                    _disabledInteractionsCount--;
+                    if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
+                }
             }
 
             if (_loopBeatPosition >= _songData.BeatsPerLoop)

@@ -1,7 +1,8 @@
 ﻿namespace Core.Music {
-    public enum BeatHits {
+    public enum BeatHitType {
         Perfect,
         Good,
-        Miss
+        Miss,
+        Disabled
     }
 }

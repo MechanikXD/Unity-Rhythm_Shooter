@@ -1,6 +1,8 @@
 using System.Collections;
 using Core.Music;
 using Core.StateMachine.Base;
+using Player.PlayerWeapons;
+using Player.PlayerWeapons.Abstract;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,17 +12,18 @@ namespace Player {
         [SerializeField] private CharacterController controller;
         [SerializeField] private Transform attachedCamera;
         [SerializeField] private PlayerInput playerInput;
-        [SerializeField] private PlayerActionTypes currentActionType;
+        // [SerializeField] private PlayerActionTypes currentActionType;
+        private WeaponBase _currentWeapon = new AnyDirectionTestWeapon();
         private StateMachine _stateMachine;
         [Header("MOVE SOMEWHERE ELSE")]
         [SerializeField] private SongData songData;
         [SerializeField] private AudioSource songSource;
 
-        private bool _leftActionBuffered;
+        /*private bool _leftActionBuffered;
         private bool _rightActionBuffered;
         private float _currentBufferTime;
         private bool _doBufferCounting;
-        [SerializeField] private float maxInputBufferTime = 0.1f;
+        [SerializeField] private float maxInputBufferTime = 0.1f;*/
         
         
         public States States { get; private set; }
@@ -110,14 +113,18 @@ namespace Player {
             MoveKey = playerInput.actions["Move"];
             JumpKey = playerInput.actions["Jump"];
             DashKey = playerInput.actions["Dash"];
-            
+            _currentWeapon.WeaponInit();
+        }
+
+        private void Start() {
             Conductor.Instance.Initialize(songData, songSource);
         }
 
         private void Update() {
             _stateMachine.CurrentState.FrameUpdate();
+            _currentWeapon.WeaponUpdate();
 
-            if (_doBufferCounting) {
+            /*if (_doBufferCounting) {
                 _currentBufferTime += Time.deltaTime;
                 if (_currentBufferTime <= maxInputBufferTime) return;
                 
@@ -131,7 +138,7 @@ namespace Player {
                 _currentBufferTime = 0f;
                 _leftActionBuffered = false;
                 _rightActionBuffered = false;
-            }
+            }*/
         }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
@@ -151,7 +158,8 @@ namespace Player {
         }
 
         public void OnLeftAction() {
-            var currentSongPosition = Conductor.Instance.SongPosition;
+            _currentWeapon.LeftAction();
+            /*var currentSongPosition = Conductor.Instance.SongPosition;
             switch (currentActionType) {
                 case PlayerActionTypes.None or PlayerActionTypes.OnlyRight:
                     return;
@@ -169,11 +177,12 @@ namespace Player {
                     _doBufferCounting = true;
                     _currentBufferTime = 0f;
                     break;
-            }
+            }*/
         }
 
         public void OnRightAction() {
-            var currentSongPosition = Conductor.Instance.SongPosition;
+            _currentWeapon.RightAction();
+            /*var currentSongPosition = Conductor.Instance.SongPosition;
             switch (currentActionType) {
                 case PlayerActionTypes.None or PlayerActionTypes.OnlyLeft:
                     return;
@@ -191,7 +200,7 @@ namespace Player {
                     _doBufferCounting = true;
                     _currentBufferTime = 0f;
                     break;
-            }
+            }*/
         }
 
         #endregion
