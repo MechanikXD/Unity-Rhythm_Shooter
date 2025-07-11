@@ -5,8 +5,8 @@ namespace Core.Music {
         private static Conductor _instance;
         private bool _isInitialized;
         
-        [SerializeField] private float perfectHitWindow = 0.13f;
-        [SerializeField] private float goodHitWindow = 0.18f;
+        [SerializeField] private float perfectHitWindow = 0.12f;
+        [SerializeField] private float goodHitWindow = 0.20f;
 
         public static Conductor Instance {
             get {
@@ -58,20 +58,12 @@ namespace Core.Music {
             var relativeToBeat = Mathf.Min(
                 Mathf.Abs(songPosition - lastBeatTime),
                 Mathf.Abs(nextBeatTime - songPosition));
+            
             // Late perfect || Early perfect
-            if (relativeToBeat <= perfectHitWindow) {
-                ConductorEvents.OnPerfectBeatHit();
-                return BeatHitType.Perfect;
-            }
+            if (relativeToBeat <= perfectHitWindow) return BeatHitType.Perfect;
             // Late good  || Early good
-            else if (relativeToBeat <= goodHitWindow) {
-                ConductorEvents.OnGoodBeatHit();
-                return BeatHitType.Good;
-            }
-            else {
-                ConductorEvents.OnBeatMissed();
-                return BeatHitType.Miss;
-            }
+            else if (relativeToBeat <= goodHitWindow) return BeatHitType.Good;
+            else return BeatHitType.Miss;
         }
 
         public void DisableNextInteractions(int count) {

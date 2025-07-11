@@ -2,7 +2,7 @@ using System.Collections;
 using Core.Music;
 using Core.StateMachine.Base;
 using Player.PlayerWeapons;
-using Player.PlayerWeapons.Abstract;
+using Player.PlayerWeapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -19,12 +19,11 @@ namespace Player {
         [SerializeField] private SongData songData;
         [SerializeField] private AudioSource songSource;
 
-        /*private bool _leftActionBuffered;
+        private bool _leftActionBuffered;
         private bool _rightActionBuffered;
         private float _currentBufferTime;
         private bool _doBufferCounting;
-        [SerializeField] private float maxInputBufferTime = 0.1f;*/
-        
+        [SerializeField] private float maxInputBufferTime = 0.1f;
         
         public States States { get; private set; }
         public CharacterController Controller => controller;
@@ -113,7 +112,6 @@ namespace Player {
             MoveKey = playerInput.actions["Move"];
             JumpKey = playerInput.actions["Jump"];
             DashKey = playerInput.actions["Dash"];
-            _currentWeapon.WeaponInit();
         }
 
         private void Start() {
@@ -124,21 +122,20 @@ namespace Player {
             _stateMachine.CurrentState.FrameUpdate();
             _currentWeapon.WeaponUpdate();
 
-            /*if (_doBufferCounting) {
+            if (_doBufferCounting) {
                 _currentBufferTime += Time.deltaTime;
                 if (_currentBufferTime <= maxInputBufferTime) return;
-                
                 var songPositionWhenHit = Conductor.Instance.SongPosition - _currentBufferTime;
-                if (currentActionType == PlayerActionTypes.Any && _leftActionBuffered)
-                    PlayerEvents.OnLeftAction(songPositionWhenHit);
-                if (currentActionType == PlayerActionTypes.Any && _rightActionBuffered)
-                    PlayerEvents.OnRightAction(songPositionWhenHit);
+                // ReSharper disable Unity.PerformanceCriticalCodeInvocation
+                if (_leftActionBuffered) PlayerActionEvents.OnPlayerLeftAction(songPositionWhenHit, _currentWeapon);
+                if (_rightActionBuffered) PlayerActionEvents.OnPlayerRightAction(songPositionWhenHit, _currentWeapon);
+                // ReSharper restore Unity.PerformanceCriticalCodeInvocation
                 
                 _doBufferCounting = false;
                 _currentBufferTime = 0f;
                 _leftActionBuffered = false;
                 _rightActionBuffered = false;
-            }*/
+            }
         }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
@@ -158,49 +155,33 @@ namespace Player {
         }
 
         public void OnLeftAction() {
-            _currentWeapon.LeftAction();
-            /*var currentSongPosition = Conductor.Instance.SongPosition;
-            switch (currentActionType) {
-                case PlayerActionTypes.None or PlayerActionTypes.OnlyRight:
-                    return;
-                case PlayerActionTypes.Directional or PlayerActionTypes.OnlyLeft:
-                    PlayerEvents.OnLeftAction(currentSongPosition);
-                    break;
-                case PlayerActionTypes.Both or PlayerActionTypes.Any when _rightActionBuffered:
-                    PlayerEvents.OnBothActions(currentSongPosition);
-                    _rightActionBuffered = false;
-                    _doBufferCounting = false;
-                    _currentBufferTime = 0f;
-                    break;
-                case PlayerActionTypes.Both or PlayerActionTypes.Any:
-                    _leftActionBuffered = true;
-                    _doBufferCounting = true;
-                    _currentBufferTime = 0f;
-                    break;
-            }*/
+            if (_rightActionBuffered) {
+                var currentSongPosition = Conductor.Instance.SongPosition;
+                PlayerActionEvents.OnPlayerBothAction(currentSongPosition, _currentWeapon);
+                _rightActionBuffered = false;
+                _doBufferCounting = false;
+                _currentBufferTime = 0f;
+            }
+            else {
+                _leftActionBuffered = true;
+                _doBufferCounting = true;
+                _currentBufferTime = 0f;
+            }
         }
 
         public void OnRightAction() {
-            _currentWeapon.RightAction();
-            /*var currentSongPosition = Conductor.Instance.SongPosition;
-            switch (currentActionType) {
-                case PlayerActionTypes.None or PlayerActionTypes.OnlyLeft:
-                    return;
-                case PlayerActionTypes.Directional or PlayerActionTypes.OnlyRight:
-                    PlayerEvents.OnRightAction(currentSongPosition);
-                    break;
-                case PlayerActionTypes.Both or PlayerActionTypes.Any when _leftActionBuffered:
-                    PlayerEvents.OnBothActions(currentSongPosition);
-                    _leftActionBuffered = false;
-                    _doBufferCounting = false;
-                    _currentBufferTime = 0f;
-                    break;
-                case PlayerActionTypes.Both or PlayerActionTypes.Any:
-                    _rightActionBuffered = true;
-                    _doBufferCounting = true;
-                    _currentBufferTime = 0f;
-                    break;
-            }*/
+            if (_leftActionBuffered) {
+                var currentSongPosition = Conductor.Instance.SongPosition;
+                PlayerActionEvents.OnPlayerBothAction(currentSongPosition, _currentWeapon);
+                _leftActionBuffered = false;
+                _doBufferCounting = false;
+                _currentBufferTime = 0f;
+            }
+            else {
+                _rightActionBuffered = true;
+                _doBufferCounting = true;
+                _currentBufferTime = 0f;
+            }
         }
 
         #endregion
