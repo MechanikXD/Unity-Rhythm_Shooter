@@ -9,6 +9,7 @@ namespace Player {
             var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
             
             if (beatType == BeatHitType.Disabled) return;
+            Conductor.Instance.SetInteractedThisBeat();
 
             switch (beatType) {
                 case BeatHitType.Perfect:
@@ -34,6 +35,7 @@ namespace Player {
             var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
             
             if (beatType == BeatHitType.Disabled) return;
+            Conductor.Instance.SetInteractedThisBeat();
 
             switch (beatType) {
                 case BeatHitType.Perfect:
@@ -59,6 +61,7 @@ namespace Player {
             var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
             
             if (beatType == BeatHitType.Disabled) return;
+            Conductor.Instance.SetInteractedThisBeat();
 
             switch (beatType) {
                 case BeatHitType.Perfect:

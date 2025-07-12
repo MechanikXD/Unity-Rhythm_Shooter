@@ -4,6 +4,7 @@ namespace Core.Music {
     public class Conductor : MonoBehaviour {
         private static Conductor _instance;
         private bool _isInitialized;
+        private bool _interactedThisBeat;
         
         [SerializeField] private float perfectHitWindow = 0.12f;
         [SerializeField] private float goodHitWindow = 0.20f;
@@ -45,12 +46,17 @@ namespace Core.Music {
             _songSource.clip = songData.Audio;
             songData.Crotchet = 60f / songData.Bpm;
             _dspSongTime = (float)AudioSettings.dspTime;
+            ConductorEvents.NextBeatEvent += SetNotInteractedThisBeat;
             _songSource.Play();
             _isInitialized = true;
         }
 
+        private void SetNotInteractedThisBeat() => _interactedThisBeat = false;
+        public void SetInteractedThisBeat() => _interactedThisBeat = true;
+        
         public BeatHitType DetermineHitQuality(float songPosition) {
             if (_interactionsDisabled) return BeatHitType.Disabled;
+            if (_interactedThisBeat) return BeatHitType.Miss;
             
             var lastBeatTime = _lastBeat;
             var nextBeatTime = _lastBeat + SongData.Crotchet;

@@ -9,14 +9,12 @@ using UnityEngine.UI;
 
 namespace UI.Managers {
     public class CrosshairBeat : MonoBehaviour {
-        // TODO: Fix incorrect beat spawning/speed
         [SerializeField] private Image beatPrefab;
-        [SerializeField] private int maxBeatsPerSide = 5;
         private (Beat left, Beat right)[] _beatPool;
         private int _beatPoolIndex;
         private Action _unsubscribeFromEventsAction;
         
-        [SerializeField] private BeatSettings beatSettings;
+        [SerializeField] private BeatSettings defaultBeatSettings;
 
         [SerializeField] private Image leftGradientImage;
         [SerializeField] private Image rightGradientImage;
@@ -26,8 +24,10 @@ namespace UI.Managers {
 
         [SerializeField] private RectTransform leftBeatArea;
         [SerializeField] private RectTransform rightBeatArea;
-        
-        [SerializeField] private float singleBeatTime = 1.1f;
+
+        [SerializeField] private int beatsPerSide = 2;
+        private float _singleBeatTime;
+        private int _maxBeatsPerSide;
 
         [SerializeField] private TextMeshProUGUI perfectText;
         [SerializeField] private TextMeshProUGUI goodText;
@@ -36,12 +36,16 @@ namespace UI.Managers {
 
         private readonly Color _transparentWhite = new Color(255, 255, 255, 0);
         private readonly Color _transparentBlack = new Color(0, 0, 0, 0);
+        private readonly Color _missColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
         private void OnEnable() => SubscribeToEvents();
 
         private void Start() {
-            _beatPool = new (Beat left, Beat right)[maxBeatsPerSide];
-            for (var i = 0; i < maxBeatsPerSide; i++) {
+            _singleBeatTime = Conductor.Instance.SongData.Crotchet * beatsPerSide;
+            _maxBeatsPerSide = beatsPerSide + 1;
+            
+            _beatPool = new (Beat left, Beat right)[_maxBeatsPerSide];
+            for (var i = 0; i < _maxBeatsPerSide; i++) {
                 _beatPool[i] = InstantiateNewBeats();
             }
         }
@@ -73,9 +77,11 @@ namespace UI.Managers {
             void ShowPerfectPopUp() => ShowPopUp(perfectText);
             void ShowGoodPopUp() => ShowPopUp(goodText);
             void ShowMissPopUp() => ShowPopUp(missText);
+            void DimMissedBeats() => ModifyBeat(0, image => image.color = _missColor, 2);
             PlayerActionEvents.PerfectPerformed += ShowPerfectPopUp;
             PlayerActionEvents.GoodPerformed += ShowGoodPopUp;
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
+            PlayerActionEvents.MissPerformed += DimMissedBeats;
 
             _unsubscribeFromEventsAction = () => {
                 PlayerActionEvents.LeftPerfectPerformed -= LeftPerfect;
@@ -93,6 +99,7 @@ namespace UI.Managers {
                 PlayerActionEvents.PerfectPerformed -= ShowPerfectPopUp;
                 PlayerActionEvents.GoodPerformed -= ShowGoodPopUp;
                 PlayerActionEvents.MissPerformed -= ShowMissPopUp;
+                PlayerActionEvents.MissPerformed -= DimMissedBeats;
             };
             
             // This will skip first beat
@@ -106,14 +113,34 @@ namespace UI.Managers {
             ConductorEvents.NextBeatEvent -= SpawnBeatFromPool;
         }
 
+        private void ModifyBeat(int beatIndexInInteractionOrder, Action<Image> modifier, int count=1) {
+            // Get correct index from pool (current one - number of beats per area)
+            if (count + beatIndexInInteractionOrder > _maxBeatsPerSide)
+                throw new IndexOutOfRangeException(
+                    $"Index of beat to modify is out of range: can be max of {_maxBeatsPerSide}, given: {count + beatIndexInInteractionOrder}");
+            var index = _beatPoolIndex - count - beatIndexInInteractionOrder;
+            if (index < 0) index = _maxBeatsPerSide + index;
+
+            // apply modification
+            while (count > 0) {
+                modifier(_beatPool[index].left.AttachedImage);
+                modifier(_beatPool[index].right.AttachedImage);
+
+                index++;
+                if (index >= _maxBeatsPerSide) index = 0;
+
+                count--;
+            }
+        }
+
         private (Beat leftBeat, Beat rightBeat) InstantiateNewBeats() {
             var left = new Beat();
             left.InstantiateSelf(beatPrefab, leftBeatArea, false);
-            left.SetDefaultState(beatSettings);
+            left.SetDefaultState(defaultBeatSettings);
 
             var right = new Beat();
             right.InstantiateSelf(beatPrefab, rightBeatArea, true);
-            right.SetDefaultState(beatSettings);
+            right.SetDefaultState(defaultBeatSettings);
 
             return (left, right);
         }
@@ -158,8 +185,8 @@ namespace UI.Managers {
         }
 
         private void Spawn(int index) {
-            _beatPool[index].left.Animate(beatSettings, singleBeatTime);
-            _beatPool[index].right.Animate(beatSettings, singleBeatTime);
+            _beatPool[index].left.Animate(defaultBeatSettings, _singleBeatTime);
+            _beatPool[index].right.Animate(defaultBeatSettings, _singleBeatTime);
         }
     }
 }

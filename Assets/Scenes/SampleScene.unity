@@ -9508,14 +9508,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   beatPrefab: {fileID: 5549502696251863017, guid: 855ac30c59d34f04583b3d49e08ff352, type: 3}
-  maxBeatsPerSide: 5
-  beatSettings: {fileID: 11400000, guid: 1bafdecf0ba66e84eb97cd0d5eaee70e, type: 2}
+  defaultBeatSettings: {fileID: 11400000, guid: 1bafdecf0ba66e84eb97cd0d5eaee70e, type: 2}
   leftGradientImage: {fileID: 689603715}
   rightGradientImage: {fileID: 676581433}
   fadeInOutTime: {x: 0.05, y: 0.5}
   leftBeatArea: {fileID: 828702790}
   rightBeatArea: {fileID: 521989024}
-  singleBeatTime: 1
+  beatsPerSide: 2
   perfectText: {fileID: 192934047}
   goodText: {fileID: 1522629343}
   missText: {fileID: 290807329}

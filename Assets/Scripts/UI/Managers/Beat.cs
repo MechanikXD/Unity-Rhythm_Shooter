@@ -9,6 +9,8 @@ namespace UI.Managers {
         private Transform _transform;
         private bool _isMirrored;
 
+        public Image AttachedImage => _image;
+
         public void InstantiateSelf(Image beatPrefab, RectTransform parent, bool isMirrored) {
             var gameObj = Object.Instantiate(beatPrefab, parent, false);
             _image = gameObj;
