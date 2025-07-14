@@ -2,18 +2,18 @@
 
 namespace Player {
     public static class PlayerEvents {
-        public static event Action PlayerBecomeGroundedEvent;
-        public static event Action PlayerJumpedEvent;
-        public static event Action PlayerDashedEvent;
-        public static event Action PlayerExitedDashEvent;
-        public static event Action PlayerStartWalkingEvent;
-        public static event Action PlayerStoppedWalkingEvent;
+        public static event Action BecomeGrounded;
+        public static event Action Jumped;
+        public static event Action Dashed;
+        public static event Action ExitedDash;
+        public static event Action StartWalking;
+        public static event Action StoppedWalking;
 
-        public static void OnPlayerBecomeGrounded() => PlayerBecomeGroundedEvent?.Invoke();
-        public static void OnPlayerStoppedWalkingEvent() => PlayerStoppedWalkingEvent?.Invoke();
-        public static void OnPlayerStartWalkingEvent() => PlayerStartWalkingEvent?.Invoke();
-        public static void OnPlayerExitedDashEvent() => PlayerExitedDashEvent?.Invoke();
-        public static void OnPlayerJumpedEvent() => PlayerJumpedEvent?.Invoke();
-        public static void OnPlayerDashedEvent() => PlayerDashedEvent?.Invoke();
+        public static void OnBecomeGrounded() => BecomeGrounded?.Invoke();
+        public static void OnStoppedWalkingEvent() => StoppedWalking?.Invoke();
+        public static void OnStartWalkingEvent() => StartWalking?.Invoke();
+        public static void OnExitedDashEvent() => ExitedDash?.Invoke();
+        public static void OnJumpedEvent() => Jumped?.Invoke();
+        public static void OnDashedEvent() => Dashed?.Invoke();
     }
 }

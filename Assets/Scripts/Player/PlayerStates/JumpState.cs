@@ -19,7 +19,7 @@ namespace Player.PlayerStates {
         }
 
         public override void EnterState() {
-            PlayerEvents.OnPlayerJumpedEvent();
+            PlayerEvents.OnJumpedEvent();
             _currentJumpDuration = 0f;
         }
 

@@ -11,7 +11,7 @@ namespace Player.PlayerStates {
             _moveSpeed = Player.MoveSpeed;
         }
 
-        public override void EnterState() => PlayerEvents.OnPlayerStartWalkingEvent();
+        public override void EnterState() => PlayerEvents.OnStartWalkingEvent();
 
         public override void FrameUpdate() {
             if (!Player.IsGrounded) AttachedStateMachine.ChangeState(Player.States.AirborneState);
@@ -27,6 +27,6 @@ namespace Player.PlayerStates {
             Player.Controller.Move(moveVector * Time.deltaTime);
         }
 
-        public override void ExitState() => PlayerEvents.OnPlayerStoppedWalkingEvent();
+        public override void ExitState() => PlayerEvents.OnStoppedWalkingEvent();
     }
 }

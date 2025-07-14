@@ -1,5 +1,8 @@
 using System.Collections;
+using Core.Music;
 using Core.StateMachine.Base;
+using Player.PlayerWeapons;
+using Player.PlayerWeapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,8 +12,19 @@ namespace Player {
         [SerializeField] private CharacterController controller;
         [SerializeField] private Transform attachedCamera;
         [SerializeField] private PlayerInput playerInput;
+        // [SerializeField] private PlayerActionTypes currentActionType;
+        private WeaponBase _currentWeapon = new AnyDirectionTestWeapon();
         private StateMachine _stateMachine;
+        [Header("MOVE SOMEWHERE ELSE")]
+        [SerializeField] private SongData songData;
+        [SerializeField] private AudioSource songSource;
 
+        private bool _leftActionBuffered;
+        private bool _rightActionBuffered;
+        private float _currentBufferTime;
+        private bool _doBufferCounting;
+        [SerializeField] private float maxInputBufferTime = 0.1f;
+        
         public States States { get; private set; }
         public CharacterController Controller => controller;
         
@@ -33,7 +47,6 @@ namespace Player {
         
         public float MoveSpeed => moveSpeed;
         
-        // TODO: Add minimum jump duration
         [Header("Jump Settings")]
         [SerializeField] private float coyoteTime = 0.2f;
         [SerializeField] private float verticalJumpSpeed = 5f;
@@ -101,7 +114,29 @@ namespace Player {
             DashKey = playerInput.actions["Dash"];
         }
 
-        private void Update() => _stateMachine.CurrentState.FrameUpdate();
+        private void Start() {
+            Conductor.Instance.Initialize(songData, songSource);
+        }
+
+        private void Update() {
+            _stateMachine.CurrentState.FrameUpdate();
+            _currentWeapon.WeaponUpdate();
+
+            if (_doBufferCounting) {
+                _currentBufferTime += Time.deltaTime;
+                if (_currentBufferTime <= maxInputBufferTime) return;
+                var songPositionWhenHit = Conductor.Instance.SongPosition - _currentBufferTime;
+                // ReSharper disable Unity.PerformanceCriticalCodeInvocation
+                if (_leftActionBuffered) PlayerActionEvents.OnPlayerLeftAction(songPositionWhenHit, _currentWeapon);
+                if (_rightActionBuffered) PlayerActionEvents.OnPlayerRightAction(songPositionWhenHit, _currentWeapon);
+                // ReSharper restore Unity.PerformanceCriticalCodeInvocation
+                
+                _doBufferCounting = false;
+                _currentBufferTime = 0f;
+                _leftActionBuffered = false;
+                _rightActionBuffered = false;
+            }
+        }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
@@ -117,6 +152,36 @@ namespace Player {
             _cameraRotation -= look.y;
             _cameraRotation = Mathf.Clamp(_cameraRotation, cameraPitchBounds.x, cameraPitchBounds.y);
             attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
+        }
+
+        public void OnLeftAction() {
+            if (_rightActionBuffered) {
+                var currentSongPosition = Conductor.Instance.SongPosition;
+                PlayerActionEvents.OnPlayerBothAction(currentSongPosition, _currentWeapon);
+                _rightActionBuffered = false;
+                _doBufferCounting = false;
+                _currentBufferTime = 0f;
+            }
+            else {
+                _leftActionBuffered = true;
+                _doBufferCounting = true;
+                _currentBufferTime = 0f;
+            }
+        }
+
+        public void OnRightAction() {
+            if (_leftActionBuffered) {
+                var currentSongPosition = Conductor.Instance.SongPosition;
+                PlayerActionEvents.OnPlayerBothAction(currentSongPosition, _currentWeapon);
+                _leftActionBuffered = false;
+                _doBufferCounting = false;
+                _currentBufferTime = 0f;
+            }
+            else {
+                _rightActionBuffered = true;
+                _doBufferCounting = true;
+                _currentBufferTime = 0f;
+            }
         }
 
         #endregion

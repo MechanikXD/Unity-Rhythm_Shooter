@@ -20,7 +20,7 @@ namespace Player.PlayerStates {
 
             if (Player.IsGrounded) {
                 AttachedStateMachine.ChangeState(Player.States.IdleState);
-                PlayerEvents.OnPlayerBecomeGrounded();
+                PlayerEvents.OnBecomeGrounded();
                 Player.CurrentAirborneTime = 0f;
             }
             
