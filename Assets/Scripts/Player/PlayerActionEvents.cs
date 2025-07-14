@@ -82,6 +82,24 @@ namespace Player {
             }
         }
 
+        public static void OnPlayerDashed(BeatHitType hitType) {
+            switch (hitType) {
+                case BeatHitType.Perfect:
+                    OnPerfectPerformed();
+                    break;
+                case BeatHitType.Good:
+                    OnGoodPerformed();
+                    break;
+                case BeatHitType.Miss:
+                    OnMissPerformed();
+                    break;
+                case BeatHitType.Disabled:
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(hitType), hitType,
+                        "OnPlayerDashed was called when actions were disabled");
+            }
+        }
+
         #region Attemped Actions
 
         public static event Action<float> LeftAttempted;

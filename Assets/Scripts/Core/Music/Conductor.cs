@@ -13,9 +13,11 @@ namespace Core.Music {
             get {
                 if (_instance != null) return _instance;
 
+                // ReSharper disable Unity.PerformanceCriticalCodeInvocation
                 var newObject = new GameObject(nameof(Conductor));
                 _instance = newObject.AddComponent<Conductor>();
                 return _instance;
+                // ReSharper restore Unity.PerformanceCriticalCodeInvocation
             }
         }
         
@@ -45,7 +47,6 @@ namespace Core.Music {
             
             _lastBeat = 0f;
             _songSource.clip = songData.Audio;
-            songData.Crotchet = 60f / songData.Bpm;
             _dspSongTime = (float)AudioSettings.dspTime;
             ConductorEvents.NextBeatEvent += SetNotInteractedThisBeat;
             _songSource.Play();
@@ -69,8 +70,9 @@ namespace Core.Music {
             // Late perfect || Early perfect
             if (relativeToBeat <= perfectHitWindow) return BeatHitType.Perfect;
             // Late good  || Early good
-            else if (relativeToBeat <= goodHitWindow) return BeatHitType.Good;
-            else return BeatHitType.Miss;
+            if (relativeToBeat <= goodHitWindow) return BeatHitType.Good;
+                
+            return BeatHitType.Miss;
         }
 
         public void DisableNextInteractions(int count) {
@@ -90,7 +92,7 @@ namespace Core.Music {
                 _lastBeat += _songData.Crotchet;
             }
             // Half beat passed
-            if (_songPosition > _lastHalfBeat + _songData.HalfCrochet && _interactionsDisabled) {
+            if (_songPosition > _lastHalfBeat + _songData.HalfCrotchet && _interactionsDisabled) {
                 _lastHalfBeat = _songPosition;
                 _disabledInteractionsCount--;
                 if (_disabledInteractionsCount == 0) _interactionsDisabled = false;

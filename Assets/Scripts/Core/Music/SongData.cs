@@ -8,16 +8,25 @@ namespace Core.Music {
         [SerializeField] private float songBpm;
         [SerializeField] private float startOffset;
         private float _crotchet;
-        private float _halfCrochet;
+        private float _halfCrotchet;
 
         private int _beatsPerLoop;
 
-        public float HalfCrochet {
+        public float HalfCrotchet {
             get {
-                if (_halfCrochet != 0) return _halfCrochet;
+                if (_halfCrotchet != 0) return _halfCrotchet;
 
-                _halfCrochet = _crotchet / 2;
-                return _halfCrochet;
+                _halfCrotchet = _crotchet / 2;
+                return _halfCrotchet;
+            }
+        }
+
+        public float Crotchet {
+            get {
+                if (_crotchet != 0) return _crotchet;
+
+                _crotchet = 60f / songBpm;
+                return _crotchet;
             }
         }
 
@@ -32,10 +41,6 @@ namespace Core.Music {
         
         public AudioClip Audio => song;
         public float Bpm => songBpm;
-        public float Crotchet {
-            get => _crotchet;
-            internal set => _crotchet = value;
-        }
         public float Offset => startOffset;
     }
 }
