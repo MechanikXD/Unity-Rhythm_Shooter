@@ -2,6 +2,7 @@
 using UnityEngine;
 
 namespace Core.Music {
+    // TODO: Make this Scriptable object?
     [Serializable]
     public class SongData {
         [SerializeField] private AudioClip song;

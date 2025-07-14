@@ -78,7 +78,7 @@ namespace UI.Managers {
             void ShowPerfectPopUp() => ShowPopUp(perfectText);
             void ShowGoodPopUp() => ShowPopUp(goodText);
             void ShowMissPopUp() => ShowPopUp(missText);
-            void DimMissedBeats() => ModifyBeat(0, beat => beat.SetSettings(missBeatSettings), 2);
+            void DimMissedBeats() => ModifyBeat(0, beat => beat.SetNewSettings(missBeatSettings), 2);
             PlayerActionEvents.PerfectPerformed += ShowPerfectPopUp;
             PlayerActionEvents.GoodPerformed += ShowGoodPopUp;
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
@@ -104,17 +104,22 @@ namespace UI.Managers {
             };
             
             // This will skip first beat
-            ConductorEvents.NextBeatEvent += SpawnBeatFromPool;
+            Conductor.NextBeatEvent += StartNewBeats;
         }
-        
         private void UnsubscribeFromEvents() {
             _unsubscribeFromEventsAction?.Invoke();
             _unsubscribeFromEventsAction = null;    // Clean up
 
-            ConductorEvents.NextBeatEvent -= SpawnBeatFromPool;
+            Conductor.NextBeatEvent -= StartNewBeats;
         }
-
+        /// <summary>
+        /// Modifies beat playing on screen
+        /// </summary>
+        /// <param name="beatIndexInInteractionOrder"> index of beat to start from in order from closest to crosshair </param>
+        /// <param name="modifier"> Function to modify beats </param>
+        /// <param name="count"> amount of beats to be modified </param>
         private void ModifyBeat(int beatIndexInInteractionOrder, Action<Beat> modifier, int count=1) {
+            // TODO: Make recursive version of this for higth counts. Or move it into Conductor as event.
             // Get correct index from pool (current one - number of beats per area)
             if (count + beatIndexInInteractionOrder > _maxBeatsPerSide)
                 throw new IndexOutOfRangeException(
@@ -133,7 +138,7 @@ namespace UI.Managers {
                 count--;
             }
         }
-
+        // Instantiates new beats on the scene and sets them to starting position
         private (Beat leftBeat, Beat rightBeat) InstantiateNewBeats() {
             var left = new Beat();
             left.InstantiateSelf(beatPrefab, leftBeatArea, false);
@@ -145,7 +150,7 @@ namespace UI.Managers {
 
             return (left, right);
         }
-
+        // Shows left gradient of crosshair
         private void ShowLeftGradient(float strength) {
             if (_leftGradientAnimation is { active: true }) {
                 _leftGradientAnimation.Complete();
@@ -157,7 +162,7 @@ namespace UI.Managers {
             _leftGradientAnimation.Append(leftGradientImage.DOColor(_transparentWhite, fadeInOutTime.y));
             _leftGradientAnimation.Play();
         }
-
+        // Shows right gradient of crosshair
         private void ShowRightGradient(float strength) {
             if (_rightGradientAnimation is { active: true }) {
                 _rightGradientAnimation.Complete();
@@ -169,7 +174,7 @@ namespace UI.Managers {
             _rightGradientAnimation.Append(rightGradientImage.DOColor(_transparentWhite, fadeInOutTime.y));
             _rightGradientAnimation.Play();
         }
-
+        // Shows pop-up under crosshair of action "Quality" 
         private void ShowPopUp(TextMeshProUGUI textField) {
             _currentPopUp?.Complete();
             _currentPopUp = DOTween.Sequence();
@@ -177,17 +182,15 @@ namespace UI.Managers {
             _currentPopUp.Append(textField.DOColor(_transparentBlack, fadeInOutTime.y));
             _currentPopUp.Play();
         }
-
-        private void SpawnBeatFromPool() {
-            Spawn(_beatPoolIndex);
-
+        // Starts new instances of beats
+        private void StartNewBeats() {
+            _beatPool[_beatPoolIndex].left
+                .Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
+            _beatPool[_beatPoolIndex].right
+                .Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
+            // Advance Index
             _beatPoolIndex++;
             if (_beatPoolIndex >= _beatPool.Length) _beatPoolIndex = 0;
-        }
-
-        private void Spawn(int index) {
-            _beatPool[index].left.Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
-            _beatPool[index].right.Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
         }
     }
 }

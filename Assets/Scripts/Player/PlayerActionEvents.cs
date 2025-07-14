@@ -3,6 +3,9 @@ using Core.Music;
 using Player.PlayerWeapons.Base;
 
 namespace Player {
+    /// <summary>
+    /// Static class to manage player events related to music interactions.
+    /// </summary>
     public static class PlayerActionEvents {
         public static void OnPlayerLeftAction(float songPosition, WeaponBase currentWeapon) {
             OnLeftAttempted(songPosition);
@@ -81,7 +84,10 @@ namespace Player {
                     break;
             }
         }
-
+        /// <summary>
+        /// Exists only to call ...Performed method from this class.
+        /// Please retain from using it anywhere else except DashState class.
+        /// </summary>
         public static void OnPlayerDashed(BeatHitType hitType) {
             switch (hitType) {
                 case BeatHitType.Perfect:
