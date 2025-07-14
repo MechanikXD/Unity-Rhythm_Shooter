@@ -119,23 +119,36 @@ namespace UI.Managers {
         /// <param name="modifier"> Function to modify beats </param>
         /// <param name="count"> amount of beats to be modified </param>
         private void ModifyBeat(int beatIndexInInteractionOrder, Action<Beat> modifier, int count=1) {
-            // TODO: Make recursive version of this for higth counts. Or move it into Conductor as event.
             // Get correct index from pool (current one - number of beats per area)
-            if (count + beatIndexInInteractionOrder > _maxBeatsPerSide)
-                throw new IndexOutOfRangeException(
-                    $"Index of beat to modify is out of range: can be max of {_maxBeatsPerSide}, given: {count + beatIndexInInteractionOrder}");
             var index = _beatPoolIndex - count - beatIndexInInteractionOrder;
             if (index < 0) index = _maxBeatsPerSide + index;
+            
+            // If too many modifications -> append to be called repeatedly from conductor.
+            if (count > _maxBeatsPerSide) {
+                foreach (var beats in _beatPool) {
+                    modifier(beats.left);
+                    modifier(beats.right);
+                }
+                
+                Conductor.CallOnNextBeats(() => {
+                    modifier(_beatPool[index].left);
+                    modifier(_beatPool[index].right);
 
-            // apply modification
-            while (count > 0) {
-                modifier(_beatPool[index].left);
-                modifier(_beatPool[index].right);
+                    index++;
+                    if (index >= _maxBeatsPerSide) index = 0;
+                }, count - _maxBeatsPerSide);
+            }
+            // Otherwise, just modify existing ones
+            else {
+                while (count > 0) {
+                    modifier(_beatPool[index].left);
+                    modifier(_beatPool[index].right);
 
-                index++;
-                if (index >= _maxBeatsPerSide) index = 0;
+                    index++;
+                    if (index >= _maxBeatsPerSide) index = 0;
 
-                count--;
+                    count--;
+                }
             }
         }
         // Instantiates new beats on the scene and sets them to starting position

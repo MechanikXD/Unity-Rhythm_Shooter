@@ -12,7 +12,7 @@ namespace Core.Music {
         private bool _interactedThisBeat;
         
         [SerializeField] private float perfectHitWindow = 0.11f;
-        [SerializeField] private float goodHitWindow = 0.2f;
+        [SerializeField] private float goodHitWindow = 0.17f;
         
         public static event Action NextBeatEvent;
         public static Conductor Instance {
@@ -102,6 +102,19 @@ namespace Core.Music {
             _interactionsDisabled = true;
             // Including current beat, because counting on half crochet need to be *2
             _disabledInteractionsCount = count * 2;
+        }
+        /// <summary>
+        /// Calls given function repeatedly each beat for given amount on times.
+        /// </summary>
+        /// <param name="function"> Function that will be called each beat </param>
+        /// <param name="callCount"> Amount of calls </param>
+        public static void CallOnNextBeats(Action function, int callCount) {
+            void RecursiveFunctionCall() {
+                function();
+                callCount--;
+                if (callCount == 0) NextBeatEvent -= RecursiveFunctionCall;
+            }
+            NextBeatEvent += RecursiveFunctionCall;
         }
 
         private void Update() {

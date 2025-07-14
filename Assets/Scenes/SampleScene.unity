@@ -8289,10 +8289,7 @@ MonoBehaviour:
   controller: {fileID: 1651369401}
   attachedCamera: {fileID: 330585546}
   playerInput: {fileID: 1651369400}
-  songData:
-    song: {fileID: 8300000, guid: f590dbcd2a239bb4bab63465cbf39b63, type: 3}
-    songBpm: 90
-    startOffset: 0
+  songData: {fileID: 11400000, guid: 836e3ddf22d1d6f4abe0c714e85af6ea, type: 2}
   songSource: {fileID: 1189447630}
   maxInputBufferTime: 0.1
   mouseSensitivity: 50

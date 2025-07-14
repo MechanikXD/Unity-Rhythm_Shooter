@@ -1,10 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Core.Music {
-    // TODO: Make this Scriptable object?
-    [Serializable]
-    public class SongData {
+    [CreateAssetMenu(fileName = "SongData", menuName = "Scriptable Objects/SongData")]
+    public class SongData : ScriptableObject {
         [SerializeField] private AudioClip song;
         [SerializeField] private float songBpm;
         [SerializeField] private float startOffset;
