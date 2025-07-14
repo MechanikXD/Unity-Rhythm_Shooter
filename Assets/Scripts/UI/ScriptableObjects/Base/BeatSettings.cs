@@ -11,6 +11,8 @@ namespace UI.ScriptableObjects.Base {
         [SerializeField] private Vector2 startEndPosition = new Vector2(-150f, 150f);
         [SerializeField] private Color beatColor = Color.white;
 
+        public Color MainColor => beatColor;
+
         public void MoveToDefaultState(Transform attachedTransform,
             Image attachedImage, bool mirrorAnimation) {
             attachedImage.color = new Color(beatColor.r, beatColor.g, beatColor.b, 0); // Transparent

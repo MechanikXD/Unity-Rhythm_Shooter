@@ -8,8 +8,18 @@ namespace Core.Music {
         [SerializeField] private float songBpm;
         [SerializeField] private float startOffset;
         private float _crotchet;
+        private float _halfCrochet;
 
         private int _beatsPerLoop;
+
+        public float HalfCrochet {
+            get {
+                if (_halfCrochet != 0) return _halfCrochet;
+
+                _halfCrochet = _crotchet / 2;
+                return _halfCrochet;
+            }
+        }
 
         public int BeatsPerLoop {
             get {

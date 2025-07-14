@@ -15,6 +15,7 @@ namespace UI.Managers {
         private Action _unsubscribeFromEventsAction;
         
         [SerializeField] private BeatSettings defaultBeatSettings;
+        [SerializeField] private BeatSettings missBeatSettings;
 
         [SerializeField] private Image leftGradientImage;
         [SerializeField] private Image rightGradientImage;
@@ -26,6 +27,7 @@ namespace UI.Managers {
         [SerializeField] private RectTransform rightBeatArea;
 
         [SerializeField] private int beatsPerSide = 2;
+        [SerializeField] private float beatOffset = -0.02f;
         private float _singleBeatTime;
         private int _maxBeatsPerSide;
 
@@ -36,7 +38,6 @@ namespace UI.Managers {
 
         private readonly Color _transparentWhite = new Color(255, 255, 255, 0);
         private readonly Color _transparentBlack = new Color(0, 0, 0, 0);
-        private readonly Color _missColor = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
         private void OnEnable() => SubscribeToEvents();
 
@@ -77,7 +78,7 @@ namespace UI.Managers {
             void ShowPerfectPopUp() => ShowPopUp(perfectText);
             void ShowGoodPopUp() => ShowPopUp(goodText);
             void ShowMissPopUp() => ShowPopUp(missText);
-            void DimMissedBeats() => ModifyBeat(0, image => image.color = _missColor, 2);
+            void DimMissedBeats() => ModifyBeat(0, beat => beat.SetSettings(missBeatSettings), 2);
             PlayerActionEvents.PerfectPerformed += ShowPerfectPopUp;
             PlayerActionEvents.GoodPerformed += ShowGoodPopUp;
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
@@ -113,7 +114,7 @@ namespace UI.Managers {
             ConductorEvents.NextBeatEvent -= SpawnBeatFromPool;
         }
 
-        private void ModifyBeat(int beatIndexInInteractionOrder, Action<Image> modifier, int count=1) {
+        private void ModifyBeat(int beatIndexInInteractionOrder, Action<Beat> modifier, int count=1) {
             // Get correct index from pool (current one - number of beats per area)
             if (count + beatIndexInInteractionOrder > _maxBeatsPerSide)
                 throw new IndexOutOfRangeException(
@@ -123,8 +124,8 @@ namespace UI.Managers {
 
             // apply modification
             while (count > 0) {
-                modifier(_beatPool[index].left.AttachedImage);
-                modifier(_beatPool[index].right.AttachedImage);
+                modifier(_beatPool[index].left);
+                modifier(_beatPool[index].right);
 
                 index++;
                 if (index >= _maxBeatsPerSide) index = 0;
@@ -185,8 +186,8 @@ namespace UI.Managers {
         }
 
         private void Spawn(int index) {
-            _beatPool[index].left.Animate(defaultBeatSettings, _singleBeatTime);
-            _beatPool[index].right.Animate(defaultBeatSettings, _singleBeatTime);
+            _beatPool[index].left.Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
+            _beatPool[index].right.Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
         }
     }
 }

@@ -6,8 +6,8 @@ namespace Core.Music {
         private bool _isInitialized;
         private bool _interactedThisBeat;
         
-        [SerializeField] private float perfectHitWindow = 0.12f;
-        [SerializeField] private float goodHitWindow = 0.20f;
+        [SerializeField] private float perfectHitWindow = 0.11f;
+        [SerializeField] private float goodHitWindow = 0.2f;
 
         public static Conductor Instance {
             get {
@@ -29,6 +29,7 @@ namespace Core.Music {
         private float _dspSongTime;
         private float _lastBeat;
         private int _completedLoops;
+        private float _lastHalfBeat;
 
         private bool _interactionsDisabled;
         private int _disabledInteractionsCount;
@@ -74,7 +75,8 @@ namespace Core.Music {
 
         public void DisableNextInteractions(int count) {
             _interactionsDisabled = true;
-            _disabledInteractionsCount = count + 1;
+            // Including current beat, because counting on half crochet need to be *2
+            _disabledInteractionsCount = count * 2;
         }
 
         private void Update() {
@@ -82,15 +84,16 @@ namespace Core.Music {
             
             _songPosition = (float)(AudioSettings.dspTime - _dspSongTime) * _songSource.pitch - _songData.Offset;
             _songBeatPosition = (int)(_songPosition / _songData.Crotchet);
-            
+            // Beat passed
             if (_songPosition > _lastBeat + _songData.Crotchet) {
                 ConductorEvents.OnOnNextBeat();
                 _lastBeat += _songData.Crotchet;
-                
-                if (_interactionsDisabled) {
-                    _disabledInteractionsCount--;
-                    if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
-                }
+            }
+            // Half beat passed
+            if (_songPosition > _lastHalfBeat + _songData.HalfCrochet && _interactionsDisabled) {
+                _lastHalfBeat = _songPosition;
+                _disabledInteractionsCount--;
+                if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
             }
 
             if (_loopBeatPosition >= _songData.BeatsPerLoop)
