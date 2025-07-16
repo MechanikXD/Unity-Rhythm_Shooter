@@ -1,6 +1,6 @@
-﻿using Player.PlayerWeapons.Base;
+﻿using Player.Weapons.Base;
 
-namespace Player.PlayerWeapons {
+namespace Player.Weapons {
     public class AnyDirectionTestWeapon : WeaponBase {
         public override void LeftPerfectAction() { }
 

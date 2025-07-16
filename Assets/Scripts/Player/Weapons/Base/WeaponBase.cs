@@ -1,6 +1,6 @@
 ﻿using Core.Music;
 
-namespace Player.PlayerWeapons.Base {
+namespace Player.Weapons.Base {
     public abstract class WeaponBase {
         public abstract void LeftPerfectAction();
         public abstract void LeftGoodAction();

@@ -1,8 +1,8 @@
 using System.Collections;
 using Core.Music;
 using Core.StateMachine.Base;
-using Player.PlayerWeapons;
-using Player.PlayerWeapons.Base;
+using Player.Weapons;
+using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
