@@ -12,6 +12,7 @@ namespace Player.Statistics.Score {
                 if (_instance != null) return _instance;
 
                 var newGameObj = new GameObject(nameof(ScoreController));
+                // ReSharper disable once Unity.PerformanceCriticalCodeInvocation
                 _instance = newGameObj.AddComponent<ScoreController>();
 
                 return _instance;
@@ -29,6 +30,10 @@ namespace Player.Statistics.Score {
         private RankManager _rankManager;
         // TODO: Change this to meaningful names
         private float _rankFill;
+        
+        // TODO: Remove after testing
+        private RankInfo _currentRank;
+        private void UpdateCurrentRank() => _currentRank = _rankManager.CurrentRank;
 
         private void OnEnable() {
             PlayerEvents.AttackFailed += TryBreakComboCounter;
@@ -40,6 +45,9 @@ namespace Player.Statistics.Score {
             PlayerActionEvents.MissPerformed += ChangeRankFillOnMiss;
             PlayerActionEvents.GoodPerformed += ChangeRankFillOnGood;
             PlayerActionEvents.PerfectPerformed += ChangeRankFillOnPerfect;
+            // TODO: Remove after testing
+            PlayerEvents.RankDecreased += UpdateCurrentRank;
+            PlayerEvents.RankIncreased += UpdateCurrentRank;
 
             _unsubscribeFromEvents = () => {
                 PlayerActionEvents.MissPerformed -= ChangeRankFillOnMiss;
@@ -53,13 +61,19 @@ namespace Player.Statistics.Score {
         }
 
         private void Update() {
-            _rankFill += _rankManager.CurrentRank.PassiveDecrement * Time.deltaTime;
+            if (_rankFill > 0f) {
+                _rankFill += _rankManager.CurrentRank.PassiveDecrement * Time.deltaTime;
+                if (_rankFill < 0f) _rankFill = 0f;
+            }
         }
 
         private void OnDisable() {
             _unsubscribeFromEvents();
             PlayerEvents.AttackFailed -= TryBreakComboCounter;
             PlayerEvents.DamageDealt -= IncreaseComboCounter;
+            // TODO: Remove after testing
+            PlayerEvents.RankDecreased -= UpdateCurrentRank;
+            PlayerEvents.RankIncreased -= UpdateCurrentRank;
         }
 
         public void AddScore(int score) {
@@ -92,7 +106,7 @@ namespace Player.Statistics.Score {
                 else {
                     _rankFill += amount - 1f;
                     _rankManager.PromoteRank();
-                    PlayerEvents.OnRankIncreased(_rankManager.CurrentRank.Letter);
+                    PlayerEvents.OnRankIncreased();
                 }
             }
             else if (_rankFill + amount < 0) {
@@ -102,7 +116,7 @@ namespace Player.Statistics.Score {
                 else {
                     _rankFill = 1 + (_rankFill + amount);
                     _rankManager.DemoteRank();
-                    PlayerEvents.OnRankDecreased(_rankManager.CurrentRank.Letter);
+                    PlayerEvents.OnRankDecreased();
                 }
             }
             else _rankFill += amount;

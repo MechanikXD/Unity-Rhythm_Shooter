@@ -2,7 +2,7 @@
 using Core.StateMachine.StateImplementations;
 using UnityEngine;
 
-namespace Player.PlayerStates {
+namespace Player.States {
     public class JumpState : PlayerState {
         private readonly float _jumpUpwardsSpeed;
         private readonly Vector2 _jumpDurationBounds;

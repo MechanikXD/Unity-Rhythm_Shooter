@@ -29,12 +29,12 @@ namespace Player {
         
         public static event Action<long> ScoreChanged;
         public static event Action<int> ComboCountChanged;
-        public static event Action<RankLetter> RankIncreased;
-        public static event Action<RankLetter> RankDecreased;
+        public static event Action RankIncreased;
+        public static event Action RankDecreased;
 
         public static void OnScoreChanged(long newScore) => ScoreChanged?.Invoke(newScore);
         public static void OnComboCountChanged(int newComboCount) => ComboCountChanged?.Invoke(newComboCount);
-        public static void OnRankIncreased(RankLetter newRank) => RankIncreased?.Invoke(newRank);
-        public static void OnRankDecreased(RankLetter newRank) => RankDecreased?.Invoke(newRank);
+        public static void OnRankIncreased() => RankIncreased?.Invoke();
+        public static void OnRankDecreased() => RankDecreased?.Invoke();
     }
 }

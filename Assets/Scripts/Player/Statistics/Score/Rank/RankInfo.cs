@@ -1,5 +1,8 @@
-﻿namespace Player.Statistics.Score.Rank {
-    public class RankInfo {
+﻿using System;
+
+namespace Player.Statistics.Score.Rank {
+    [Serializable]
+    public class RankInfo { 
         public RankLetter Letter { get; private set; }
         public float ScoreMultiplayer { get; private set; }
         

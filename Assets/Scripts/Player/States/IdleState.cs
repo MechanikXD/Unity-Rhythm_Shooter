@@ -1,7 +1,7 @@
 ﻿using Core.StateMachine.Base;
 using Core.StateMachine.StateImplementations;
 
-namespace Player.PlayerStates {
+namespace Player.States {
     public class IdleState : PlayerState {
         public IdleState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) { }

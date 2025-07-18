@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace Player.Statistics.Score.Rank {
     public class RankManager {
@@ -28,16 +28,7 @@ namespace Player.Statistics.Score.Rank {
         public bool CanPromote() => _currentRankIndex < _ranks.Count - 1;
         public bool CanDemote() => _currentRankIndex > 0;
 
-        public void PromoteRank() {
-            if (CanPromote()) throw new ArgumentOutOfRangeException(nameof(_currentRankIndex),
-                    "No rank promotion is allowed past S rank");
-            _currentRankIndex += 1;
-        }
-
-        public void DemoteRank() {
-            if (CanDemote()) throw new ArgumentOutOfRangeException(nameof(_currentRankIndex),
-                    "No rank Demotion is allowed past D rank");
-            _currentRankIndex -= 1;
-        }
+        public void PromoteRank() => _currentRankIndex += 1;
+        public void DemoteRank() => _currentRankIndex -= 1;
     }
 }
