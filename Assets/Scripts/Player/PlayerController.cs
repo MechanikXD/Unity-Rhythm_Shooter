@@ -1,8 +1,9 @@
 using System.Collections;
 using Core.Music;
+using Core.Music.Songs.Scriptable_Objects;
 using Core.StateMachine.Base;
-using Player.PlayerWeapons;
-using Player.PlayerWeapons.Base;
+using Player.Weapons;
+using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,7 +13,6 @@ namespace Player {
         [SerializeField] private CharacterController controller;
         [SerializeField] private Transform attachedCamera;
         [SerializeField] private PlayerInput playerInput;
-        // [SerializeField] private PlayerActionTypes currentActionType;
         private WeaponBase _currentWeapon = new AnyDirectionTestWeapon();
         private StateMachine _stateMachine;
         [Header("MOVE SOMEWHERE ELSE")]
@@ -25,7 +25,7 @@ namespace Player {
         private bool _doBufferCounting;
         [SerializeField] private float maxInputBufferTime = 0.1f;
         
-        public States States { get; private set; }
+        public PlayerStates States { get; private set; }
         public CharacterController Controller => controller;
         
         public InputAction MoveKey { get; private set; }
@@ -103,8 +103,9 @@ namespace Player {
         
         private void Awake() {
             _stateMachine = new StateMachine();
-            States = new States(_stateMachine, this);
+            States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
+            _currentWeapon.OnWeaponSelected();
             
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;

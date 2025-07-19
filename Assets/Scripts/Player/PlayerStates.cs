@@ -1,19 +1,19 @@
 ﻿using Core.StateMachine.Base;
 using Core.StateMachine.StateImplementations;
-using Player.PlayerStates;
+using Player.States;
 
 namespace Player {
     /// <summary>
     /// Record class to stone player states (aka enum)
     /// </summary>
-    public class States {
+    public class PlayerStates {
         public PlayerState IdleState { get; }
         public PlayerState WalkState { get; }
         public PlayerState JumpState { get; }
         public PlayerState AirborneState { get; }
         public PlayerState DashState { get; }
 
-        public States(StateMachine stateMachine, PlayerController player) {
+        public PlayerStates(StateMachine stateMachine, PlayerController player) {
             IdleState = new IdleState(stateMachine, player);
             WalkState = new WalkState(stateMachine, player);
             JumpState = new JumpState(stateMachine, player);

@@ -1,6 +1,6 @@
 ﻿using System;
 using Core.Music;
-using Player.PlayerWeapons.Base;
+using Player.Weapons.Base;
 
 namespace Player {
     /// <summary>

@@ -2,7 +2,7 @@
 using Core.StateMachine.StateImplementations;
 using UnityEngine;
 
-namespace Player.PlayerStates {
+namespace Player.States {
     public class WalkState : PlayerState {
         private readonly float _moveSpeed;
 

@@ -3,7 +3,7 @@ using Core.StateMachine.Base;
 using Core.StateMachine.StateImplementations;
 using UnityEngine;
 
-namespace Player.PlayerStates {
+namespace Player.States {
     public class DashState : PlayerState {
         private Vector3 _dashVector;
         private float _currentDuration;
