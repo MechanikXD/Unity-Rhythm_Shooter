@@ -1,5 +1,4 @@
 ﻿using System;
-using Player.Statistics.Score.Rank;
 
 namespace Player {
     public static class PlayerEvents {
@@ -31,10 +30,13 @@ namespace Player {
         public static event Action<int> ComboCountChanged;
         public static event Action RankIncreased;
         public static event Action RankDecreased;
+        public static event Action<float> RankPerformanceChanged;
 
         public static void OnScoreChanged(long newScore) => ScoreChanged?.Invoke(newScore);
         public static void OnComboCountChanged(int newComboCount) => ComboCountChanged?.Invoke(newComboCount);
         public static void OnRankIncreased() => RankIncreased?.Invoke();
         public static void OnRankDecreased() => RankDecreased?.Invoke();
+        public static void OnRankPerformanceChanged(float newRankPerformance) =>
+            RankPerformanceChanged?.Invoke(newRankPerformance);
     }
 }

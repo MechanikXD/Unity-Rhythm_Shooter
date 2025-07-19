@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Core.Music {
+namespace Core.Music.Songs.Scriptable_Objects {
     [CreateAssetMenu(fileName = "SongData", menuName = "Scriptable Objects/SongData")]
     public class SongData : ScriptableObject {
         [SerializeField] private AudioClip song;
@@ -32,12 +32,12 @@ namespace Core.Music {
         public int BeatsPerLoop {
             get {
                 if (_beatsPerLoop != 0) return _beatsPerLoop;
-                
+
                 _beatsPerLoop = (int)((song.length - startOffset) / _crotchet);
                 return _beatsPerLoop;
             }
-        } 
-        
+        }
+
         public AudioClip Audio => song;
         public float Bpm => songBpm;
         public float Offset => startOffset;

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 
 namespace Player.Statistics.Score.Rank {
     public class RankManager {
@@ -15,10 +14,10 @@ namespace Player.Statistics.Score.Rank {
         public RankInfo SRank => _ranks[4];
 
         public RankManager() {
-            var sRank = new RankInfo(RankLetter.S, 2f, -0.5f, -0.4f, 0.03f, 0.05f);
-            var aRank = new RankInfo(RankLetter.A, 1.5f, -0.4f, -0.34f, 0.04f, 0.07f);
-            var bRank = new RankInfo(RankLetter.B, 1f, -0.25f, -0.25f, 0.1f, 0.15f);
-            var cRank = new RankInfo(RankLetter.C, 0.8f, -0.15f, -0.17f, 0.13f, 0.17f);
+            var sRank = new RankInfo(RankLetter.S, 2f, -0.5f, -0.3f, 0.3f, 0.4f);
+            var aRank = new RankInfo(RankLetter.A, 1.5f, -0.4f, -0.25f, 0.2f, 0.35f);
+            var bRank = new RankInfo(RankLetter.B, 1f, -0.25f, -0.15f, 0.15f, 0.25f);
+            var cRank = new RankInfo(RankLetter.C, 0.8f, -0.15f, -0.1f, 0.15f, 0.2f);
             var dRank = new RankInfo(RankLetter.D, 0.6f, -0.1f, -0.1f, 0.2f, 0.3f);
 
             _ranks = new() { dRank, cRank, bRank, aRank, sRank };

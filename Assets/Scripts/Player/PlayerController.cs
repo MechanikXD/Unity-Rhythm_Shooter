@@ -1,5 +1,6 @@
 using System.Collections;
 using Core.Music;
+using Core.Music.Songs.Scriptable_Objects;
 using Core.StateMachine.Base;
 using Player.Weapons;
 using Player.Weapons.Base;
