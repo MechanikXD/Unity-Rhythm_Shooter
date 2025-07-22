@@ -22,6 +22,7 @@ namespace Core.Level.Generator {
             if (!TryPlaceMainPath()) {
                 var mainPathWasGenerated = false;
                 while (!mainPathWasGenerated) {
+                    DestroyAllExceptStart();
                     mainPathWasGenerated = TryPlaceMainPath();
                 }
             }
@@ -87,6 +88,18 @@ namespace Core.Level.Generator {
                 Instantiate(_levelSettings.PathBlocker, exit);
             }
             _availableExits.Clear();
+        }
+
+        private void DestroyAllExceptStart() {
+            _availableExits.Clear();
+            foreach (GameObject child in _main) {
+                if (child.name == _levelSettings.StartRoom.name) {
+                    _availableExits.AddRange(child.GetComponent<RoomInfo>().ExitPositions);
+                    continue;
+                }
+                
+                Destroy(child);
+            }
         }
 
         private void PlaceStart() {

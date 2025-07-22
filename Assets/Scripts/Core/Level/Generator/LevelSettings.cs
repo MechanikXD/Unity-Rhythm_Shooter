@@ -45,13 +45,25 @@ namespace Core.Level.Generator {
         }
 
         public RoomInfo[] GetMainPathRooms() {
+            var hasBranchOut = false;
             var path = new RoomInfo[_roomsBetweenStartAndEnd]; 
             for (var i = 0; i < _roomsBetweenStartAndEnd; i++) {
                 for (var iterCount = 0; iterCount < 9999; iterCount++) {
                     var randomRoom = GetRandomRoom();
-                    if (randomRoom.ExitCount > 1) {
-                        path[i] = randomRoom;
-                        break;
+                    // In case path consists only of 2-exit rooms
+                    if (i + 1 == _roomsBetweenStartAndEnd - 1 && !hasBranchOut) {
+                        if (randomRoom.ExitCount > 2) {
+                            path[i] = randomRoom;
+                            break;
+                        }
+                    }
+                    else {
+                        if (randomRoom.ExitCount > 1) {
+                            path[i] = randomRoom;
+
+                            if (randomRoom.ExitCount > 2) hasBranchOut = true;
+                            break;
+                        }
                     }
                     if (iterCount + 1 == 9999) {
                         throw new TimeoutException(

@@ -25,10 +25,7 @@ namespace Core.Level.Room {
             // Calculate where the room center should be placed (assuming room center is at 0,0,0)
             Vector3 roomPosition = otherEntrance.position - rotationDifference * thisExit.localPosition;
             
-            if (!IsRoomAreaClear(roomPosition, rotationDifference)) {
-                Debug.Log("Cannot place room - area is occupied!");
-                return false;
-            }
+            if (!IsRoomAreaClear(roomPosition, rotationDifference)) return false;
             
             // Instantiate the room with the calculated position and rotation
             var room = Instantiate(gameObject, roomPosition, rotationDifference);
@@ -42,7 +39,9 @@ namespace Core.Level.Room {
         }
         
         public RoomInfo InstantiateOnZero(Transform parent) {
-            return Instantiate(gameObject, parent, false).GetComponent<RoomInfo>();
+            var start = Instantiate(gameObject, parent, false).GetComponent<RoomInfo>();
+            start.name = name;  // To remove -(Clone) suffix
+            return start;
         }
         
         // Check if room area is clear before placing
