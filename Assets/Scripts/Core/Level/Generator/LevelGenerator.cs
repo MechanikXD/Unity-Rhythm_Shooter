@@ -14,37 +14,85 @@ namespace Core.Level.Generator {
         private Random _levelGenerator;
         private int _seed;
 
+        private const int MaxRetryAttempts = 100;
+
         private void Awake() {
             Init();
-            BuildMainPath();
-            BuildAdditionalRooms();
+            if (!TryBuildMainPath()) {
+                var mainPathWasGenerated = false;
+                while (!mainPathWasGenerated) {
+                    mainPathWasGenerated = TryBuildMainPath();
+                }
+            }
+            TryBuildAdditionalRooms();
+            // TODO: Block rest of unused exits
         }
 
-        private void BuildMainPath() {
+        private bool TryBuildMainPath() {
             PlaceStart();
 
             var mainPath = _levelSettings.GetMainPathRooms();
-            var prevRoomCount = 1;
+            var prevRoomExitCount = 1;
+            
             foreach (var room in mainPath) {
-                var exitIndex = _levelGenerator.Next(_availableExits.Count - prevRoomCount, 
-                    _availableExits.Count);
-                PlaceRandomRoom(room, _availableExits[exitIndex]);
-                prevRoomCount = room.ExitCount - 1;
+                if (!TryBuildRoomAtExits(room, _availableExits.Count - prevRoomExitCount, 
+                        _availableExits.Count)) {
+                    return false;
+                }
+                prevRoomExitCount = room.ExitCount - 1;
             }
-            var finalExitIndex = _levelGenerator.Next(_availableExits.Count - prevRoomCount, 
-                _availableExits.Count);
-            PlaceRandomRoom(_levelSettings.FinalRoom, _availableExits[finalExitIndex]);
+            
+            return TryBuildRoomAtExits(_levelSettings.FinalRoom, 
+                _availableExits.Count - prevRoomExitCount, _availableExits.Count);
         }
 
-        private void BuildAdditionalRooms() {
+        private bool TryBuildRoomAtExits(RoomInfo room, int minIndex, int maxIndex) {
+            var exitIndex = _levelGenerator.Next(minIndex, maxIndex);
+
+            if (TryPlaceRoom(room, _availableExits[exitIndex])) return true;
+
+            // Couldn't place room the first time
+            var triedIndexed = new List<int> { exitIndex };
+            var availableExits = maxIndex - minIndex;
+            var roomWasPlaced = false;
+            // Try other indexes
+            while (triedIndexed.Count < availableExits) {
+                exitIndex = _levelGenerator.Next(minIndex, maxIndex);
+                if (triedIndexed.Contains(exitIndex)) continue;
+
+                roomWasPlaced = TryPlaceRoom(room, _availableExits[exitIndex]);
+                if (roomWasPlaced) break;
+            }
+
+            return roomWasPlaced;
+        }
+
+        private bool TryBuildAdditionalRooms() {
             var roomQueue = _levelSettings.GetAdditionalRoomQueue(_availableExits.Count);
 
             while (roomQueue.Count > 0) {
                 var roomToPlace = roomQueue.Dequeue();
-                PlaceRandomRoom(roomToPlace);
+                if (TryPlaceRoom(roomToPlace)) continue;
+
+                // Couldn't place this specific room
+                var roomChangeAttempts = 1;
+                var roomWasPlaced = false;
+                // try other rooms
+                while (roomChangeAttempts < MaxRetryAttempts) {
+                    roomToPlace = _levelSettings.GetRandomRoom();
+                    roomWasPlaced = TryPlaceRoom(roomToPlace);
+                        
+                    if (roomWasPlaced) break;
+                    roomChangeAttempts++;
+                }
+
+                if (roomWasPlaced) continue;
+                // Can't place any room in current maze
+                Debug.LogWarning("Couldn't place all additional rooms");
+                return false;
             }
-            
-            // TODO: Block rest of the exits 
+
+            return true;
         }
 
         private void Init() {
@@ -62,31 +110,26 @@ namespace Core.Level.Generator {
             };
 
             _main = level.transform;
-            Debug.Log($"_levelSettings.StartRoom.ExitCount: {_levelSettings.StartRoom.ExitCount}");
             var start = _levelSettings.StartRoom.InstantiateOnZero(_main);
-            Debug.Log($"_levelSettings.StartRoom.ExitCount: {_levelSettings.StartRoom.ExitCount}");
-            Debug.Log($"start.ExitCount: {start.ExitCount}");
             _availableExits.AddRange(start.ExitPositions);
         }
 
-        private bool PlaceRandomRoom(RoomInfo roomToPlace, Transform entrancePosition) {
+        private bool TryPlaceRoom(RoomInfo roomToPlace, Transform entrancePosition) {
             var roomExits = roomToPlace.ExitPositions;
             
             foreach (var exit in roomExits) {
-                if (roomToPlace.TryInstantiateSelf(entrancePosition, exit, _main, out var newRoom)) {
-                    _availableExits.Remove(entrancePosition);
-                    _availableExits.AddRange(newRoom.ExitPositions);
-                    return true;
-                }
+                if (!roomToPlace.TryInstantiateSelf(entrancePosition, exit, _main,
+                        out var newRoom)) continue;
+                _availableExits.Remove(entrancePosition);
+                _availableExits.AddRange(newRoom.ExitPositions);
+                return true;
             }
 
             return false;
         }
 
-        private bool PlaceRandomRoom(RoomInfo exitPosition) {
-            var randomExit = _availableExits[_levelGenerator.Next(0, _availableExits.Count)];
-            return PlaceRandomRoom(exitPosition, randomExit);
+        private bool TryPlaceRoom(RoomInfo room) {
+            return TryBuildRoomAtExits(room, 0, _availableExits.Count);
         }
-
     }
 }

@@ -21,7 +21,7 @@ namespace Core.Level.Generator {
         public RoomInfo StartRoom => _startRoom;
         public RoomInfo FinalRoom => _finalRoom;
         
-        private RoomInfo GetRandomRoom() {
+        public RoomInfo GetRandomRoom() {
             if (_probabilityRange.Length > 0 && _probabilityRange.Length == _rooms.Length) {
                 return GetRoomFromRange(Random.value);
             }
