@@ -11,6 +11,7 @@ namespace Core.Level.Generator {
         [SerializeField] private RoomInfo _startRoom;
         [SerializeField] private RoomInfo[] _rooms;
         [SerializeField] private RoomInfo _finalRoom;
+        [SerializeField] private GameObject _pathBlocker;
 
         [Header("Level Structure")]
         [SerializeField] private int _roomsBetweenStartAndEnd;
@@ -20,6 +21,7 @@ namespace Core.Level.Generator {
 
         public RoomInfo StartRoom => _startRoom;
         public RoomInfo FinalRoom => _finalRoom;
+        public GameObject PathBlocker => _pathBlocker;
         
         public RoomInfo GetRandomRoom() {
             if (_probabilityRange.Length > 0 && _probabilityRange.Length == _rooms.Length) {

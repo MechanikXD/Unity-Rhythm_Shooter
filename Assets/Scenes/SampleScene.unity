@@ -14350,12 +14350,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d518e78bb0c24cb7af0a3b37f57bb708, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  origin: {fileID: 1298597062}
-  startRoom: {fileID: 329982639844952515, guid: d9ccc9d90af0d7b4d90ee2b41f317d05, type: 3}
-  rooms:
-  - {fileID: 5165998516970438092, guid: 717c1548998927346b070bc07f12bbdb, type: 3}
-  - {fileID: 7182148789382544803, guid: 515c951efbae3a04db89f4934a7f571d, type: 3}
-  endRoom: {fileID: 0}
+  _origin: {fileID: 1298597062}
+  _levelSettings: {fileID: 11400000, guid: c6df7e237021b084b9d49f9c44d66e2a, type: 2}
 --- !u!4 &2094131083
 Transform:
   m_ObjectHideFlags: 0
