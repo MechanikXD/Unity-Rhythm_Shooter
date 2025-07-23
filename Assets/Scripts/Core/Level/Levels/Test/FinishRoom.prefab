@@ -285,8 +285,8 @@ MonoBehaviour:
   _exits:
   - {fileID: 6696041712728330236}
   _roomColliders:
-  - center: {x: 0, y: 0, z: 0}
-    size: {x: 9.9, y: 9.9, z: 9.9}
+  - _center: {x: 0, y: 0, z: 0}
+    _size: {x: 9.9, y: 9.9, z: 9.9}
   _enemySpawnPoints: []
 --- !u!1 &6739388327159791015
 GameObject:

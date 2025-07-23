@@ -44,7 +44,6 @@ namespace Core.Level.Room {
     
             // Remove the used exit
             generatedRoom.RemoveUsedExit(thisExit);
-            // TODO: Check for other exits overlapping/blocking
             return true;
         }
         /// <summary>

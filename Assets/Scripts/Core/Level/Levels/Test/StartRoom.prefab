@@ -298,8 +298,8 @@ MonoBehaviour:
   _exits:
   - {fileID: 734701021080412418}
   _roomColliders:
-  - center: {x: 0, y: 0, z: 0}
-    size: {x: 9.9, y: 9.9, z: 9.9}
+  - _center: {x: 0, y: 0, z: 0}
+    _size: {x: 9.9, y: 9.9, z: 9.9}
   _enemySpawnPoints: []
 --- !u!1001 &1657681726225388820
 PrefabInstance:

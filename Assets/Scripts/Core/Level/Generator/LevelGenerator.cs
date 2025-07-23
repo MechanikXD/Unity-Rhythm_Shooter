@@ -2,30 +2,29 @@
 using System.Collections.Generic;
 using Core.Level.Room;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using Random = System.Random;
 
 namespace Core.Level.Generator {
     /// <summary>
     /// Class that procedurally generates levels from given settings. 
     /// </summary>
-    public class LevelGenerator : MonoBehaviour {
-        private Transform _main; // game object where all prefabs will be instantiated  
-        [SerializeField] private Transform _origin; // Where level will be created
-        [SerializeField] private LevelSettings _levelSettings;
+    public static class LevelGenerator {
+        private static Transform _main; // game object where all prefabs will be instantiated  
+        private static Transform _origin; // Where level will be created
+        private static LevelSettings _levelSettings;
 
-        private List<Transform> _availableExits;
-        private Random _seedGenerator;
-        private Random _levelGenerator;
-        private int _seed;
+        private static List<Transform> _availableExits;
+        private static Random _seedGenerator;
+        private static Random _levelGenerator;
+        private static int _seed;
 
         private const int MaxRetryAttempts = 100;
-        // TODO: Make it static class and call from somewhere else
-        private void Awake() => CreateNewLevel(_levelSettings);
         /// <summary>
         /// Creates new level using given settings
         /// </summary>
         /// <param name="settings"> Scriptable object that defines everything necessary for level creation </param>
-        public void CreateNewLevel(LevelSettings settings) {
+        public static void CreateNewLevel(LevelSettings settings) {
             // TRY TO BREAK NOW, MF'ER
             try {
                 Initialize(settings);
@@ -51,7 +50,7 @@ namespace Core.Level.Generator {
             }
         }
 
-        private void Initialize(LevelSettings settings) {
+        private static void Initialize(LevelSettings settings) {
             var level = new GameObject("Level") {
                 transform = {
                     position = _origin.position
@@ -60,13 +59,13 @@ namespace Core.Level.Generator {
 
             _levelSettings = settings;
             _main = level.transform;
-            _seedGenerator = new Random();
+            _seedGenerator ??= new Random();
             _seed = _seedGenerator.Next();
             _levelGenerator = new Random(_seed);
             _availableExits = new List<Transform>();
         }
         
-        private bool TryPlaceMainPath() {
+        private static bool TryPlaceMainPath() {
             PlaceStart();
 
             var mainPath = _levelSettings.GetMainPathRooms();
@@ -85,7 +84,7 @@ namespace Core.Level.Generator {
                 _availableExits.Count - prevRoomExitCount, _availableExits.Count);
         }
         
-        private bool TryPlaceAdditionalRooms() {
+        private static bool TryPlaceAdditionalRooms() {
             var roomQueue = _levelSettings.GetAdditionalRoomQueue(_availableExits.Count);
 
             while (roomQueue.Count > 0) {
@@ -115,16 +114,16 @@ namespace Core.Level.Generator {
         /// <summary>
         /// Seals all unused exits in level. Called after everything else was generated.
         /// </summary>
-        private void BlockExistingExits() {
+        private static void BlockExistingExits() {
             foreach (var exit in _availableExits) {
-                Instantiate(_levelSettings.PathBlocker, exit);
+                Object.Instantiate(_levelSettings.PathBlocker, exit);
             }
             _availableExits.Clear();
         }
         /// <summary>
         /// Destroys all rooms except start one, used to try generating level again.
         /// </summary>
-        private void DestroyAllExceptStart() {
+        private static void DestroyAllExceptStart() {
             _availableExits.Clear();
             foreach (GameObject child in _main) {
                 if (child.name == _levelSettings.StartRoom.name) {
@@ -132,20 +131,20 @@ namespace Core.Level.Generator {
                     continue;
                 }
                 
-                Destroy(child);
+                Object.Destroy(child);
             }
         }
         /// <summary>
         /// Destroys everything that was generated
         /// </summary>
-        private void DestroyAll() {
-            Destroy(_main.gameObject);
+        private static void DestroyAll() {
+            Object.Destroy(GameObject.Find("Level"));
             _availableExits.Clear();
         }
         /// <summary>
         /// Places start room. It's unique, since it should be just instantiated, no other logic...
         /// </summary>
-        private void PlaceStart() {
+        private static void PlaceStart() {
             var start = _levelSettings.StartRoom.InstantiateOnZero(_main);
             _availableExits.AddRange(start.ExitPositions);
         }
@@ -157,7 +156,7 @@ namespace Core.Level.Generator {
         /// <param name="minIndex"> min inclusive index of exit </param>
         /// <param name="maxIndex"> max exclusive index of exit </param>
         /// <returns> Whether operation was successful or not </returns>
-        private bool TryPlaceRoomAtExits(RoomInfo room, int minIndex, int maxIndex) {
+        private static bool TryPlaceRoomAtExits(RoomInfo room, int minIndex, int maxIndex) {
             var exitIndex = _levelGenerator.Next(minIndex, maxIndex);
 
             if (TryPlaceRoom(room, _availableExits[exitIndex])) return true;
@@ -182,7 +181,7 @@ namespace Core.Level.Generator {
         /// <param name="room"> Room to be place at given position </param>
         /// <param name="position"> Position where to place new room </param>
         /// <returns> Whether operation was successful or not </returns>
-        private bool TryPlaceRoom(RoomInfo room, Transform position) {
+        private static bool TryPlaceRoom(RoomInfo room, Transform position) {
             var roomExits = room.ExitPositions;
             
             foreach (var exit in roomExits) {
@@ -200,7 +199,7 @@ namespace Core.Level.Generator {
         /// </summary>
         /// <param name="room"> Room to be placed </param>
         /// <returns> Whether operation was successful or not </returns>
-        private bool TryPlaceRoom(RoomInfo room) {
+        private static bool TryPlaceRoom(RoomInfo room) {
             return TryPlaceRoomAtExits(room, 0, _availableExits.Count);
         }
     }

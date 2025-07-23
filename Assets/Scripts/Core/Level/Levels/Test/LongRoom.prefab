@@ -163,8 +163,8 @@ MonoBehaviour:
   - {fileID: 2934251374202172029}
   - {fileID: 2970597744572332271}
   _roomColliders:
-  - center: {x: 0, y: 0, z: 0}
-    size: {x: 9.9, y: 9.9, z: 19.9}
+  - _center: {x: 0, y: 0, z: 0}
+    _size: {x: 9.9, y: 9.9, z: 19.9}
   _enemySpawnPoints:
   - {fileID: 8180862923123140921}
   - {fileID: 2003381653353756473}
