@@ -6,14 +6,14 @@ using UnityEngine;
 
 namespace Enemy.Types.Test {
     public class TestEnemy : EnemyBase {
-        [SerializeField] private Material enemyMaterial;
-        [SerializeField] private float hitIndicatorFadeOff;
+        [SerializeField] private Material _enemyMaterial;
+        [SerializeField] private float _hitIndicatorFadeOff;
         private Tweener _materialColorAnimation;
         
         protected void Awake() {
             EnemyStateMachine = new StateMachine();
-            enemyMaterial.color = Color.white;
-            maxHealth = -1;
+            _enemyMaterial.color = Color.white;
+            _maxHealth = -1;
             CurrentHealth = -1;
         }
         
@@ -22,9 +22,9 @@ namespace Enemy.Types.Test {
             
             if (_materialColorAnimation is { active: true }) _materialColorAnimation.Kill();
 
-            var originalEnemyColor = enemyMaterial.color;
-            enemyMaterial.color = Color.red;
-            _materialColorAnimation = enemyMaterial.DOColor(originalEnemyColor, hitIndicatorFadeOff);
+            var originalEnemyColor = _enemyMaterial.color;
+            _enemyMaterial.color = Color.red;
+            _materialColorAnimation = _enemyMaterial.DOColor(originalEnemyColor, _hitIndicatorFadeOff);
         }
 
         public override void Die() => throw new System.NotImplementedException();

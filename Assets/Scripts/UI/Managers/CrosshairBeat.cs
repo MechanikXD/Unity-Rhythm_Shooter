@@ -9,31 +9,31 @@ using UnityEngine.UI;
 
 namespace UI.Managers {
     public class CrosshairBeat : MonoBehaviour {
-        [SerializeField] private Image beatPrefab;
+        [SerializeField] private Image _beatPrefab;
         private (Beat left, Beat right)[] _beatPool;
         private int _beatPoolIndex;
         private Action _unsubscribeFromEventsAction;
         
-        [SerializeField] private BeatSettings defaultBeatSettings;
-        [SerializeField] private BeatSettings missBeatSettings;
+        [SerializeField] private BeatSettings _defaultBeatSettings;
+        [SerializeField] private BeatSettings _missBeatSettings;
 
-        [SerializeField] private Image leftGradientImage;
-        [SerializeField] private Image rightGradientImage;
-        [SerializeField] private Vector2 fadeInOutTime = new Vector2(0.05f, 0.5f);
+        [SerializeField] private Image _leftGradientImage;
+        [SerializeField] private Image _rightGradientImage;
+        [SerializeField] private Vector2 _fadeInOutTime = new Vector2(0.05f, 0.5f);
         private Sequence _leftGradientAnimation;
         private Sequence _rightGradientAnimation;
 
-        [SerializeField] private RectTransform leftBeatArea;
-        [SerializeField] private RectTransform rightBeatArea;
+        [SerializeField] private RectTransform _leftBeatArea;
+        [SerializeField] private RectTransform _rightBeatArea;
 
-        [SerializeField] private int beatsPerSide = 2;
-        [SerializeField] private float beatOffset = -0.02f;
+        [SerializeField] private int _beatsPerSide = 2;
+        [SerializeField] private float _beatOffset = -0.02f;
         private float _singleBeatTime;
         private int _maxBeatsPerSide;
 
-        [SerializeField] private TextMeshProUGUI perfectText;
-        [SerializeField] private TextMeshProUGUI goodText;
-        [SerializeField] private TextMeshProUGUI missText;
+        [SerializeField] private TextMeshProUGUI _perfectText;
+        [SerializeField] private TextMeshProUGUI _goodText;
+        [SerializeField] private TextMeshProUGUI _missText;
         private Sequence _currentPopUp;
 
         private readonly Color _transparentWhite = new Color(255, 255, 255, 0);
@@ -42,8 +42,8 @@ namespace UI.Managers {
         private void OnEnable() => SubscribeToEvents();
 
         private void Start() {
-            _singleBeatTime = Conductor.Instance.SongData.Crotchet * beatsPerSide;
-            _maxBeatsPerSide = beatsPerSide + 1;
+            _singleBeatTime = Conductor.Instance.SongData.Crotchet * _beatsPerSide;
+            _maxBeatsPerSide = _beatsPerSide + 1;
             
             _beatPool = new (Beat left, Beat right)[_maxBeatsPerSide];
             for (var i = 0; i < _maxBeatsPerSide; i++) {
@@ -75,10 +75,10 @@ namespace UI.Managers {
             PlayerActionEvents.BothGoodPerformed += BothGood;
             PlayerActionEvents.BothMissPerformed += BothMissed;
 
-            void ShowPerfectPopUp() => ShowPopUp(perfectText);
-            void ShowGoodPopUp() => ShowPopUp(goodText);
-            void ShowMissPopUp() => ShowPopUp(missText);
-            void DimMissedBeats() => ModifyBeat(0, beat => beat.SetNewSettings(missBeatSettings), 2);
+            void ShowPerfectPopUp() => ShowPopUp(_perfectText);
+            void ShowGoodPopUp() => ShowPopUp(_goodText);
+            void ShowMissPopUp() => ShowPopUp(_missText);
+            void DimMissedBeats() => ModifyBeat(0, beat => beat.SetNewSettings(_missBeatSettings), 2);
             PlayerActionEvents.PerfectPerformed += ShowPerfectPopUp;
             PlayerActionEvents.GoodPerformed += ShowGoodPopUp;
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
@@ -154,12 +154,12 @@ namespace UI.Managers {
         // Instantiates new beats on the scene and sets them to starting position
         private (Beat leftBeat, Beat rightBeat) InstantiateNewBeats() {
             var left = new Beat();
-            left.InstantiateSelf(beatPrefab, leftBeatArea, false);
-            left.SetDefaultState(defaultBeatSettings);
+            left.InstantiateSelf(_beatPrefab, _leftBeatArea, false);
+            left.SetDefaultState(_defaultBeatSettings);
 
             var right = new Beat();
-            right.InstantiateSelf(beatPrefab, rightBeatArea, true);
-            right.SetDefaultState(defaultBeatSettings);
+            right.InstantiateSelf(_beatPrefab, _rightBeatArea, true);
+            right.SetDefaultState(_defaultBeatSettings);
 
             return (left, right);
         }
@@ -171,8 +171,8 @@ namespace UI.Managers {
 
             var startColor = new Color(255,255,255, strength);
             _leftGradientAnimation = DOTween.Sequence();
-            _leftGradientAnimation.Append(leftGradientImage.DOColor(startColor, fadeInOutTime.x));
-            _leftGradientAnimation.Append(leftGradientImage.DOColor(_transparentWhite, fadeInOutTime.y));
+            _leftGradientAnimation.Append(_leftGradientImage.DOColor(startColor, _fadeInOutTime.x));
+            _leftGradientAnimation.Append(_leftGradientImage.DOColor(_transparentWhite, _fadeInOutTime.y));
             _leftGradientAnimation.Play();
         }
         // Shows right gradient of crosshair
@@ -183,24 +183,24 @@ namespace UI.Managers {
             
             var startColor = new Color(255,255,255, strength);
             _rightGradientAnimation = DOTween.Sequence();
-            _rightGradientAnimation.Append(rightGradientImage.DOColor(startColor, fadeInOutTime.x));
-            _rightGradientAnimation.Append(rightGradientImage.DOColor(_transparentWhite, fadeInOutTime.y));
+            _rightGradientAnimation.Append(_rightGradientImage.DOColor(startColor, _fadeInOutTime.x));
+            _rightGradientAnimation.Append(_rightGradientImage.DOColor(_transparentWhite, _fadeInOutTime.y));
             _rightGradientAnimation.Play();
         }
         // Shows pop-up under crosshair of action "Quality" 
         private void ShowPopUp(TextMeshProUGUI textField) {
             _currentPopUp?.Complete();
             _currentPopUp = DOTween.Sequence();
-            _currentPopUp.Append(textField.DOColor(Color.black, fadeInOutTime.x));
-            _currentPopUp.Append(textField.DOColor(_transparentBlack, fadeInOutTime.y));
+            _currentPopUp.Append(textField.DOColor(Color.black, _fadeInOutTime.x));
+            _currentPopUp.Append(textField.DOColor(_transparentBlack, _fadeInOutTime.y));
             _currentPopUp.Play();
         }
         // Starts new instances of beats
         private void StartNewBeats() {
             _beatPool[_beatPoolIndex].left
-                .Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
+                .Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
             _beatPool[_beatPoolIndex].right
-                .Animate(defaultBeatSettings, _singleBeatTime + beatOffset);
+                .Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
             // Advance Index
             _beatPoolIndex++;
             if (_beatPoolIndex >= _beatPool.Length) _beatPoolIndex = 0;

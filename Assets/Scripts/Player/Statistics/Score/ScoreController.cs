@@ -26,14 +26,14 @@ namespace Player.Statistics.Score {
         private bool _comboProtector = true;
         private int _maxComboRecorded;
         private int _currentPerfectHitStreak;
-        [SerializeField] int perfectHitsToSlowRankDrain = 10;
+        [SerializeField] int _perfectHitsToSlowRankDrain = 10;
         public int Combo => _comboCounter;
         
         private RankManager _rankManager;
         private float _rankPerformance;
         private bool _disableRankPerformanceDrain;
         private bool _slowerRankPerformanceDrain;
-        [SerializeField] private float rankPerformanceSlowFactor = 0.5f;
+        [SerializeField] private float _rankPerformanceSlowFactor = 0.5f;
 
         private void OnEnable() {
             PlayerEvents.AttackFailed += TryBreakComboCounter;
@@ -50,7 +50,7 @@ namespace Player.Statistics.Score {
             void UpdateOnPerfect() {
                 ChangeRankFill(_rankManager.CurrentRank.PerfectIncrement);
                 _currentPerfectHitStreak += 1;
-                if (_currentPerfectHitStreak >= perfectHitsToSlowRankDrain) 
+                if (_currentPerfectHitStreak >= _perfectHitsToSlowRankDrain) 
                     _slowerRankPerformanceDrain = true;
             }
             PlayerActionEvents.MissPerformed += UpdateOnMiss;
@@ -71,7 +71,7 @@ namespace Player.Statistics.Score {
         private void Update() {
             if (_rankPerformance > 0f && !_disableRankPerformanceDrain) {
                 _rankPerformance += _slowerRankPerformanceDrain
-                    ? _rankManager.CurrentRank.PassiveDecrement * Time.deltaTime * rankPerformanceSlowFactor
+                    ? _rankManager.CurrentRank.PassiveDecrement * Time.deltaTime * _rankPerformanceSlowFactor
                     : _rankManager.CurrentRank.PassiveDecrement * Time.deltaTime;
                 if (_rankPerformance < 0f) _rankPerformance = 0f;
                 PlayerEvents.OnRankPerformanceChanged(_rankPerformance);

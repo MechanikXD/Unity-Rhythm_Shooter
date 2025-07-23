@@ -11,7 +11,7 @@ namespace Player.States {
         public AirborneState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) {
             _airborneMoveSpeed = Player.AirborneMoveSpeed;
-            _gravityMultiplier = Player.gravityMultiplier;
+            _gravityMultiplier = Player._gravityMultiplier;
             _coyoteTime = Player.CoyoteTime;
         }
 

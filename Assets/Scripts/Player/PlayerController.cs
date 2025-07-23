@@ -10,24 +10,26 @@ using UnityEngine.InputSystem;
 namespace Player {
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : MonoBehaviour {
-        [SerializeField] private CharacterController controller;
-        [SerializeField] private Transform attachedCamera;
-        [SerializeField] private PlayerInput playerInput;
+        [SerializeField] private CharacterController _controller;
+        [SerializeField] private Transform _attachedCamera;
+        [SerializeField] private PlayerInput _playerInput;
         private WeaponBase _currentWeapon = new AnyDirectionTestWeapon();
         private StateMachine _stateMachine;
+
         [Header("MOVE SOMEWHERE ELSE")]
-        [SerializeField] private SongData songData;
-        [SerializeField] private AudioSource songSource;
+        [SerializeField] private SongData _songData;
+
+        [SerializeField] private AudioSource _songSource;
 
         private bool _leftActionBuffered;
         private bool _rightActionBuffered;
         private float _currentBufferTime;
         private bool _doBufferCounting;
-        [SerializeField] private float maxInputBufferTime = 0.1f;
-        
+        [SerializeField] private float _maxInputBufferTime = 0.1f;
+
         public PlayerStates States { get; private set; }
-        public CharacterController Controller => controller;
-        
+        public CharacterController Controller => _controller;
+
         public InputAction MoveKey { get; private set; }
         public InputAction JumpKey { get; private set; }
         public InputAction DashKey { get; private set; }
@@ -35,61 +37,61 @@ namespace Player {
         #region Player Settings
 
         [Header("Mouse Settings")]
-        [SerializeField] private float mouseSensitivity = 50f;
-        [SerializeField] private Vector2 cameraPitchBounds = new Vector2(-80f, 80f);
+        [SerializeField] private float _mouseSensitivity = 50f;
+        [SerializeField] private Vector2 _cameraPitchBounds = new Vector2(-80f, 80f);
         private float _cameraRotation; // Camera rotation along X axis only
         private float _bodyRotation; // Rotation of player along Y axis
-        
+
         [Header("Movement Settings")]
-        [SerializeField] public float gravityMultiplier = 0.85f;
+        [SerializeField] public float _gravityMultiplier = 0.85f;
         private Vector2 _moveDirection; // Store data from OnMove method
-        [SerializeField] private float moveSpeed = 10f;
-        
-        public float MoveSpeed => moveSpeed;
-        
+        [SerializeField] private float _moveSpeed = 10f;
+
+        public float MoveSpeed => _moveSpeed;
+
         [Header("Jump Settings")]
-        [SerializeField] private float coyoteTime = 0.2f;
-        [SerializeField] private float verticalJumpSpeed = 5f;
-        [SerializeField] private Vector2 jumpDurationBounds = new Vector2(0.15f, 0.35f);
-        [SerializeField] private float airborneMoveSpeed = 5f;
-        [SerializeField] private float forwardJumpSpeedMultiplier = 3f;
-        
+        [SerializeField] private float _coyoteTime = 0.2f;
+        [SerializeField] private float _verticalJumpSpeed = 5f;
+        [SerializeField] private Vector2 _jumpDurationBounds = new Vector2(0.15f, 0.35f);
+        [SerializeField] private float _airborneMoveSpeed = 5f;
+        [SerializeField] private float _forwardJumpSpeedMultiplier = 3f;
+
         public float CurrentAirborneTime { get; internal set; }
 
-        public float CoyoteTime => coyoteTime;
-        public float VerticalJumpSpeed => verticalJumpSpeed;
-        public Vector2 JumpDurationBounds => jumpDurationBounds;
-        public float AirborneMoveSpeed => airborneMoveSpeed;
-        public float ForwardJumpSpeedMultiplier => forwardJumpSpeedMultiplier;
-        
+        public float CoyoteTime => _coyoteTime;
+        public float VerticalJumpSpeed => _verticalJumpSpeed;
+        public Vector2 JumpDurationBounds => _jumpDurationBounds;
+        public float AirborneMoveSpeed => _airborneMoveSpeed;
+        public float ForwardJumpSpeedMultiplier => _forwardJumpSpeedMultiplier;
+
         [Header("Dash Settings")]
-        [SerializeField] private float dashCooldownTime = 1.2f;
-        [SerializeField] private float dashDuration = 0.2f;
-        [SerializeField] private float dashSpeed = 25f;
+        [SerializeField] private float _dashCooldownTime = 1.2f;
+        [SerializeField] private float _dashDuration = 0.2f;
+        [SerializeField] private float _dashSpeed = 25f;
         public bool DashInCooldown { get; private set; }
         private float _currentDashCooldown;
-        
-        public float DashDuration => dashDuration;
-        public float DashSpeed => dashSpeed;
-        
+
+        public float DashDuration => _dashDuration;
+        public float DashSpeed => _dashSpeed;
+
         #endregion
 
         public bool IsMoving => MoveKey.IsPressed();
         public bool IsJumping => JumpKey.IsPressed();
-        public bool IsGrounded => controller.isGrounded;
-        
-        public Vector3 CameraForward => attachedCamera.forward;
-        
+        public bool IsGrounded => _controller.isGrounded;
+
+        public Vector3 CameraForward => _attachedCamera.forward;
+
         public Vector3 GetCameraRelativeVector(float vectorMultiplier) {
             Vector3 playerRelativeVector = (_moveDirection.y * CameraForward +
-                                            _moveDirection.x * attachedCamera.right) *
+                                            _moveDirection.x * _attachedCamera.right) *
                                            vectorMultiplier;
             playerRelativeVector.y = 0;
             return playerRelativeVector;
         }
 
         private IEnumerator RestoreDashLater() {
-            yield return new WaitForSeconds(dashCooldownTime);
+            yield return new WaitForSeconds(_dashCooldownTime);
             yield return new WaitUntil(() => IsGrounded);
             DashInCooldown = false;
         }
@@ -100,23 +102,23 @@ namespace Player {
         }
 
         #region Event Functions
-        
+
         private void Awake() {
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
             _currentWeapon.OnWeaponSelected();
-            
+
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
-            
-            MoveKey = playerInput.actions["Move"];
-            JumpKey = playerInput.actions["Jump"];
-            DashKey = playerInput.actions["Dash"];
+
+            MoveKey = _playerInput.actions["Move"];
+            JumpKey = _playerInput.actions["Jump"];
+            DashKey = _playerInput.actions["Dash"];
         }
 
         private void Start() {
-            Conductor.Instance.Initialize(songData, songSource);
+            Conductor.Instance.Initialize(_songData, _songSource);
         }
 
         private void Update() {
@@ -125,13 +127,17 @@ namespace Player {
 
             if (_doBufferCounting) {
                 _currentBufferTime += Time.deltaTime;
-                if (_currentBufferTime <= maxInputBufferTime) return;
+                if (_currentBufferTime <= _maxInputBufferTime) return;
                 var songPositionWhenHit = Conductor.Instance.SongPosition - _currentBufferTime;
+
                 // ReSharper disable Unity.PerformanceCriticalCodeInvocation
-                if (_leftActionBuffered) PlayerActionEvents.OnPlayerLeftAction(songPositionWhenHit, _currentWeapon);
-                if (_rightActionBuffered) PlayerActionEvents.OnPlayerRightAction(songPositionWhenHit, _currentWeapon);
+                if (_leftActionBuffered)
+                    PlayerActionEvents.OnPlayerLeftAction(songPositionWhenHit, _currentWeapon);
+                if (_rightActionBuffered)
+                    PlayerActionEvents.OnPlayerRightAction(songPositionWhenHit, _currentWeapon);
+
                 // ReSharper restore Unity.PerformanceCriticalCodeInvocation
-                
+
                 _doBufferCounting = false;
                 _currentBufferTime = 0f;
                 _leftActionBuffered = false;
@@ -141,18 +147,22 @@ namespace Player {
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
-        public void OnMove(InputValue currentMoveDirection) => _moveDirection = currentMoveDirection.Get<Vector2>();
+        public void OnMove(InputValue currentMoveDirection) =>
+            _moveDirection = currentMoveDirection.Get<Vector2>();
 
         public void OnLook(InputValue lookDirection) {
             // Get mouse position
-            var look = lookDirection.Get<Vector2>() * (mouseSensitivity * Time.deltaTime);
+            var look = lookDirection.Get<Vector2>() * (_mouseSensitivity * Time.deltaTime);
+
             // Rotate player instead of camera
             _bodyRotation += look.x;
             transform.rotation = Quaternion.Euler(0f, _bodyRotation, 0f);
+
             // Camera rotate here
             _cameraRotation -= look.y;
-            _cameraRotation = Mathf.Clamp(_cameraRotation, cameraPitchBounds.x, cameraPitchBounds.y);
-            attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
+            _cameraRotation =
+                Mathf.Clamp(_cameraRotation, _cameraPitchBounds.x, _cameraPitchBounds.y);
+            _attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
         }
 
         public void OnLeftAction() {

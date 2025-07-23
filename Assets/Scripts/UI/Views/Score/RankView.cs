@@ -5,12 +5,12 @@ using UnityEngine.UI;
 namespace UI.Views.Score {
     [Serializable]
     public class RankView {
-        [SerializeField] private Image fillImage;
-        [SerializeField] private GameObject mainObject;
+        [SerializeField] private Image _fillImage;
+        [SerializeField] private GameObject _mainObject;
 
-        public void ChangeFill(float fillAmount) => fillImage.fillAmount = fillAmount;
+        public void ChangeFill(float fillAmount) => _fillImage.fillAmount = fillAmount;
 
-        public void Enable() => mainObject.SetActive(true);
-        public void Disable() => mainObject.SetActive(false);
+        public void Enable() => _mainObject.SetActive(true);
+        public void Disable() => _mainObject.SetActive(false);
     }
 }
