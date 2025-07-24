@@ -1,6 +1,6 @@
-﻿using Core.Music;
-using Core.StateMachine.Base;
-using Core.StateMachine.StateImplementations;
+﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Behaviour.StateImplementations;
+using Core.Music;
 using UnityEngine;
 
 namespace Player.States {

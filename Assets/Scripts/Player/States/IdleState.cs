@@ -1,5 +1,5 @@
-﻿using Core.StateMachine.Base;
-using Core.StateMachine.StateImplementations;
+﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Behaviour.StateImplementations;
 
 namespace Player.States {
     public class IdleState : PlayerState {

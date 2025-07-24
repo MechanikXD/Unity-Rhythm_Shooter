@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Core.Level.Room.Enemy;
 using UnityEngine;
 
 namespace Core.Level.Room {
@@ -7,14 +9,19 @@ namespace Core.Level.Room {
     /// All info needed about each specific room.
     /// </summary>
     public class RoomInfo : MonoBehaviour {
+        [SerializeField] private bool _isBossBattle;
         // Exits/Entrances that this room has
         [SerializeField] private List<Transform> _exits;
         // Info about this room shape. Needed to check ability to place this room.
         [SerializeField] private BoxColliderInfo[] _roomColliders;
         // Point where enemy spawn within this room 
         [SerializeField] private Transform[] _enemySpawnPoints;
-        // Also there should be room entrance colliders,
-        // room ID (unique to each created room), room prefab ID (unique to room prefabs) 
+        [SerializeField] private EnemyInfo _enemyInfo;
+        [SerializeField] private BoxCollider[] _roomEntrerTriggers;
+        [SerializeField] private int _prefabId;
+        public int PrefabId => _prefabId;   // Identifies this room, shared with other same rooms
+        public int RoomId { get; private set; } // Identifies this room in level
+        public bool IsBossBattle => _isBossBattle;
         
         public List<Transform> ExitPositions => _exits;
         public int ExitCount => _exits.Count;
@@ -85,6 +92,12 @@ namespace Core.Level.Room {
                 _exits.Remove(thisRoomExit);
                 break;
             }
+        }
+        /// <summary> Sets id of this room (level based) </summary>
+        public void SetID(int newId) => RoomId = newId;
+
+        public void StartCombat() {
+            throw new NotImplementedException();
         }
     }
 }

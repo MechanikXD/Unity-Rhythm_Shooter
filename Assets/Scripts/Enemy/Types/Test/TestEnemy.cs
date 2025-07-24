@@ -1,4 +1,4 @@
-﻿using Core.StateMachine.Base;
+﻿using Core.Behaviour.FiniteStateMachine;
 using DG.Tweening;
 using Enemy.Base;
 using Player.Statistics.Score;

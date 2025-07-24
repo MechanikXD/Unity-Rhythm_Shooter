@@ -1,4 +1,4 @@
-﻿namespace Core.StateMachine.Base {
+﻿namespace Core.Behaviour.FiniteStateMachine {
     /// <summary>
     /// The abstract class for state of StateMachine.
     /// </summary>

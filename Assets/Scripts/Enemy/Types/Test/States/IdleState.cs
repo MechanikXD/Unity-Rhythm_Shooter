@@ -1,4 +1,4 @@
-﻿using Core.StateMachine.Base;
+﻿using Core.Behaviour.FiniteStateMachine;
 
 namespace Enemy.Types.Test.States {
     public class IdleState : State {
