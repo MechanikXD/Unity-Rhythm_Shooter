@@ -32,7 +32,8 @@ namespace Core.Level.Room.Enemy {
 
         public bool IsWaveBased => _spawnLogic is SpawnLogic.Waves or SpawnLogic.RandomWaves;
         public bool IsBountyBased => _spawnLogic is SpawnLogic.Bounty or SpawnLogic.BountyWithOdds;
-        
+        public bool AllTargetsDefeated => !IsBountyBased || _targets.Length - _targetsDefeated == 0;
+
         public bool AdvanceWave() {
             _currentWave++;
             _currentEnemyIndex = 0;
@@ -72,7 +73,7 @@ namespace Core.Level.Room.Enemy {
         }
 
         private EnemyBase NextRandomEnemy() {
-            if (_currentEnemyCount > _enemyAmount) return null;
+            if (_currentEnemyCount >= _enemyAmount) return null;
 
             var next = _enemyPool[Random.Range(0, _enemyPool.Length)];
             _currentEnemyCount++;
@@ -83,13 +84,14 @@ namespace Core.Level.Room.Enemy {
             if (_currentEnemyIndex >= _targets.Length) return null;
 
             var next = _targets[_currentEnemyIndex];
+            next.SetIsTarget();
             _currentEnemyIndex++;
             return next;
         }
 
         private EnemyBase NextBountyTargetWithOdds() {
             var nextTarget = NextBountyTarget();
-            if (nextTarget == null && _targets.Length - _targetsDefeated > 0) {
+            if (nextTarget == null && !AllTargetsDefeated) {
                 nextTarget = NextRandomEnemy();
             }
 
