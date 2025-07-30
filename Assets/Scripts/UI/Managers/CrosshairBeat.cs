@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Core.Music;
 using DG.Tweening;
 using Player;
@@ -10,8 +12,9 @@ using UnityEngine.UI;
 namespace UI.Managers {
     public class CrosshairBeat : MonoBehaviour {
         [SerializeField] private Image _beatPrefab;
-        private (Beat left, Beat right)[] _beatPool;
-        private int _beatPoolIndex;
+        private Queue<(Beat left, Beat right)> _beats;
+        // private (Beat left, Beat right)[] _beatPool;
+        // private int _beatPoolIndex;
         private Action _unsubscribeFromEventsAction;
         
         [SerializeField] private BeatSettings _defaultBeatSettings;
@@ -44,10 +47,11 @@ namespace UI.Managers {
         private void Start() {
             _singleBeatTime = Conductor.Instance.SongData.Crotchet * _beatsPerSide;
             _maxBeatsPerSide = _beatsPerSide + 1;
+
+            _beats = new Queue<(Beat left, Beat right)>(_maxBeatsPerSide);
             
-            _beatPool = new (Beat left, Beat right)[_maxBeatsPerSide];
             for (var i = 0; i < _maxBeatsPerSide; i++) {
-                _beatPool[i] = InstantiateNewBeats();
+                _beats.Enqueue(InstantiateNewBeats());
             }
         }
 
@@ -115,41 +119,31 @@ namespace UI.Managers {
         /// <summary>
         /// Modifies beat playing on screen
         /// </summary>
-        /// <param name="beatIndexInInteractionOrder"> index of beat to start from in order from closest to crosshair </param>
+        /// <param name="skipBeats"> How many beats to skip starting from closest one </param>
         /// <param name="modifier"> Function to modify beats </param>
         /// <param name="count"> amount of beats to be modified </param>
-        private void ModifyBeat(int beatIndexInInteractionOrder, Action<Beat> modifier, int count=1) {
-            // Get correct index from pool (current one - number of beats per area)
-            var index = _beatPoolIndex - count - beatIndexInInteractionOrder;
-            if (index < 0) index = _maxBeatsPerSide + index;
-            
-            // If too many modifications -> append to be called repeatedly from conductor.
-            if (count > _maxBeatsPerSide) {
-                foreach (var beats in _beatPool) {
+        private void ModifyBeat(int skipBeats, Action<Beat> modifier, int count=1) {
+            // function that will modify beats and return true or false
+            // Whether all actions were done or not
+            bool DoCycle((Beat left, Beat right) beats) {
+                if (skipBeats > 0) {
+                    skipBeats--;
+                    return false;
+                }
+                else {
+                    count--;
                     modifier(beats.left);
                     modifier(beats.right);
-                }
-                
-                Conductor.CallOnNextBeats(() => {
-                    modifier(_beatPool[index].left);
-                    modifier(_beatPool[index].right);
-
-                    index++;
-                    if (index >= _maxBeatsPerSide) index = 0;
-                }, count - _maxBeatsPerSide);
-            }
-            // Otherwise, just modify existing ones
-            else {
-                while (count > 0) {
-                    modifier(_beatPool[index].left);
-                    modifier(_beatPool[index].right);
-
-                    index++;
-                    if (index >= _maxBeatsPerSide) index = 0;
-
-                    count--;
+                    return count == 0;
                 }
             }
+            // Modify active beats
+            if (_beats.Reverse().Any(DoCycle)) return;
+            // Still to few, call recursively when new inactive appears
+            void DoCycleWrapper() {
+                if (DoCycle(_beats.Peek())) Conductor.NextBeatEvent -= DoCycleWrapper;
+            }
+            Conductor.NextBeatEvent += DoCycleWrapper;
         }
         // Instantiates new beats on the scene and sets them to starting position
         private (Beat leftBeat, Beat rightBeat) InstantiateNewBeats() {
@@ -197,13 +191,10 @@ namespace UI.Managers {
         }
         // Starts new instances of beats
         private void StartNewBeats() {
-            _beatPool[_beatPoolIndex].left
-                .Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
-            _beatPool[_beatPoolIndex].right
-                .Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
-            // Advance Index
-            _beatPoolIndex++;
-            if (_beatPoolIndex >= _beatPool.Length) _beatPoolIndex = 0;
+            var newActiveBeats = _beats.Dequeue();
+            newActiveBeats.left.Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
+            newActiveBeats.right.Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
+            _beats.Enqueue(newActiveBeats);
         }
     }
 }

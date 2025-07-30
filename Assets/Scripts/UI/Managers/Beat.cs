@@ -15,6 +15,8 @@ namespace UI.Managers {
         private bool _isMirrored;
         [CanBeNull] private BeatSettings _settings;
         private Tweener _animation;
+
+        public Tweener CurrentAnimation => _animation;
         
         /// <summary>
         /// Sets new settings for current instance of beat. if in progress only changes it's color. 
