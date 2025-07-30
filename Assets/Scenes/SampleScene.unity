@@ -10861,7 +10861,7 @@ MonoBehaviour:
   _leftBeatArea: {fileID: 828702790}
   _rightBeatArea: {fileID: 521989024}
   _beatsPerSide: 2
-  _beatOffset: -0.02
+  _beatOffset: 0.02
   _perfectText: {fileID: 192934047}
   _goodText: {fileID: 1522629343}
   _missText: {fileID: 290807329}
