@@ -194,6 +194,8 @@ namespace Player {
                 _currentBufferTime = 0f;
             }
         }
+        
+        public void OnReload() {}
 
         #endregion
     }

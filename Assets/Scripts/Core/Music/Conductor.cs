@@ -1,4 +1,5 @@
 ﻿using System;
+using Core.Game;
 using Core.Music.Songs.Scriptable_Objects;
 using UnityEngine;
 
@@ -12,8 +13,8 @@ namespace Core.Music {
         private bool _isInitialized;
         private bool _interactedThisBeat;
         
-        [SerializeField] private float perfectHitWindow = 0.11f;
-        [SerializeField] private float goodHitWindow = 0.17f;
+        [SerializeField] private float _perfectHitWindow = 0.11f;
+        [SerializeField] private float _goodHitWindow = 0.17f;
         
         public static event Action NextBeatEvent;
         public static Conductor Instance {
@@ -70,15 +71,33 @@ namespace Core.Music {
         }
         /// <summary> Set that interaction was performed in current beat </summary>
         public void SetInteractedThisBeat() => _interactedThisBeat = true;
+
+        /// <summary>
+        /// Get relative position to closest beat
+        /// </summary>
+        /// <param name="songPosition"> Position of the song to check </param>
+        /// <returns> Late or early </returns>
+        public BeatHitRelative GetRelativeType(float songPosition) {
+            var lastBeatTime = _lastBeat;
+            var nextBeatTime = _lastBeat + SongData.Crotchet;
+            // Last beat relative (late) < next beat relative (early)
+            return Mathf.Abs(songPosition - lastBeatTime) < Mathf.Abs(nextBeatTime - songPosition)
+                ? BeatHitRelative.Late
+                : BeatHitRelative.Early;
+        }
+
+        public BeatHitRelative GetRelativeType() => GetRelativeType(SongPosition);
+
         /// <summary>
         /// Determines "Quality" of action based on given song position.
         /// Calculated as relative distance to closest beat.  
         /// </summary>
         /// <param name="songPosition"> position of the song when action was performed </param>
+        /// <param name="ignoreDisabled"> Do this action despite previous interactions </param>
         /// <returns> Sad "Quality of the action" </returns>
-        public BeatHitType DetermineHitQuality(float songPosition) {
-            if (_interactionsDisabled) return BeatHitType.Disabled;
-            if (_interactedThisBeat) return BeatHitType.Miss;
+        public BeatHitType DetermineHitQuality(float songPosition, bool ignoreDisabled=false) {
+            if (_interactionsDisabled && !ignoreDisabled) return BeatHitType.Disabled;
+            if (_interactedThisBeat && !ignoreDisabled) return BeatHitType.Miss;
             
             var lastBeatTime = _lastBeat;
             var nextBeatTime = _lastBeat + SongData.Crotchet;
@@ -88,21 +107,30 @@ namespace Core.Music {
                 Mathf.Abs(nextBeatTime - songPosition));
             
             // Late perfect || Early perfect
-            if (relativeToBeat <= perfectHitWindow) return BeatHitType.Perfect;
+            if (relativeToBeat <= _perfectHitWindow) return BeatHitType.Perfect;
             // Late good  || Early good
-            if (relativeToBeat <= goodHitWindow) return BeatHitType.Good;
+            if (relativeToBeat <= _goodHitWindow) return BeatHitType.Good;
                 
             return BeatHitType.Miss;
         }
+
+        public BeatHitType DetermineHitQuality(bool ignoreDisabled = false) =>
+            DetermineHitQuality(SongPosition, ignoreDisabled);
+
         /// <summary>
         /// Disables interaction with next several beats.
         /// if disabled, <b>DetermineHitQuality</b> will return <b>BeatHitType.Disabled</b>.
         /// </summary>
         /// <param name="count"> amount of beats to disable, including current(next) one </param>
-        public void DisableNextInteractions(int count) {
+        /// <param name="halfBeats"> amount of half beats to additionally disable </param>
+        public void DisableNextInteractions(int count, int halfBeats=0) {
             _interactionsDisabled = true;
+            if (GameManager.Instance.PlayerCrosshair != null) 
+                GameManager.Instance.PlayerCrosshair.SetNextBeatsInactive(count, 0);
+
             // Including current beat, because counting on half crochet need to be *2
-            _disabledInteractionsCount = count * 2;
+            _disabledInteractionsCount = count * 2 + halfBeats +
+                GetRelativeType() == BeatHitRelative.Early ? 1 : 0;
         }
         /// <summary>
         /// Calls given function repeatedly each beat for given amount on times.

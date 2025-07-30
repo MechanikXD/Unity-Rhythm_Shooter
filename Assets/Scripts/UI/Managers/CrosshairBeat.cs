@@ -82,11 +82,9 @@ namespace UI.Managers {
             void ShowPerfectPopUp() => ShowPopUp(_perfectText);
             void ShowGoodPopUp() => ShowPopUp(_goodText);
             void ShowMissPopUp() => ShowPopUp(_missText);
-            void DimMissedBeats() => ModifyBeat(0, beat => beat.SetNewSettings(_missBeatSettings), 2);
             PlayerActionEvents.PerfectPerformed += ShowPerfectPopUp;
             PlayerActionEvents.GoodPerformed += ShowGoodPopUp;
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
-            PlayerActionEvents.MissPerformed += DimMissedBeats;
 
             _unsubscribeFromEventsAction = () => {
                 PlayerActionEvents.LeftPerfectPerformed -= LeftPerfect;
@@ -104,7 +102,6 @@ namespace UI.Managers {
                 PlayerActionEvents.PerfectPerformed -= ShowPerfectPopUp;
                 PlayerActionEvents.GoodPerformed -= ShowGoodPopUp;
                 PlayerActionEvents.MissPerformed -= ShowMissPopUp;
-                PlayerActionEvents.MissPerformed -= DimMissedBeats;
             };
             
             // This will skip first beat
@@ -115,6 +112,10 @@ namespace UI.Managers {
             _unsubscribeFromEventsAction = null;    // Clean up
 
             Conductor.NextBeatEvent -= StartNewBeats;
+        }
+
+        public void SetNextBeatsInactive(int count, int skipBeats) {
+            ModifyBeat(skipBeats, beat => beat.SetNewSettings(_missBeatSettings), count);
         }
         /// <summary>
         /// Modifies beat playing on screen
