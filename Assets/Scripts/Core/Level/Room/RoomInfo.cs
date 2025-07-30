@@ -1,23 +1,48 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using Core.Level.Room.Enemy;
+using Enemy;
+using Enemy.Base;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Core.Level.Room {
-    /// <summary>
-    /// All info needed about each specific room.
-    /// </summary>
+    /// <summary>  All info needed about each specific room. </summary>
     public class RoomInfo : MonoBehaviour {
+        [SerializeField] private bool _isBossBattle;
         // Exits/Entrances that this room has
         [SerializeField] private List<Transform> _exits;
+        private List<Transform> _removedExits;
+        // Prefab that will block exits when player enters this room
+        [SerializeField] private GameObject _exitBlocker;
+        private List<GameObject> _exitBlockers;
         // Info about this room shape. Needed to check ability to place this room.
         [SerializeField] private BoxColliderInfo[] _roomColliders;
         // Point where enemy spawn within this room 
         [SerializeField] private Transform[] _enemySpawnPoints;
-        // Also there should be room entrance colliders,
-        // room ID (unique to each created room), room prefab ID (unique to room prefabs) 
+        // All the info about this room enemies and their spawning logic
+        [SerializeField] private EnemyInfo _enemyInfo;
+        [SerializeField] private Transform _enemyParent;
+        private int _currentEnemyCount;
+        private Queue<EnemyBase> _enemyToSpawn;
+        [SerializeField] private RoomEnterTrigger[] _roomEnterTriggers;
+        [SerializeField] private int _prefabId;
+        public int PrefabId => _prefabId;   // Identifies this room, shared with other same rooms
+        public int RoomId { get; private set; } // Identifies this room in level
+        public bool IsBossBattle => _isBossBattle;
         
         public List<Transform> ExitPositions => _exits;
         public int ExitCount => _exits.Count;
+
+        private void Awake() {
+            _exitBlockers = new List<GameObject>();
+            _enemyToSpawn = new Queue<EnemyBase>();
+            _removedExits = new List<Transform>();
+            
+            foreach (var trigger in _roomEnterTriggers) trigger.SetReference(this);
+        }
+
         /// <summary>
         /// Tries to place this instance of room at given position by specific exit that exists within this room.
         /// </summary>
@@ -81,10 +106,126 @@ namespace Core.Level.Room {
             foreach (var thisRoomExit in _exits) {
                 if (thisRoomExit.localPosition != exit.localPosition || 
                     thisRoomExit.localRotation != exit.localRotation) continue;
-
+                
+                _removedExits.Add(thisRoomExit);
                 _exits.Remove(thisRoomExit);
                 break;
             }
+        }
+        /// <summary> Set id of this room (level based) </summary>
+        public void SetID(int newId) => RoomId = newId;
+
+        private bool TrySpawnNextEnemy() {
+            var nextEnemy = _enemyInfo.GetNextEnemy();
+
+            if (nextEnemy == null) {
+                if (_enemyInfo.IsWaveBased && _currentEnemyCount == 0 && _enemyInfo.AdvanceWave()) {
+                    foreach (var _ in _enemySpawnPoints) TrySpawnNextEnemy();
+                    return true;
+                }
+
+                if (_currentEnemyCount == 0) RoomEvents.OnCombatFinished();
+                return true;
+            }
+            
+            var randomPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Length)];
+            var spawnPosition = randomPoint.localPosition;
+            if (SpawnPointIsOccupied(randomPoint, nextEnemy.ColliderSize)) {
+                foreach (var spawnPoint in _enemySpawnPoints) {
+                    if (SpawnPointIsOccupied(spawnPoint, nextEnemy.ColliderSize)) continue;
+                    spawnPosition = spawnPoint.localPosition;
+                    spawnPosition.y += nextEnemy.ColliderSize.y / 2;
+                    
+                    _currentEnemyCount++;
+                    Instantiate(nextEnemy, spawnPosition, spawnPoint.rotation).transform
+                        .SetParent(_enemyParent, false);
+                    Physics.SyncTransforms();
+                    return true;
+                }
+                
+                _enemyToSpawn.Enqueue(nextEnemy);
+                StartCoroutine(TrySpawnEnemyLater(1f, nextEnemy.ColliderSize));
+                return false;
+            }
+            
+            spawnPosition.y += nextEnemy.ColliderSize.y / 2;
+            _currentEnemyCount++;
+            Instantiate(nextEnemy, spawnPosition, randomPoint.rotation).transform
+                .SetParent(_enemyParent, false);
+            Physics.SyncTransforms();
+            return true;
+        }
+
+        private static bool SpawnPointIsOccupied(Transform point, Vector3 colliderSize) {
+            var boxCenter = point.position;
+            boxCenter.y += colliderSize.y / 2;
+            var adjustedSize = colliderSize / 2f * 1.05f;
+
+            return Physics.CheckBox(boxCenter, adjustedSize, Quaternion.identity);
+        }
+
+        private IEnumerator TrySpawnEnemyLater(float delayBetweenChecks, Vector3 colliderSize) {
+            if (_enemyToSpawn.Count == 0) yield break;
+            if (_enemyInfo.IsBountyBased && _enemyInfo.AllTargetsDefeated) {
+                _enemyToSpawn.Clear();
+                if (_currentEnemyCount > 0) RoomEvents.OnCombatFinished();
+                yield break;
+            }
+
+            yield return new WaitForSeconds(delayBetweenChecks);
+            
+            foreach (var spawnPoint in _enemySpawnPoints) {
+                if (SpawnPointIsOccupied(spawnPoint, colliderSize)) continue;
+
+                var newEnemy = _enemyToSpawn.Dequeue();
+                _currentEnemyCount++;
+                
+                var spawnPosition = spawnPoint.localPosition;
+                spawnPosition.y += colliderSize.y / 2;
+                
+                Instantiate(newEnemy, spawnPosition, spawnPoint.rotation).transform
+                    .SetParent(_enemyParent, false);
+                Physics.SyncTransforms();
+            }
+        }
+
+        public void StartCombat() {
+            RoomEvents.OnRoomEntered();
+            // Remove all enter triggers
+            foreach (var enterTrigger in _roomEnterTriggers) Destroy(enterTrigger.gameObject);
+            SetupCombatEvents();
+
+            foreach (var removed in _removedExits) {
+                var blocker = Instantiate(_exitBlocker, removed.position, removed.rotation, removed);
+                _exitBlockers.Add(blocker);
+            }
+            // Start Spawning enemies
+            foreach (var _ in _enemySpawnPoints) TrySpawnNextEnemy();
+        }
+
+        private void SetupCombatEvents() {
+            void DecreaseEnemyCount() => _currentEnemyCount--;
+            void SpawnNextEnemy() => TrySpawnNextEnemy();
+            
+            EnemyEvents.EnemyDefeated += DecreaseEnemyCount;
+            EnemyEvents.TargetDefeated += _enemyInfo.TargetDefeated;
+            
+            if (_enemyInfo.IsBountyBased) EnemyEvents.NormalDefeated += SpawnNextEnemy;
+            else EnemyEvents.EnemyDefeated += SpawnNextEnemy;
+            
+            void Unsubscribe() {
+                EnemyEvents.EnemyDefeated -= DecreaseEnemyCount;
+                EnemyEvents.TargetDefeated -= _enemyInfo.TargetDefeated;
+                
+                if (_enemyInfo.IsBountyBased) EnemyEvents.NormalDefeated -= SpawnNextEnemy;
+                else EnemyEvents.EnemyDefeated -= SpawnNextEnemy;
+
+                foreach (var blocker in _exitBlockers) Destroy(blocker);
+
+                RoomEvents.CombatFinished -= Unsubscribe;
+            }
+
+            RoomEvents.CombatFinished += Unsubscribe;
         }
     }
 }

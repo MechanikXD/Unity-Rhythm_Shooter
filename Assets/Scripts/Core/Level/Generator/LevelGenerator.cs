@@ -42,6 +42,7 @@ namespace Core.Level.Generator {
                     // Simple solution: exit and try again.
                     throw new ApplicationException("Couldn't generate all additional rooms");
                 }
+                // RemoveOverlappingExits();
                 BlockExistingExits();
             }
             catch (Exception) {
@@ -201,6 +202,21 @@ namespace Core.Level.Generator {
         /// <returns> Whether operation was successful or not </returns>
         private static bool TryPlaceRoom(RoomInfo room) {
             return TryPlaceRoomAtExits(room, 0, _availableExits.Count);
+        }
+        /// <summary> Removes exits that have exact same position </summary>
+        private static void RemoveOverlappingExits() {
+            var exitHash = new HashSet<Vector3>();
+            var exitsToRemove = new List<Vector3>();
+            
+            foreach (var exit in _availableExits) {
+                var exitPosition = exit.position;
+                
+                if (!exitHash.Add(exitPosition)) {
+                    exitsToRemove.Add(exitPosition);
+                }
+            }
+
+            _availableExits.RemoveAll(exit => exitsToRemove.Contains(exit.position));
         }
     }
 }

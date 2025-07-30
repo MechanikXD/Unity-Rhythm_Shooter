@@ -8,13 +8,13 @@ namespace Player.Weapons {
         private const float MaxHitDistance = 50f;
         private Func<Vector3, Ray> _rayForward;
 
-        public override void LeftPerfectAction() => ShootForward(3);
+        public override void LeftPerfectAction() => ShootForward(2);
 
-        public override void LeftGoodAction() => ShootForward(2);
+        public override void LeftGoodAction() => ShootForward(1);
 
-        public override void RightPerfectAction() => ShootForward(3);
+        public override void RightPerfectAction() => ShootForward(2);
 
-        public override void RightGoodAction() => ShootForward(2);
+        public override void RightGoodAction() => ShootForward(1);
 
         public override void OnWeaponSelected() {
             base.OnWeaponSelected();

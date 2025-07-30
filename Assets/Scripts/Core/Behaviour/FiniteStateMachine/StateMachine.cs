@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace Core.StateMachine.Base {
+namespace Core.Behaviour.FiniteStateMachine {
     /// <summary>
     /// Basic implementation of state machine
     /// </summary>
