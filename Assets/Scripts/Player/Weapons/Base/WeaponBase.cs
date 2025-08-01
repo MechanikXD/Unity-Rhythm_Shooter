@@ -2,6 +2,9 @@
 
 namespace Player.Weapons.Base {
     public abstract class WeaponBase {
+        protected bool InReload;
+        protected bool InFireDelay;
+        
         public abstract void LeftPerfectAction();
         public abstract void LeftGoodAction();
         public virtual void LeftMissedAction() {

@@ -29,6 +29,7 @@ namespace Player {
 
         public PlayerStates States { get; private set; }
         public CharacterController Controller => _controller;
+        public Vector3 Position => transform.position;
 
         public InputAction MoveKey { get; private set; }
         public InputAction JumpKey { get; private set; }
@@ -53,8 +54,7 @@ namespace Player {
         [SerializeField] private float _coyoteTime = 0.2f;
         [SerializeField] private float _verticalJumpSpeed = 5f;
         [SerializeField] private Vector2 _jumpDurationBounds = new Vector2(0.15f, 0.35f);
-        [SerializeField] private float _airborneMoveSpeed = 5f;
-        [SerializeField] private float _forwardJumpSpeedMultiplier = 3f;
+        [SerializeField] private float _airborneMoveSpeed = 10f;
 
         public float CurrentAirborneTime { get; internal set; }
 
@@ -62,7 +62,6 @@ namespace Player {
         public float VerticalJumpSpeed => _verticalJumpSpeed;
         public Vector2 JumpDurationBounds => _jumpDurationBounds;
         public float AirborneMoveSpeed => _airborneMoveSpeed;
-        public float ForwardJumpSpeedMultiplier => _forwardJumpSpeedMultiplier;
 
         [Header("Dash Settings")]
         [SerializeField] private float _dashCooldownTime = 1.2f;
@@ -194,6 +193,8 @@ namespace Player {
                 _currentBufferTime = 0f;
             }
         }
+        
+        public void OnReload() {}
 
         #endregion
     }

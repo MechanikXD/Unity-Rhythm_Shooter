@@ -7,7 +7,7 @@ namespace Player.Weapons {
     public class AnyDirectionTestWeapon : WeaponBase {
         private const float MaxHitDistance = 50f;
         private Func<Vector3, Ray> _rayForward;
-
+        
         public override void LeftPerfectAction() => ShootForward(2);
 
         public override void LeftGoodAction() => ShootForward(1);

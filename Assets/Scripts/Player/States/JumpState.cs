@@ -7,20 +7,26 @@ namespace Player.States {
         private readonly float _jumpUpwardsSpeed;
         private readonly Vector2 _jumpDurationBounds;
         private readonly float _airborneMoveSpeed;
-        private readonly float _forwardJumpSpeedMultiplier;
         private float _currentJumpDuration;
+        private Vector3 _currentMoveVector;
+        private const float LerpSpeed = 10f;
+
+        private Vector3 _currentVelocity;
+        private Vector3 _targetVelocity;
 
         public JumpState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) {
             _jumpUpwardsSpeed = Player.VerticalJumpSpeed;
             _jumpDurationBounds = Player.JumpDurationBounds;
             _airborneMoveSpeed = Player.AirborneMoveSpeed;
-            _forwardJumpSpeedMultiplier = Player.ForwardJumpSpeedMultiplier;
         }
 
         public override void EnterState() {
             PlayerEvents.OnJumpedEvent();
             _currentJumpDuration = 0f;
+            
+            _currentVelocity = Vector3.zero;
+            _targetVelocity = Vector3.zero;
         }
 
         public override void FrameUpdate() {
@@ -31,11 +37,14 @@ namespace Player.States {
                 
                 if (Player.DashKey.IsPressed() && !Player.DashInCooldown)
                     AttachedStateMachine.ChangeState(Player.States.DashState);
-
+                
                 Vector3 playerRelativeVector = Player.GetCameraRelativeVector(_airborneMoveSpeed);
                 playerRelativeVector.y = _jumpUpwardsSpeed;
-                playerRelativeVector += Player.CameraForward.normalized * _forwardJumpSpeedMultiplier;
-                Player.Controller.Move(playerRelativeVector * Time.deltaTime);
+                _targetVelocity = playerRelativeVector;
+    
+                _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, LerpSpeed * Time.deltaTime);
+    
+                Player.Controller.Move(_currentVelocity * Time.deltaTime);
             }
             else {
                 Player.CurrentAirborneTime += _currentJumpDuration;

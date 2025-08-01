@@ -44,7 +44,7 @@ namespace Player.States {
         }
         
         private void OnPlayerDashed(float songPosition) {
-            var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
+            var beatType = Conductor.Instance.DetermineHitQuality(songPosition, ignoreDisabled:true);
             
             if (beatType == BeatHitType.Disabled) return;
             Conductor.Instance.SetInteractedThisBeat();

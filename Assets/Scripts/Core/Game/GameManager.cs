@@ -2,6 +2,9 @@
 using Core.Behaviour.FiniteStateMachine;
 using Core.Game.States;
 using Core.Level.Room;
+using JetBrains.Annotations;
+using Player;
+using UI.Managers;
 using UnityEngine;
 
 namespace Core.Game {
@@ -9,6 +12,10 @@ namespace Core.Game {
         private static GameManager _instance;
         private StateMachine _stateMachine;
         private GameStates _states;
+        private PlayerController _playerReference;
+        private CrosshairBeat _playerCrosshair;
+
+        [CanBeNull] public CrosshairBeat PlayerCrosshair => _playerCrosshair;
 
         private Dictionary<(int unique, int global), RoomInfo> _levelRooms;
         
@@ -29,6 +36,9 @@ namespace Core.Game {
             _states = new GameStates(_stateMachine);
             // TODO: Replace with last remembered state
             _stateMachine.Initialize(_states.RoamingState);
+
+            _playerReference = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+            _playerCrosshair = _playerReference.GetComponentInChildren<CrosshairBeat>();
         }
 
         public void EnterBattleState(RoomInfo enteredRoom) {
