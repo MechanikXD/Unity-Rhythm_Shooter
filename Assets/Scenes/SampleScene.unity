@@ -9572,8 +9572,7 @@ MonoBehaviour:
   _coyoteTime: 0.2
   _verticalJumpSpeed: 5
   _jumpDurationBounds: {x: 0.15, y: 0.35}
-  _airborneMoveSpeed: 5
-  _forwardJumpSpeedMultiplier: 3
+  _airborneMoveSpeed: 10
   _dashCooldownTime: 1.2
   _dashDuration: 0.2
   _dashSpeed: 25

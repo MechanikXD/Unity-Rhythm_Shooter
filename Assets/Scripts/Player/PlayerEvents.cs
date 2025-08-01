@@ -24,7 +24,6 @@ namespace Player {
         public static void OnDamageCalculated(ref int damage) => DamageCalculated?.Invoke(damage);
         public static void OnAttackFailed() => AttackFailed?.Invoke();
         public static void OnDamageDealt() => DamageDealt?.Invoke();
-
         
         public static event Action<long> ScoreChanged;
         public static event Action<int> ComboCountChanged;
