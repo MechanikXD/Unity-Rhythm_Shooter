@@ -1,5 +1,4 @@
 ﻿using System;
-using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -16,33 +15,6 @@ namespace Player.Weapons {
         public override void RightPerfectAction() => ShootForward(2);
 
         public override void RightGoodAction() => ShootForward(1);
-
-        public override void OnReload() {
-            throw new NotImplementedException();
-        }
-        // TODO: Do all of the reload with animation triggers
-        protected override void StartReload() {
-            var relative = Conductor.Instance.GetRelativeType();
-            if (relative == BeatHitRelative.Early) {
-                Conductor.Instance.DisableNextInteractions(2);
-            }
-            else Conductor.Instance.DisableNextInteractions(1, halfBeats:1);
-        }
-
-        protected override void StartSlowReload() {
-            Conductor.Instance.DisableNextInteractions(4);
-            // Reload
-        }
-
-        protected override void ContinueWithSlowReload() {
-            Conductor.Instance.DisableNextInteractions(1, halfBeats:1);
-            // Reload 
-        }
-
-        protected override void FastReload() {
-            InReload = false;
-            // Reload
-        }
 
         public override void OnWeaponSelected() {
             base.OnWeaponSelected();
