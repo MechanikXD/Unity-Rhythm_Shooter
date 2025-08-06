@@ -17,11 +17,9 @@ namespace Player {
         public static void OnStartWalkingEvent() => StartWalking?.Invoke();
         public static void OnStoppedWalkingEvent() => StoppedWalking?.Invoke();
         
-        public static event Action<int> DamageCalculated;
         public static event Action DamageDealt;
         public static event Action AttackFailed;
 
-        public static void OnDamageCalculated(ref int damage) => DamageCalculated?.Invoke(damage);
         public static void OnAttackFailed() => AttackFailed?.Invoke();
         public static void OnDamageDealt() => DamageDealt?.Invoke();
         

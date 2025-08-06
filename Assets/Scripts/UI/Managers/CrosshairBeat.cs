@@ -192,6 +192,7 @@ namespace UI.Managers {
         }
         // Starts new instances of beats
         private void StartNewBeats() {
+            // TODO: Changes wrong beats
             var newActiveBeats = _beats.Dequeue();
             newActiveBeats.left.Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
             newActiveBeats.right.Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);

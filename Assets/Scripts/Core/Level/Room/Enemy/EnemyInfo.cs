@@ -28,7 +28,7 @@ namespace Core.Level.Room.Enemy {
         private int _targetsDefeated;
 
         [Header("Bounty With Odds")]
-        [ReadOnly, SerializeField] private string _note = "Use array above and enemy pool";
+        [SerializeField] private string _note = "Use array of targets above and enemy pool";
 
         public bool IsWaveBased => _spawnLogic is SpawnLogic.Waves or SpawnLogic.RandomWaves;
         public bool IsBountyBased => _spawnLogic is SpawnLogic.Bounty or SpawnLogic.BountyWithOdds;

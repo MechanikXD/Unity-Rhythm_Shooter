@@ -2,19 +2,16 @@
 
 namespace Player.Weapons.Base {
     public abstract class WeaponBase {
-        protected bool InReload;
-        protected bool InFireDelay;
-        
         public abstract void LeftPerfectAction();
         public abstract void LeftGoodAction();
         public virtual void LeftMissedAction() {
-            Conductor.Instance.DisableNextInteractions(2);
+            Conductor.Instance.DisableNextInteractions(1);
         }
         
         public abstract void RightPerfectAction();
         public abstract void RightGoodAction();
         public virtual void RightMissedAction() {
-            Conductor.Instance.DisableNextInteractions(2);
+            Conductor.Instance.DisableNextInteractions(1);
         }
 
         public virtual void BothPerfectAction() {
@@ -29,6 +26,10 @@ namespace Player.Weapons.Base {
             RightMissedAction();
             LeftMissedAction();
         }
+
+        public abstract bool CanDoLeftAction();
+        public abstract bool CanDoRightAction();
+        public abstract bool CanDoBothAction();
 
         public virtual void OnWeaponSelected() { }
         public virtual void OnWeaponDeselected() { }

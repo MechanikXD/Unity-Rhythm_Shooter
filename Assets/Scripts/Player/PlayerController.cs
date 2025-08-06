@@ -3,7 +3,6 @@ using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
 using Player.Weapons;
-using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,7 +12,7 @@ namespace Player {
         [SerializeField] private CharacterController _controller;
         [SerializeField] private Transform _attachedCamera;
         [SerializeField] private PlayerInput _playerInput;
-        private WeaponBase _currentWeapon = new AnyDirectionTestWeapon();
+        [SerializeField] private Revolvers _currentWeapon = new Revolvers();
         private StateMachine _stateMachine;
 
         [Header("MOVE SOMEWHERE ELSE")]

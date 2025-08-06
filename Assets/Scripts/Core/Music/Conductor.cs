@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Core.Game;
 using Core.Music.Songs.Scriptable_Objects;
 using UnityEngine;
@@ -15,6 +16,10 @@ namespace Core.Music {
         
         [SerializeField] private float _perfectHitWindow = 0.11f;
         [SerializeField] private float _goodHitWindow = 0.17f;
+
+        private Dictionary<string, Action> _onEveryBeat;
+        private Dictionary<string, (int count, Action action)> _onNextBeats;
+        private List<Action> _onNextBeat;
         
         public static event Action NextBeatEvent;
         public static Conductor Instance {
@@ -62,6 +67,10 @@ namespace Core.Music {
         public void Initialize(SongData songData, AudioSource audioSource) {
             _songData = songData;
             _songSource = audioSource;
+
+            _onEveryBeat = new Dictionary<string, Action>();
+            _onNextBeat = new List<Action>();
+            _onNextBeats = new Dictionary<string, (int count, Action action)>();
             
             _lastBeat = 0f;
             _songSource.clip = songData.Audio;
@@ -87,6 +96,35 @@ namespace Core.Music {
         }
 
         public BeatHitRelative GetRelativeType() => GetRelativeType(SongPosition);
+        /// <summary>
+        /// Register an actions that will be called each beat
+        /// </summary>
+        /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
+        /// <param name="action"> Action that will be called </param>
+        public void AppendRepeatingAction(string key, Action action) => _onEveryBeat.Add(key, action);
+        /// <summary>
+        /// Remove an action that previously has been called each beat
+        /// </summary>
+        /// <param name="key"> Unique identifier for said action </param>
+        public void RemoveRepeatingAction(string key) => _onEveryBeat.Remove(key);
+        /// <summary>
+        /// Calls given action on very next beat
+        /// </summary>
+        /// <param name="action"> Action that will be called </param>
+        public void CallOnNextBeat(Action action) => _onNextBeat.Add(action);
+        /// <summary>
+        /// Register an action to be called to a certain duration (in beats)
+        /// </summary>
+        /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
+        /// <param name="action"> Action that will be called </param>
+        /// <param name="callCount"> Amount of times said action will be called </param>
+        public void AddContinuousAction(string key, Action action, int callCount) =>
+            _onNextBeats.Add(key, (callCount, action));
+        /// <summary>
+        /// Remove an action that previously has been called for some duration
+        /// </summary>
+        /// <param name="key"> Unique identifier for said action </param>
+        public void RemoveContinuousAction(string key) => _onNextBeats.Remove(key);
 
         /// <summary>
         /// Determines "Quality" of action based on given song position.
@@ -94,8 +132,9 @@ namespace Core.Music {
         /// </summary>
         /// <param name="songPosition"> position of the song when action was performed </param>
         /// <param name="ignoreDisabled"> Do this action despite previous interactions </param>
-        /// <returns> Sad "Quality of the action" </returns>
+        /// <returns> Said "Quality of the action" </returns>
         public BeatHitType DetermineHitQuality(float songPosition, bool ignoreDisabled=false) {
+            // TODO: Ignores disabled actions? 
             if (_interactionsDisabled && !ignoreDisabled) return BeatHitType.Disabled;
             if (_interactedThisBeat && !ignoreDisabled) return BeatHitType.Miss;
             
@@ -132,19 +171,6 @@ namespace Core.Music {
             _disabledInteractionsCount = count * 2 + halfBeats +
                 GetRelativeType() == BeatHitRelative.Early ? 1 : 0;
         }
-        /// <summary>
-        /// Calls given function repeatedly each beat for given amount on times.
-        /// </summary>
-        /// <param name="function"> Function that will be called each beat </param>
-        /// <param name="callCount"> Amount of calls </param>
-        public static void CallOnNextBeats(Action function, int callCount) {
-            void RecursiveFunctionCall() {
-                function();
-                callCount--;
-                if (callCount == 0) NextBeatEvent -= RecursiveFunctionCall;
-            }
-            NextBeatEvent += RecursiveFunctionCall;
-        }
 
         private void Update() {
             if (!_isInitialized) return;
@@ -156,12 +182,23 @@ namespace Core.Music {
                 _interactedThisBeat = false;
                 NextBeatEvent?.Invoke();
                 _lastBeat += _songData.Crotchet;
+
+                foreach (var action in _onEveryBeat.Values) action();
+                foreach (var action in _onNextBeat) action();
+                _onNextBeat.Clear();
+
+                foreach (var pair in _onNextBeats) {
+                    pair.Value.action();
+
+                    if (pair.Value.count == 1) _onNextBeats.Remove(pair.Key);
+                    else _onNextBeats[pair.Key] = (pair.Value.count - 1, pair.Value.action);
+                }
             }
             // Half beat passed
-            if (_songPosition > _lastHalfBeat + _songData.HalfCrotchet && _interactionsDisabled) {
+            if (_songPosition > _lastHalfBeat + _songData.HalfCrotchet) {
                 _lastHalfBeat = _songPosition;
                 _disabledInteractionsCount--;
-                if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
+                if (_disabledInteractionsCount <= 0) _interactionsDisabled = false;
             }
             // Update loop count
             if (_loopBeatPosition >= _songData.BeatsPerLoop)
