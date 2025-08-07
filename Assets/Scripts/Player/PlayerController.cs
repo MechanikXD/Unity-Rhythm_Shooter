@@ -76,7 +76,7 @@ namespace Player {
 
         public bool IsMoving => MoveKey.IsPressed();
         public bool IsJumping => JumpKey.IsPressed();
-        public bool IsGrounded => _controller.isGrounded;
+        public bool IsGrounded => _controller.velocity.y is < 0.001f and > -0.001f;
 
         public Vector3 CameraForward => _attachedCamera.forward;
 
@@ -105,7 +105,6 @@ namespace Player {
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
-            _currentWeapon.OnWeaponSelected();
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -117,6 +116,7 @@ namespace Player {
 
         private void Start() {
             Conductor.Instance.Initialize(_songData, _songSource);
+            _currentWeapon.OnWeaponSelected();
         }
 
         private void Update() {
@@ -133,7 +133,6 @@ namespace Player {
                     PlayerActionEvents.OnPlayerLeftAction(songPositionWhenHit, _currentWeapon);
                 if (_rightActionBuffered)
                     PlayerActionEvents.OnPlayerRightAction(songPositionWhenHit, _currentWeapon);
-
                 // ReSharper restore Unity.PerformanceCriticalCodeInvocation
 
                 _doBufferCounting = false;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Core.Game;
+using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -10,8 +11,6 @@ namespace Player.Weapons {
     public class Revolvers : WeaponBase {
         [SerializeField] private Animator _animator;
         [SerializeField] private float _maxHitDistance = 50f;
-        [SerializeField] private float _intervalBetweenWalk = 0.35f;
-        private float _currentWalkInterval;
         private bool _walkAnimationSwitch;
         private Func<Vector3, Ray> _rayForward;
 
@@ -24,41 +23,44 @@ namespace Player.Weapons {
         private bool _isWalking;
         private Action _unsubscribeFromEvents;
         
-        public override void LeftPerfectAction() {
-            if (_leftInAnimation) return;
-            
-            ShootForward(2);
-            // TODO: Does not play animation more than once in a row
-            _animator.Play("Shoot Left");
-            _leftInAnimation = true;
-            GameManager.Instance.StartCoroutine(SetLeftNotInAnimation(1f / 3f));
+        public override void LeftPerfectAction() => 
+            PerformAction(4, "Shoot Left", 1f / 3f, true);
+
+        public override void LeftGoodAction() => 
+            PerformAction(3, "Shoot Left", 1f / 3f, true);
+
+        public override void LeftMissedAction() {
+            base.LeftMissedAction();
+            PerformAction(1, "Shoot Left", 1f / 3f, true);
         }
 
-        public override void LeftGoodAction() {
-            if (_leftInAnimation) return;
-            
-            ShootForward(1);
-            _animator.Play("Shoot Left");
-            _leftInAnimation = true;
-            GameManager.Instance.StartCoroutine(SetLeftNotInAnimation(1f / 3f));
+        public override void RightPerfectAction() => 
+            PerformAction(4, "Shoot Right", 1f / 3f, false);
+
+        public override void RightGoodAction() => 
+            PerformAction(4, "Shoot Right", 1f / 3f, false);
+
+        public override void RightMissedAction() {
+            base.RightMissedAction();
+            PerformAction(1, "Shoot Right", 1f / 3f, false);
         }
 
-        public override void RightPerfectAction() {
-            if (_rightInAnimation) return;
-            
-            ShootForward(2);
-            _animator.Play("Shoot Right");
-            _rightInAnimation = true;
-            GameManager.Instance.StartCoroutine(SetRightNotInAnimation(1f / 3f));
-        }
 
-        public override void RightGoodAction() {
-            if (_rightInAnimation) return;
+        private void PerformAction(int damage, string animationName, float animationTime, bool left) {
+            if (left) {
+                if (_leftInAnimation) return;
+                _leftInAnimation = true;
+            }
+            else {
+                if (_rightInAnimation) return;
+                _rightInAnimation = true;
+            }
             
-            ShootForward(1);
-            _animator.Play("Shoot Right");
-            _rightInAnimation = true;
-            GameManager.Instance.StartCoroutine(SetRightNotInAnimation(1f / 3f));
+            ShootForward(damage);
+            _animator.Play(animationName, -1, 0f);
+            GameManager.Instance.StartCoroutine(left
+                ? SetLeftNotInAnimation(animationTime)
+                : SetRightNotInAnimation(animationTime));
         }
         
         private void ShootForward(int damage) {
@@ -78,7 +80,7 @@ namespace Player.Weapons {
 
         public override bool CanDoRightAction() => !_rightInAnimation;
 
-        public override bool CanDoBothAction() => !_leftInAnimation || !_rightInAnimation;
+        public override bool CanDoBothAction() => false;
 
         public override void OnWeaponSelected() {
             if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
@@ -87,7 +89,7 @@ namespace Player.Weapons {
             
             _leftInAnimation = true;
             _rightInAnimation = true;
-            _animator.Play("Selected");
+            _animator.Play("Selected", -1, 0f);
             GameManager.Instance.StartCoroutine(SetNotInAnimation(0.6f));
 
             void SetIsWalking() => _isWalking = true;
@@ -95,29 +97,25 @@ namespace Player.Weapons {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
+            Conductor.Instance.AppendRepeatingAction("Weapon Walk", AnimateWalk);
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
+                Conductor.Instance.RemoveRepeatingAction("Weapon Walk");
             };
         }
 
-        public override void WeaponUpdate() {
+        private void AnimateWalk() {
             if (!_isWalking) return;
             
-            if (_currentWalkInterval < _intervalBetweenWalk) {
-                _currentWalkInterval += Time.deltaTime;
+            if (_walkAnimationSwitch) {
+                if (!_leftInAnimation) _animator.Play("Walk Left", -1, 0f);
+                _walkAnimationSwitch = false;
             }
             else {
-                _currentWalkInterval = 0f;
-                if (_walkAnimationSwitch) {
-                    if (!_leftInAnimation) _animator.Play("Walk Left");
-                    _walkAnimationSwitch = false;
-                }
-                else {
-                    if (!_rightInAnimation) _animator.Play("Walk Right");
-                    _walkAnimationSwitch = true;
-                }
+                if (!_rightInAnimation) _animator.Play("Walk Right", -1, 0f);
+                _walkAnimationSwitch = true;
             }
         }
 
