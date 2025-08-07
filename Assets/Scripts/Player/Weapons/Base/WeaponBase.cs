@@ -1,20 +1,20 @@
-﻿using Core.Music;
+﻿using UnityEngine;
 
 namespace Player.Weapons.Base {
-    public abstract class WeaponBase {
-        public abstract WeaponSettings Settings { get; }
+    public abstract class WeaponBase : MonoBehaviour {
+        [SerializeField] protected Animator _animator;
+        [SerializeField] private bool _canDoDoubleAction;
+        [SerializeField] protected float _maxShootDistance;
+
+        public bool CanDoDoubleAction => _canDoDoubleAction;
         
         public abstract void LeftPerfectAction();
         public abstract void LeftGoodAction();
-        public virtual void LeftMissedAction() {
-            Conductor.Instance.DisableNextInteractions(1);
-        }
+        public abstract void LeftMissedAction();
         
         public abstract void RightPerfectAction();
         public abstract void RightGoodAction();
-        public virtual void RightMissedAction() {
-            Conductor.Instance.DisableNextInteractions(1);
-        }
+        public abstract void RightMissedAction();
 
         public virtual void BothPerfectAction() {
             RightPerfectAction();

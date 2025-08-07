@@ -3,6 +3,7 @@ using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
 using Player.Weapons;
+using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,19 +13,14 @@ namespace Player {
         [SerializeField] private CharacterController _controller;
         [SerializeField] private Transform _attachedCamera;
         [SerializeField] private PlayerInput _playerInput;
-        [SerializeField] private Revolvers _currentWeapon = new Revolvers();
+        [SerializeField] private WeaponController _weaponController;
+        [SerializeField] private WeaponBase[] _weapons;
         private StateMachine _stateMachine;
 
         [Header("MOVE SOMEWHERE ELSE")]
         [SerializeField] private SongData _songData;
 
         [SerializeField] private AudioSource _songSource;
-
-        private bool _leftActionBuffered;
-        private bool _rightActionBuffered;
-        private float _currentBufferTime;
-        private bool _doBufferCounting;
-        [SerializeField] private float _maxInputBufferTime = 0.1f;
 
         public PlayerStates States { get; private set; }
         public CharacterController Controller => _controller;
@@ -105,7 +101,7 @@ namespace Player {
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
-            _currentWeapon.OnWeaponSelected();
+            _weaponController.Initialize(_weapons[0]);
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -121,25 +117,7 @@ namespace Player {
 
         private void Update() {
             _stateMachine.CurrentState.FrameUpdate();
-            _currentWeapon.WeaponUpdate();
-
-            if (_doBufferCounting) {
-                _currentBufferTime += Time.deltaTime;
-                if (_currentBufferTime <= _maxInputBufferTime) return;
-                var songPositionWhenHit = Conductor.Instance.SongPosition - _currentBufferTime;
-
-                // ReSharper disable Unity.PerformanceCriticalCodeInvocation
-                if (_leftActionBuffered)
-                    PlayerActionEvents.OnPlayerLeftAction(songPositionWhenHit, _currentWeapon);
-                if (_rightActionBuffered)
-                    PlayerActionEvents.OnPlayerRightAction(songPositionWhenHit, _currentWeapon);
-                // ReSharper restore Unity.PerformanceCriticalCodeInvocation
-
-                _doBufferCounting = false;
-                _currentBufferTime = 0f;
-                _leftActionBuffered = false;
-                _rightActionBuffered = false;
-            }
+            _weaponController.WeaponUpdate();
         }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
@@ -162,37 +140,11 @@ namespace Player {
             _attachedCamera.localRotation = Quaternion.Euler(_cameraRotation, 0f, 0f);
         }
 
-        public void OnLeftAction() {
-            if (_rightActionBuffered) {
-                var currentSongPosition = Conductor.Instance.SongPosition;
-                PlayerActionEvents.OnPlayerBothAction(currentSongPosition, _currentWeapon);
-                _rightActionBuffered = false;
-                _doBufferCounting = false;
-                _currentBufferTime = 0f;
-            }
-            else {
-                _leftActionBuffered = true;
-                _doBufferCounting = true;
-                _currentBufferTime = 0f;
-            }
-        }
+        public void OnLeftAction() => _weaponController.LeftAction();
 
-        public void OnRightAction() {
-            if (_leftActionBuffered) {
-                var currentSongPosition = Conductor.Instance.SongPosition;
-                PlayerActionEvents.OnPlayerBothAction(currentSongPosition, _currentWeapon);
-                _leftActionBuffered = false;
-                _doBufferCounting = false;
-                _currentBufferTime = 0f;
-            }
-            else {
-                _rightActionBuffered = true;
-                _doBufferCounting = true;
-                _currentBufferTime = 0f;
-            }
-        }
-        
-        public void OnReload() {}
+        public void OnRightAction() => _weaponController.RightAction();
+
+        public void OnReload() => _weaponController.Reload();
 
         #endregion
     }

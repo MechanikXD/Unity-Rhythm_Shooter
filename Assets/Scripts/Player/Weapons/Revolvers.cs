@@ -7,9 +7,7 @@ using Player.Weapons.Base;
 using UnityEngine;
 
 namespace Player.Weapons {
-    [Serializable]
     public class Revolvers : WeaponBase {
-        [SerializeField] private WeaponSettings _settings;
         private bool _walkAnimationSwitch;
         private Func<Vector3, Ray> _rayForward;
 
@@ -21,15 +19,13 @@ namespace Player.Weapons {
         private bool _rightInAnimation;
         private bool _isWalking;
         private Action _unsubscribeFromEvents;
-
-        public override WeaponSettings Settings => _settings;
         
         public override void LeftPerfectAction() => 
             PerformAction(4, "Shoot Left", 1f / 3f, true);
         public override void LeftGoodAction() => 
             PerformAction(3, "Shoot Left", 1f / 3f, true);
         public override void LeftMissedAction() {
-            base.LeftMissedAction();
+            Conductor.Instance.DisableNextInteractions(1);
             PerformAction(1, "Shoot Left", 1f / 3f, true);
         }
 
@@ -38,7 +34,7 @@ namespace Player.Weapons {
         public override void RightGoodAction() => 
             PerformAction(4, "Shoot Right", 1f / 3f, false);
         public override void RightMissedAction() {
-            base.RightMissedAction();
+            Conductor.Instance.DisableNextInteractions(1);
             PerformAction(1, "Shoot Right", 1f / 3f, false);
         }
         
@@ -63,7 +59,7 @@ namespace Player.Weapons {
             }
             
             ShootForward(damage);
-            _settings.Animator.Play(animationName, -1, 0f);
+            _animator.Play(animationName, -1, 0f);
             GameManager.Instance.StartCoroutine(left
                 ? SetLeftNotInAnimation(animationTime)
                 : SetRightNotInAnimation(animationTime));
@@ -71,7 +67,7 @@ namespace Player.Weapons {
         
         private void ShootForward(int damage) {
             if (Physics.Raycast(_rayForward(new Vector2(Screen.width / 2f, Screen.height / 2f)),
-                    out var hit, _settings.MaxShootDistance) &&
+                    out var hit, _maxShootDistance) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                 
                 damageable.TakeDamage(damage);
@@ -95,7 +91,7 @@ namespace Player.Weapons {
             
             _leftInAnimation = true;
             _rightInAnimation = true;
-            _settings.Animator.Play("Selected", -1, 0f);
+            _animator.Play("Selected", -1, 0f);
             IEnumerator SetNotInAnimation(float delay) {
                 yield return new WaitForSeconds(delay);
                 _leftInAnimation = false;
@@ -120,11 +116,11 @@ namespace Player.Weapons {
             if (!_isWalking) return;
             
             if (_walkAnimationSwitch) {
-                if (!_leftInAnimation) _settings.Animator.Play("Walk Left", -1, 0f);
+                if (!_leftInAnimation) _animator.Play("Walk Left", -1, 0f);
                 _walkAnimationSwitch = false;
             }
             else {
-                if (!_rightInAnimation) _settings.Animator.Play("Walk Right", -1, 0f);
+                if (!_rightInAnimation) _animator.Play("Walk Right", -1, 0f);
                 _walkAnimationSwitch = true;
             }
         }
