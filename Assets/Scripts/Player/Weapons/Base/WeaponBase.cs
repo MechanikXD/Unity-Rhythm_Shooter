@@ -33,6 +33,10 @@ namespace Player.Weapons.Base {
         public abstract bool CanDoRightAction();
         public abstract bool CanDoBothAction();
 
+        public abstract void StartReload();
+        public abstract void FastReload();
+        public abstract void SlowReload();
+
         public virtual void OnWeaponSelected() { }
         public virtual void OnWeaponDeselected() { }
         public virtual void WeaponUpdate() {}

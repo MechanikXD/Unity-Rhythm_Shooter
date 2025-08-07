@@ -83,6 +83,15 @@ namespace Player.Weapons {
         public override bool CanDoRightAction() => !_rightInAnimation;
 
         public override bool CanDoBothAction() => false;
+        public override void StartReload() {
+            throw new NotImplementedException();
+        }
+        public override void FastReload() {
+            throw new NotImplementedException();
+        }
+        public override void SlowReload() {
+            throw new NotImplementedException();
+        }
 
         public override void OnWeaponSelected() {
             if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
