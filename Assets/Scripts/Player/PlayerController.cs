@@ -105,6 +105,7 @@ namespace Player {
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
+            _currentWeapon.OnWeaponSelected();
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -116,7 +117,6 @@ namespace Player {
 
         private void Start() {
             Conductor.Instance.Initialize(_songData, _songSource);
-            _currentWeapon.OnWeaponSelected();
         }
 
         private void Update() {

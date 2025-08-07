@@ -9,8 +9,7 @@ using UnityEngine;
 namespace Player.Weapons {
     [Serializable]
     public class Revolvers : WeaponBase {
-        [SerializeField] private Animator _animator;
-        [SerializeField] private float _maxHitDistance = 50f;
+        [SerializeField] private WeaponSettings _settings;
         private bool _walkAnimationSwitch;
         private Func<Vector3, Ray> _rayForward;
 
@@ -22,13 +21,13 @@ namespace Player.Weapons {
         private bool _rightInAnimation;
         private bool _isWalking;
         private Action _unsubscribeFromEvents;
+
+        public override WeaponSettings Settings => _settings;
         
         public override void LeftPerfectAction() => 
             PerformAction(4, "Shoot Left", 1f / 3f, true);
-
         public override void LeftGoodAction() => 
             PerformAction(3, "Shoot Left", 1f / 3f, true);
-
         public override void LeftMissedAction() {
             base.LeftMissedAction();
             PerformAction(1, "Shoot Left", 1f / 3f, true);
@@ -36,16 +35,13 @@ namespace Player.Weapons {
 
         public override void RightPerfectAction() => 
             PerformAction(4, "Shoot Right", 1f / 3f, false);
-
         public override void RightGoodAction() => 
             PerformAction(4, "Shoot Right", 1f / 3f, false);
-
         public override void RightMissedAction() {
             base.RightMissedAction();
             PerformAction(1, "Shoot Right", 1f / 3f, false);
         }
-
-
+        
         private void PerformAction(int damage, string animationName, float animationTime, bool left) {
             if (left) {
                 if (_leftInAnimation) return;
@@ -56,8 +52,18 @@ namespace Player.Weapons {
                 _rightInAnimation = true;
             }
             
+            IEnumerator SetLeftNotInAnimation(float delay) {
+                yield return new WaitForSeconds(delay);
+                _leftInAnimation = false;
+            }
+
+            IEnumerator SetRightNotInAnimation(float delay) {
+                yield return new WaitForSeconds(delay);
+                _rightInAnimation = false;
+            }
+            
             ShootForward(damage);
-            _animator.Play(animationName, -1, 0f);
+            _settings.Animator.Play(animationName, -1, 0f);
             GameManager.Instance.StartCoroutine(left
                 ? SetLeftNotInAnimation(animationTime)
                 : SetRightNotInAnimation(animationTime));
@@ -65,7 +71,7 @@ namespace Player.Weapons {
         
         private void ShootForward(int damage) {
             if (Physics.Raycast(_rayForward(new Vector2(Screen.width / 2f, Screen.height / 2f)),
-                    out var hit, _maxHitDistance) &&
+                    out var hit, _settings.MaxShootDistance) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                 
                 damageable.TakeDamage(damage);
@@ -89,7 +95,12 @@ namespace Player.Weapons {
             
             _leftInAnimation = true;
             _rightInAnimation = true;
-            _animator.Play("Selected", -1, 0f);
+            _settings.Animator.Play("Selected", -1, 0f);
+            IEnumerator SetNotInAnimation(float delay) {
+                yield return new WaitForSeconds(delay);
+                _leftInAnimation = false;
+                _rightInAnimation = false;
+            }
             GameManager.Instance.StartCoroutine(SetNotInAnimation(0.6f));
 
             void SetIsWalking() => _isWalking = true;
@@ -102,7 +113,6 @@ namespace Player.Weapons {
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
-                Conductor.Instance.RemoveRepeatingAction("Weapon Walk");
             };
         }
 
@@ -110,31 +120,15 @@ namespace Player.Weapons {
             if (!_isWalking) return;
             
             if (_walkAnimationSwitch) {
-                if (!_leftInAnimation) _animator.Play("Walk Left", -1, 0f);
+                if (!_leftInAnimation) _settings.Animator.Play("Walk Left", -1, 0f);
                 _walkAnimationSwitch = false;
             }
             else {
-                if (!_rightInAnimation) _animator.Play("Walk Right", -1, 0f);
+                if (!_rightInAnimation) _settings.Animator.Play("Walk Right", -1, 0f);
                 _walkAnimationSwitch = true;
             }
         }
 
         public override void OnWeaponDeselected() => _unsubscribeFromEvents();
-
-        private IEnumerator SetLeftNotInAnimation(float delay) {
-            yield return new WaitForSeconds(delay);
-            _leftInAnimation = false;
-        }
-
-        private IEnumerator SetRightNotInAnimation(float delay) {
-            yield return new WaitForSeconds(delay);
-            _rightInAnimation = false;
-        }
-
-        private IEnumerator SetNotInAnimation(float delay) {
-            yield return new WaitForSeconds(delay);
-            _leftInAnimation = false;
-            _rightInAnimation = false;
-        }
     }
 }

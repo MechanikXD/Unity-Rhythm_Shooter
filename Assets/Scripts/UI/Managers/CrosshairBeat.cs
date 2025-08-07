@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Core.Music;
 using DG.Tweening;
@@ -12,9 +11,7 @@ using UnityEngine.UI;
 namespace UI.Managers {
     public class CrosshairBeat : MonoBehaviour {
         [SerializeField] private Image _beatPrefab;
-        private Queue<(Beat left, Beat right)> _beats;
-        // private (Beat left, Beat right)[] _beatPool;
-        // private int _beatPoolIndex;
+        private BeatQueue _beatQueue;
         private Action _unsubscribeFromEventsAction;
         
         [SerializeField] private BeatSettings _defaultBeatSettings;
@@ -47,12 +44,9 @@ namespace UI.Managers {
         private void Start() {
             _singleBeatTime = Conductor.Instance.SongData.Crotchet * _beatsPerSide;
             _maxBeatsPerSide = _beatsPerSide + 1;
-
-            _beats = new Queue<(Beat left, Beat right)>(_maxBeatsPerSide);
             
-            for (var i = 0; i < _maxBeatsPerSide; i++) {
-                _beats.Enqueue(InstantiateNewBeats());
-            }
+            _beatQueue = 
+                new BeatQueue(_beatPrefab, _maxBeatsPerSide, _leftBeatArea, _rightBeatArea, _defaultBeatSettings);
         }
 
         private void OnDisable() => UnsubscribeFromEvents();
@@ -105,13 +99,12 @@ namespace UI.Managers {
             };
             
             // This will skip first beat
-            Conductor.NextBeatEvent += StartNewBeats;
+            Conductor.Instance.AppendRepeatingAction("StartNewBeats", 
+                () => _beatQueue.StartNewBeats(_singleBeatTime, _beatOffset));
         }
         private void UnsubscribeFromEvents() {
             _unsubscribeFromEventsAction?.Invoke();
             _unsubscribeFromEventsAction = null;    // Clean up
-
-            Conductor.NextBeatEvent -= StartNewBeats;
         }
 
         public void SetNextBeatsInactive(int count, int skipBeats) {
@@ -126,38 +119,28 @@ namespace UI.Managers {
         private void ModifyBeat(int skipBeats, Action<Beat> modifier, int count=1) {
             // function that will modify beats and return true or false
             // Whether all actions were done or not
-            bool DoCycle((Beat left, Beat right) beats) {
+            var counter = count;
+            bool Modify((Beat left, Beat right) beats) {
                 if (skipBeats > 0) {
                     skipBeats--;
                     return false;
                 }
                 else {
-                    count--;
+                    counter--;
                     modifier(beats.left);
                     modifier(beats.right);
-                    return count == 0;
+                    return counter == 0;
                 }
             }
             // Modify active beats
-            if (_beats.Reverse().Any(DoCycle)) return;
+            if (_beatQueue.Any(Modify)) return;
             // Still to few, call recursively when new inactive appears
-            void DoCycleWrapper() {
-                if (DoCycle(_beats.Peek())) Conductor.NextBeatEvent -= DoCycleWrapper;
-            }
-            Conductor.NextBeatEvent += DoCycleWrapper;
+            // TODO: Fix modifications of beats past max capacity
+            Conductor.Instance.AppendContinuousAction("Modify Beats",
+                () => Modify(_beatQueue.PeekFront()),
+                skipBeats + counter - _beatQueue.Length);
         }
-        // Instantiates new beats on the scene and sets them to starting position
-        private (Beat leftBeat, Beat rightBeat) InstantiateNewBeats() {
-            var left = new Beat();
-            left.InstantiateSelf(_beatPrefab, _leftBeatArea, false);
-            left.SetDefaultState(_defaultBeatSettings);
-
-            var right = new Beat();
-            right.InstantiateSelf(_beatPrefab, _rightBeatArea, true);
-            right.SetDefaultState(_defaultBeatSettings);
-
-            return (left, right);
-        }
+        
         // Shows left gradient of crosshair
         private void ShowLeftGradient(float strength) {
             if (_leftGradientAnimation is { active: true }) {
@@ -189,14 +172,6 @@ namespace UI.Managers {
             _currentPopUp.Append(textField.DOColor(Color.black, _fadeInOutTime.x));
             _currentPopUp.Append(textField.DOColor(_transparentBlack, _fadeInOutTime.y));
             _currentPopUp.Play();
-        }
-        // Starts new instances of beats
-        private void StartNewBeats() {
-            // TODO: Changes wrong beats
-            var newActiveBeats = _beats.Dequeue();
-            newActiveBeats.left.Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
-            newActiveBeats.right.Animate(_defaultBeatSettings, _singleBeatTime + _beatOffset);
-            _beats.Enqueue(newActiveBeats);
         }
     }
 }

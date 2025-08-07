@@ -17,9 +17,12 @@ namespace Core.Music {
         [SerializeField] private float _perfectHitWindow = 0.11f;
         [SerializeField] private float _goodHitWindow = 0.17f;
 
-        private Dictionary<string, Action> _onEveryBeat;
-        private Dictionary<string, (int count, Action action)> _onNextBeats;
-        private List<Action> _onNextBeat;
+        private Dictionary<string, Action> _onEveryBeat = new Dictionary<string, Action>();
+
+        private Dictionary<string, Action> _onNextBeatsActions = new Dictionary<string, Action>();
+        private Dictionary<string, int> _onNextBeatsCounts = new Dictionary<string, int>();
+
+        private List<Action> _onNextBeat = new List<Action>();
         
         public static event Action NextBeatEvent;
         public static Conductor Instance {
@@ -67,10 +70,7 @@ namespace Core.Music {
         public void Initialize(SongData songData, AudioSource audioSource) {
             _songData = songData;
             _songSource = audioSource;
-
-            _onEveryBeat = new Dictionary<string, Action>();
-            _onNextBeat = new List<Action>();
-            _onNextBeats = new Dictionary<string, (int count, Action action)>();
+            _disabledInteractionsCount = 0;
             
             _lastBeat = 0f;
             _songSource.clip = songData.Audio;
@@ -109,22 +109,29 @@ namespace Core.Music {
         public void RemoveRepeatingAction(string key) => _onEveryBeat.Remove(key);
         /// <summary>
         /// Calls given action on very next beat
+        /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
         /// <param name="action"> Action that will be called </param>
-        public void CallOnNextBeat(Action action) => _onNextBeat.Add(action);
+        public void AppendOnNextBeat(Action action) => _onNextBeat.Add(action);
         /// <summary>
         /// Register an action to be called to a certain duration (in beats)
         /// </summary>
         /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
         /// <param name="action"> Action that will be called </param>
         /// <param name="callCount"> Amount of times said action will be called </param>
-        public void AddContinuousAction(string key, Action action, int callCount) =>
-            _onNextBeats.Add(key, (callCount, action));
+        public void AppendContinuousAction(string key, Action action, int callCount) {
+            _onNextBeatsActions.Add(key, action);
+            _onNextBeatsCounts.Add(key, callCount);
+        }
         /// <summary>
         /// Remove an action that previously has been called for some duration
+        /// Do not call this method in OnDisable or OnDestroy
         /// </summary>
         /// <param name="key"> Unique identifier for said action </param>
-        public void RemoveContinuousAction(string key) => _onNextBeats.Remove(key);
+        public void RemoveContinuousAction(string key) {
+            _onNextBeatsActions.Remove(key);
+            _onNextBeatsCounts.Remove(key);
+        }
 
         /// <summary>
         /// Determines "Quality" of action based on given song position.
@@ -134,7 +141,6 @@ namespace Core.Music {
         /// <param name="ignoreDisabled"> Do this action despite previous interactions </param>
         /// <returns> Said "Quality of the action" </returns>
         public BeatHitType DetermineHitQuality(float songPosition, bool ignoreDisabled=false) {
-            // TODO: Ignores disabled actions? 
             if (_interactionsDisabled && !ignoreDisabled) return BeatHitType.Disabled;
             if (_interactedThisBeat && !ignoreDisabled) return BeatHitType.Miss;
             
@@ -164,12 +170,12 @@ namespace Core.Music {
         /// <param name="halfBeats"> amount of half beats to additionally disable </param>
         public void DisableNextInteractions(int count, int halfBeats=0) {
             _interactionsDisabled = true;
-            if (GameManager.Instance.PlayerCrosshair != null) 
-                GameManager.Instance.PlayerCrosshair.SetNextBeatsInactive(count, 0);
-
+            var earlyHalfBeat = GetRelativeType() == BeatHitRelative.Early ? 1 : 0;
+            if (GameManager.Instance.PlayerCrosshair != null)
+                GameManager.Instance.PlayerCrosshair.SetNextBeatsInactive(count + earlyHalfBeat, 0);
+            
             // Including current beat, because counting on half crochet need to be *2
-            _disabledInteractionsCount = count * 2 + halfBeats +
-                GetRelativeType() == BeatHitRelative.Early ? 1 : 0;
+            _disabledInteractionsCount = count * 2 + halfBeats + earlyHalfBeat;
         }
 
         private void Update() {
@@ -186,19 +192,26 @@ namespace Core.Music {
                 foreach (var action in _onEveryBeat.Values) action();
                 foreach (var action in _onNextBeat) action();
                 _onNextBeat.Clear();
-
-                foreach (var pair in _onNextBeats) {
-                    pair.Value.action();
-
-                    if (pair.Value.count == 1) _onNextBeats.Remove(pair.Key);
-                    else _onNextBeats[pair.Key] = (pair.Value.count - 1, pair.Value.action);
+                
+                var keysToRemove = new List<string>();
+                foreach (var pair in _onNextBeatsActions) {
+                    pair.Value();
+                    
+                    _onNextBeatsCounts[pair.Key] -= 1;
+                    if (_onNextBeatsCounts[pair.Key] <= 0) keysToRemove.Add(pair.Key);
+                }
+                foreach (var key in keysToRemove) {
+                    _onNextBeatsActions.Remove(key);
+                    _onNextBeatsCounts.Remove(key);
                 }
             }
             // Half beat passed
             if (_songPosition > _lastHalfBeat + _songData.HalfCrotchet) {
                 _lastHalfBeat = _songPosition;
-                _disabledInteractionsCount--;
-                if (_disabledInteractionsCount <= 0) _interactionsDisabled = false;
+                if (_disabledInteractionsCount > 0) {
+                    _disabledInteractionsCount--;
+                    if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
+                }
             }
             // Update loop count
             if (_loopBeatPosition >= _songData.BeatsPerLoop)

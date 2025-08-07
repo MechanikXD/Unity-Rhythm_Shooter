@@ -2,6 +2,8 @@
 
 namespace Player.Weapons.Base {
     public abstract class WeaponBase {
+        public abstract WeaponSettings Settings { get; }
+        
         public abstract void LeftPerfectAction();
         public abstract void LeftGoodAction();
         public virtual void LeftMissedAction() {
