@@ -3,6 +3,7 @@
 namespace Player.Weapons.Base {
     public abstract class WeaponBase : MonoBehaviour {
         [SerializeField] protected Animator _animator;
+        [SerializeField] protected float _crossFade;
         [SerializeField] private bool _canDoDoubleAction;
         [SerializeField] protected float _maxShootDistance;
 

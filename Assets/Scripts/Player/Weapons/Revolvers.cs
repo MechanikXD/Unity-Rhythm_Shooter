@@ -21,22 +21,31 @@ namespace Player.Weapons {
 
         private Coroutine _reloadRemoveInAnimation;
         
+        private readonly static int WalkSpeed = Animator.StringToHash("WalkSpeed");
+        private readonly static int ShootSpeed = Animator.StringToHash("ShootSpeed");
+        private readonly static int ReloadStartSpeed = Animator.StringToHash("ReloadStartSpeed");
+        private readonly static int ReloadSlowSpeed = Animator.StringToHash("ReloadSlowSpeed");
+        private readonly static int ReloadFastSpeed = Animator.StringToHash("ReloadFastSpeed");
+
+        private static float _halfCrotchet;
+        private static float _crotchet;
+
         public override void LeftPerfectAction() => 
-            PerformAction(4, "Shoot Left", 1f / 3f, true);
+            PerformAction(4, "Shoot Left", _halfCrotchet, true);
         public override void LeftGoodAction() => 
-            PerformAction(3, "Shoot Left", 1f / 3f, true);
+            PerformAction(3, "Shoot Left", _halfCrotchet, true);
         public override void LeftMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            PerformAction(1, "Shoot Left", 1f / 3f, true);
+            PerformAction(1, "Shoot Left", _halfCrotchet, true);
         }
 
         public override void RightPerfectAction() => 
-            PerformAction(4, "Shoot Right", 1f / 3f, false);
+            PerformAction(4, "Shoot Right", _halfCrotchet, false);
         public override void RightGoodAction() => 
-            PerformAction(4, "Shoot Right", 1f / 3f, false);
+            PerformAction(4, "Shoot Right", _halfCrotchet, false);
         public override void RightMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            PerformAction(1, "Shoot Right", 1f / 3f, false);
+            PerformAction(1, "Shoot Right", _halfCrotchet, false);
         }
         
         private void PerformAction(int damage, string animationName, float animationTime, bool left) {
@@ -62,7 +71,7 @@ namespace Player.Weapons {
             }
             
             ShootForward(damage);
-            _animator.Play(animationName, -1, 0f);
+            _animator.CrossFade(animationName, _crossFade, -1, 0f);
             StartCoroutine(left ? SetLeftNotInAnimation(animationTime) : SetRightNotInAnimation(animationTime));
         }
         
@@ -92,22 +101,21 @@ namespace Player.Weapons {
             IEnumerator AfterAnimation(float delay) {
                 yield return new WaitForSeconds(delay);
                 CanFastReload = true;
-                yield return new WaitForSeconds(Conductor.Instance.SongData.Crotchet);
+                yield return new WaitForSeconds(_crotchet);
                 // Did not hit next beat -> force slow reload
                 if (IsReloading && CanFastReload) SlowReload();
             }
             
             Conductor.Instance.AppendOnNextBeat(() => {
-                _animator.Play("Reload Start", -1, 0f);
+                _animator.CrossFade("Reload Start", _crossFade, -1, 0f);
                 IsReloading = true;
                 
-                StartCoroutine(AfterAnimation(Conductor.Instance.SongData.Crotchet +
-                                              Conductor.Instance.HalfBeatHitWindow));
+                StartCoroutine(AfterAnimation(_crotchet + Conductor.Instance.HalfBeatHitWindow));
             });
         }
         public override void FastReload() {
             CanFastReload = false;
-            _animator.Play("Reload Fast", -1, 0f);
+            _animator.CrossFade("Reload Fast", _crossFade, -1, 0f);
             IEnumerator SetNotInAnimation(float delay) {
                 yield return new WaitForSeconds(delay);
                 _leftInAnimation = false;
@@ -120,11 +128,11 @@ namespace Player.Weapons {
             }
 
             if (_reloadRemoveInAnimation != null) StopCoroutine(_reloadRemoveInAnimation);
-            _reloadRemoveInAnimation = StartCoroutine(SetNotInAnimation(37f / 60f));
+            _reloadRemoveInAnimation = StartCoroutine(SetNotInAnimation(_halfCrotchet));
         }
         public override void SlowReload() {
             CanFastReload = false;
-            _animator.Play("Reload Slow", -1, 0f);
+            _animator.CrossFade("Reload Slow", _crossFade, -1, 0f);
             Conductor.Instance.DisableNextInteractions(1);
             IEnumerator SetNotInAnimation(float delay) {
                 yield return new WaitForSeconds(delay);
@@ -137,19 +145,23 @@ namespace Player.Weapons {
                 IsReloading = false;
             }
 
-            StartCoroutine(SetNotInAnimation(80f / 60f));
+            StartCoroutine(SetNotInAnimation(2 * _crotchet));
         }
 
         public override void OnWeaponSelected() {
             if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
+
+            _halfCrotchet = Conductor.Instance.SongData.HalfCrotchet;
+            _crotchet = Conductor.Instance.SongData.Crotchet;
             
             _rayForward = Camera.main!.ScreenPointToRay;
             _leftCurrentAmmo = _maxAmmoPerRevolver;
             _rightCurrentAmmo = _maxAmmoPerRevolver;
+            CalculateAnimationsSpeed();
             
             _leftInAnimation = true;
             _rightInAnimation = true;
-            _animator.Play("Selected", -1, 0f);
+            _animator.CrossFade("Selected", _crossFade, -1, 0f);
             IEnumerator SetNotInAnimation(float delay) {
                 yield return new WaitForSeconds(delay);
                 _leftInAnimation = false;
@@ -174,15 +186,26 @@ namespace Player.Weapons {
             if (!_isWalking) return;
             
             if (_walkAnimationSwitch) {
-                if (!_leftInAnimation) _animator.Play("Walk Left", -1, 0f);
+                if (!_leftInAnimation) 
+                    _animator.CrossFade("Walk Left", _crossFade, -1, 0f);
                 _walkAnimationSwitch = false;
             }
             else {
-                if (!_rightInAnimation) _animator.Play("Walk Right", -1, 0f);
+                if (!_rightInAnimation) 
+                    _animator.CrossFade("Walk Right", _crossFade, -1, 0f);
                 _walkAnimationSwitch = true;
             }
         }
 
         public override void OnWeaponDeselected() => _unsubscribeFromEvents();
+
+        private void CalculateAnimationsSpeed() {
+            // Values driven from original animation speed
+            _animator.SetFloat(WalkSpeed, 1 / (_crotchet * 3f));
+            _animator.SetFloat(ShootSpeed, 3f * _halfCrotchet);
+            _animator.SetFloat(ReloadStartSpeed, 7f / (15f * _crotchet));
+            _animator.SetFloat(ReloadSlowSpeed, _crotchet * (3f / 2f));
+            _animator.SetFloat(ReloadFastSpeed, 37f / (60f * _halfCrotchet));
+        }
     }
 }
