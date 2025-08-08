@@ -6006,8 +6006,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _animator: {fileID: 1057314163}
+  _crossFade: 0.1
   _canDoDoubleAction: 0
   _maxShootDistance: 50
+  _maxAmmoPerRevolver: 6
 --- !u!1 &1059057803
 GameObject:
   m_ObjectHideFlags: 0
