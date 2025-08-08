@@ -73,7 +73,22 @@ namespace Player.Weapons {
                 _currentBufferTime = 0f;
             }
         }
-        
-        public void Reload() {}
+
+        public void Reload() {
+            if (_currentWeapon.IsReloading && _currentWeapon.CanFastReload) {
+                var beatHitInfo = Conductor.Instance.GetBeatHitInfo();
+                
+                if (beatHitInfo.HitType is BeatHitType.Perfect or BeatHitType.Good) {
+                    _currentWeapon.FastReload();
+                }
+                else {
+                    _currentWeapon.SlowReload();
+                }
+            }
+            else if (!_currentWeapon.IsReloading) {
+                _currentWeapon.StartReload();
+            }
+            Conductor.Instance.SetInteractedThisBeat();
+        }
     }
 }

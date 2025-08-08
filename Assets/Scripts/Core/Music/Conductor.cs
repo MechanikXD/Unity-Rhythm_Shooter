@@ -17,12 +17,12 @@ namespace Core.Music {
         [SerializeField] private float _perfectHitWindow = 0.11f;
         [SerializeField] private float _goodHitWindow = 0.17f;
 
-        private Dictionary<string, Action> _onEveryBeat = new Dictionary<string, Action>();
+        private readonly Dictionary<string, Action> _onEveryBeat = new Dictionary<string, Action>();
 
-        private Dictionary<string, Action> _onNextBeatsActions = new Dictionary<string, Action>();
-        private Dictionary<string, int> _onNextBeatsCounts = new Dictionary<string, int>();
+        private readonly Dictionary<string, Action> _onNextBeatsActions = new Dictionary<string, Action>();
+        private readonly Dictionary<string, int> _onNextBeatsCounts = new Dictionary<string, int>();
 
-        private List<Action> _onNextBeat = new List<Action>();
+        private readonly List<Action> _onNextBeat = new List<Action>();
         
         public static event Action NextBeatEvent;
         public static Conductor Instance {
@@ -61,6 +61,21 @@ namespace Core.Music {
         public int BeatPosition => _songBeatPosition;
         /// <summary> Position on last recorded beat </summary>
         public float LastBeat => _lastBeat;
+
+        public float FullBeatHitWindow => _goodHitWindow * 2;
+        public float HalfBeatHitWindow => _goodHitWindow;
+
+        public struct BeatHitInfo {
+            public BeatHitType HitType { get; }
+            public BeatHitRelative Relative { get; }
+            public float Distance { get; }
+
+            public BeatHitInfo(BeatHitType type, BeatHitRelative relative, float distance) {
+                HitType = type;
+                Relative = relative;
+                Distance = distance;
+            }
+        }
         
         /// <summary>
         /// Initializes all necessary fields and references of this singleton and start playing tha music
@@ -81,21 +96,6 @@ namespace Core.Music {
         /// <summary> Set that interaction was performed in current beat </summary>
         public void SetInteractedThisBeat() => _interactedThisBeat = true;
 
-        /// <summary>
-        /// Get relative position to closest beat
-        /// </summary>
-        /// <param name="songPosition"> Position of the song to check </param>
-        /// <returns> Late or early </returns>
-        public BeatHitRelative GetRelativeType(float songPosition) {
-            var lastBeatTime = _lastBeat;
-            var nextBeatTime = _lastBeat + SongData.Crotchet;
-            // Last beat relative (late) < next beat relative (early)
-            return Mathf.Abs(songPosition - lastBeatTime) < Mathf.Abs(nextBeatTime - songPosition)
-                ? BeatHitRelative.Late
-                : BeatHitRelative.Early;
-        }
-
-        public BeatHitRelative GetRelativeType() => GetRelativeType(SongPosition);
         /// <summary>
         /// Register an actions that will be called each beat
         /// </summary>
@@ -140,27 +140,34 @@ namespace Core.Music {
         /// <param name="songPosition"> position of the song when action was performed </param>
         /// <param name="ignoreDisabled"> Do this action despite previous interactions </param>
         /// <returns> Said "Quality of the action" </returns>
-        public BeatHitType DetermineHitQuality(float songPosition, bool ignoreDisabled=false) {
-            if (_interactionsDisabled && !ignoreDisabled) return BeatHitType.Disabled;
-            if (_interactedThisBeat && !ignoreDisabled) return BeatHitType.Miss;
-            
+        public BeatHitInfo GetBeatHitInfo(float songPosition, bool ignoreDisabled=false) {
             var lastBeatTime = _lastBeat;
             var nextBeatTime = _lastBeat + SongData.Crotchet;
 
-            var relativeToBeat = Mathf.Min(
-                Mathf.Abs(songPosition - lastBeatTime),
-                Mathf.Abs(nextBeatTime - songPosition));
+            var distanceToLastBeat = Mathf.Abs(songPosition - lastBeatTime);
+            var distanceToNextBeat = Mathf.Abs(nextBeatTime - songPosition);
             
+            var relative = distanceToLastBeat < distanceToNextBeat
+                ? BeatHitRelative.Late
+                : BeatHitRelative.Early;
+            
+            var closestDistance = Mathf.Min(distanceToNextBeat, distanceToLastBeat);
+            // Last beat relative (late) < next beat relative (early)
+
+            BeatHitType hitType; 
+            if (_interactionsDisabled && !ignoreDisabled) hitType = BeatHitType.Disabled;
+            else if (_interactedThisBeat && !ignoreDisabled) hitType = BeatHitType.Miss;
             // Late perfect || Early perfect
-            if (relativeToBeat <= _perfectHitWindow) return BeatHitType.Perfect;
+            else if (closestDistance <= _perfectHitWindow) hitType = BeatHitType.Perfect;
             // Late good  || Early good
-            if (relativeToBeat <= _goodHitWindow) return BeatHitType.Good;
-                
-            return BeatHitType.Miss;
+            else if (closestDistance <= _goodHitWindow) hitType = BeatHitType.Good;
+            else hitType = BeatHitType.Miss;
+
+            return new BeatHitInfo(hitType, relative, closestDistance);
         }
 
-        public BeatHitType DetermineHitQuality(bool ignoreDisabled = false) =>
-            DetermineHitQuality(SongPosition, ignoreDisabled);
+        public BeatHitInfo GetBeatHitInfo(bool ignoreDisabled = false) =>
+            GetBeatHitInfo(SongPosition, ignoreDisabled);
 
         /// <summary>
         /// Disables interaction with next several beats.
@@ -170,7 +177,7 @@ namespace Core.Music {
         /// <param name="halfBeats"> amount of half beats to additionally disable </param>
         public void DisableNextInteractions(int count, int halfBeats=0) {
             _interactionsDisabled = true;
-            var earlyHalfBeat = GetRelativeType() == BeatHitRelative.Early ? 1 : 0;
+            var earlyHalfBeat = GetBeatHitInfo().Relative == BeatHitRelative.Early ? 1 : 0;
             if (GameManager.Instance.PlayerCrosshair != null)
                 GameManager.Instance.PlayerCrosshair.SetNextBeatsInactive(count + earlyHalfBeat, 0);
             

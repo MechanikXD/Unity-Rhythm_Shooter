@@ -6,6 +6,9 @@ namespace Player.Weapons.Base {
         [SerializeField] private bool _canDoDoubleAction;
         [SerializeField] protected float _maxShootDistance;
 
+        public bool IsReloading { get; protected set; }
+        public bool CanFastReload { get; protected set; }
+        
         public bool CanDoDoubleAction => _canDoDoubleAction;
         
         public abstract void LeftPerfectAction();

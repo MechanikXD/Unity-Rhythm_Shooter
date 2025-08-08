@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using Core.Game;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
@@ -11,7 +10,7 @@ namespace Player.Weapons {
         private bool _walkAnimationSwitch;
         private Func<Vector3, Ray> _rayForward;
 
-        private int _maxAmmoPerRevolver = 6;
+        [SerializeField] private int _maxAmmoPerRevolver = 6;
         private int _leftCurrentAmmo;
         private int _rightCurrentAmmo;
 
@@ -19,6 +18,8 @@ namespace Player.Weapons {
         private bool _rightInAnimation;
         private bool _isWalking;
         private Action _unsubscribeFromEvents;
+
+        private Coroutine _reloadRemoveInAnimation;
         
         public override void LeftPerfectAction() => 
             PerformAction(4, "Shoot Left", 1f / 3f, true);
@@ -40,12 +41,14 @@ namespace Player.Weapons {
         
         private void PerformAction(int damage, string animationName, float animationTime, bool left) {
             if (left) {
-                if (_leftInAnimation) return;
+                if (!CanDoLeftAction()) return;
                 _leftInAnimation = true;
+                _leftCurrentAmmo--;
             }
             else {
-                if (_rightInAnimation) return;
+                if (!CanDoRightAction()) return;
                 _rightInAnimation = true;
+                _rightCurrentAmmo--;
             }
             
             IEnumerator SetLeftNotInAnimation(float delay) {
@@ -60,9 +63,7 @@ namespace Player.Weapons {
             
             ShootForward(damage);
             _animator.Play(animationName, -1, 0f);
-            GameManager.Instance.StartCoroutine(left
-                ? SetLeftNotInAnimation(animationTime)
-                : SetRightNotInAnimation(animationTime));
+            StartCoroutine(left ? SetLeftNotInAnimation(animationTime) : SetRightNotInAnimation(animationTime));
         }
         
         private void ShootForward(int damage) {
@@ -78,25 +79,73 @@ namespace Player.Weapons {
             }
         }
 
-        public override bool CanDoLeftAction() => !_leftInAnimation;
+        public override bool CanDoLeftAction() => !_leftInAnimation && _leftCurrentAmmo > 0;
 
-        public override bool CanDoRightAction() => !_rightInAnimation;
+        public override bool CanDoRightAction() => !_rightInAnimation && _rightCurrentAmmo > 0;
 
         public override bool CanDoBothAction() => false;
         public override void StartReload() {
-            throw new NotImplementedException();
+            _leftInAnimation = true;
+            _rightInAnimation = true;
+            Conductor.Instance.DisableNextInteractions(1);
+            
+            IEnumerator AfterAnimation(float delay) {
+                yield return new WaitForSeconds(delay);
+                CanFastReload = true;
+                yield return new WaitForSeconds(Conductor.Instance.SongData.Crotchet);
+                // Did not hit next beat -> force slow reload
+                if (IsReloading && CanFastReload) SlowReload();
+            }
+            
+            Conductor.Instance.AppendOnNextBeat(() => {
+                _animator.Play("Reload Start", -1, 0f);
+                IsReloading = true;
+                
+                StartCoroutine(AfterAnimation(Conductor.Instance.SongData.Crotchet +
+                                              Conductor.Instance.HalfBeatHitWindow));
+            });
         }
         public override void FastReload() {
-            throw new NotImplementedException();
+            CanFastReload = false;
+            _animator.Play("Reload Fast", -1, 0f);
+            IEnumerator SetNotInAnimation(float delay) {
+                yield return new WaitForSeconds(delay);
+                _leftInAnimation = false;
+                _rightInAnimation = false;
+                
+                _leftCurrentAmmo = _maxAmmoPerRevolver;
+                _rightCurrentAmmo = _maxAmmoPerRevolver;
+
+                IsReloading = false;
+            }
+
+            if (_reloadRemoveInAnimation != null) StopCoroutine(_reloadRemoveInAnimation);
+            _reloadRemoveInAnimation = StartCoroutine(SetNotInAnimation(37f / 60f));
         }
         public override void SlowReload() {
-            throw new NotImplementedException();
+            CanFastReload = false;
+            _animator.Play("Reload Slow", -1, 0f);
+            Conductor.Instance.DisableNextInteractions(1);
+            IEnumerator SetNotInAnimation(float delay) {
+                yield return new WaitForSeconds(delay);
+                _leftInAnimation = false;
+                _rightInAnimation = false;
+                
+                _leftCurrentAmmo = _maxAmmoPerRevolver;
+                _rightCurrentAmmo = _maxAmmoPerRevolver;
+
+                IsReloading = false;
+            }
+
+            StartCoroutine(SetNotInAnimation(80f / 60f));
         }
 
         public override void OnWeaponSelected() {
             if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
             
             _rayForward = Camera.main!.ScreenPointToRay;
+            _leftCurrentAmmo = _maxAmmoPerRevolver;
+            _rightCurrentAmmo = _maxAmmoPerRevolver;
             
             _leftInAnimation = true;
             _rightInAnimation = true;
@@ -106,7 +155,7 @@ namespace Player.Weapons {
                 _leftInAnimation = false;
                 _rightInAnimation = false;
             }
-            GameManager.Instance.StartCoroutine(SetNotInAnimation(0.6f));
+            StartCoroutine(SetNotInAnimation(0.6f));
 
             void SetIsWalking() => _isWalking = true;
             void SetNotWalking() => _isWalking = false;
