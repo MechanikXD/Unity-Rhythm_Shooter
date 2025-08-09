@@ -6,11 +6,32 @@ namespace Player.Weapons.Base {
         [SerializeField] protected float _crossFade;
         [SerializeField] private bool _canDoDoubleAction;
         [SerializeField] protected float _maxShootDistance;
-
+        [SerializeField] protected int _maxAmmo;
+        
         public bool IsReloading { get; protected set; }
         public bool CanFastReload { get; protected set; }
         
         public bool CanDoDoubleAction => _canDoDoubleAction;
+        
+        protected bool IsWalking;
+
+        private Coroutine _reloadRemoveInAnimation;
+        
+        [Header("Animations")]
+        [SerializeField] protected AnimationClip _walk;
+        [SerializeField] protected AnimationClip _action;
+        [SerializeField] protected AnimationClip _reloadStart;
+        [SerializeField] protected AnimationClip _reloadSlow;
+        [SerializeField] protected AnimationClip _reloadFast;
+
+        private readonly static int WalkSpeed = Animator.StringToHash("WalkSpeed");
+        private readonly static int ShootSpeed = Animator.StringToHash("ShootSpeed");
+        private readonly static int ReloadStartSpeed = Animator.StringToHash("ReloadStartSpeed");
+        private readonly static int ReloadSlowSpeed = Animator.StringToHash("ReloadSlowSpeed");
+        private readonly static int ReloadFastSpeed = Animator.StringToHash("ReloadFastSpeed");
+
+        protected static float HalfCrotchet;
+        protected static float Crotchet;
         
         public abstract void LeftPerfectAction();
         public abstract void LeftGoodAction();
@@ -44,5 +65,14 @@ namespace Player.Weapons.Base {
         public virtual void OnWeaponSelected() { }
         public virtual void OnWeaponDeselected() { }
         public virtual void WeaponUpdate() {}
+        
+        protected virtual void CalculateAnimationsSpeed() {
+            // Values driven from original animation speed
+            _animator.SetFloat(WalkSpeed, _walk.length / Crotchet);
+            _animator.SetFloat(ShootSpeed, _action.length / HalfCrotchet);
+            _animator.SetFloat(ReloadStartSpeed,  _reloadStart.length / (1.5f * Crotchet));
+            _animator.SetFloat(ReloadSlowSpeed, _reloadSlow.length / (Crotchet * 2f));
+            _animator.SetFloat(ReloadFastSpeed, _reloadFast.length / HalfCrotchet);
+        }
     }
 }

@@ -6010,6 +6010,11 @@ MonoBehaviour:
   _canDoDoubleAction: 0
   _maxShootDistance: 50
   _maxAmmoPerRevolver: 6
+  _walk: {fileID: 7400000, guid: 87795fae434d30948b00b71287a2dca6, type: 2}
+  _action: {fileID: 7400000, guid: 1e4a79c6914d8504db293fa8be89b8b8, type: 2}
+  _reloadStart: {fileID: 7400000, guid: 453d66717b9870347adef3e694a22742, type: 2}
+  _reloadSlow: {fileID: 7400000, guid: 035c5be2358d7af45bec5d574327f358, type: 2}
+  _reloadFast: {fileID: 7400000, guid: f5eccd68c8e3e4947880250632691b19, type: 2}
 --- !u!1 &1059057803
 GameObject:
   m_ObjectHideFlags: 0
@@ -11082,11 +11087,11 @@ MonoBehaviour:
   _mouseSensitivity: 50
   _cameraPitchBounds: {x: -80, y: 80}
   _gravityMultiplier: 0.85
-  _moveSpeed: 10
+  _moveSpeed: 7
   _coyoteTime: 0.2
   _verticalJumpSpeed: 5
   _jumpDurationBounds: {x: 0.15, y: 0.35}
-  _airborneMoveSpeed: 10
+  _airborneMoveSpeed: 7
   _dashCooldownTime: 1.2
   _dashDuration: 0.2
   _dashSpeed: 25
