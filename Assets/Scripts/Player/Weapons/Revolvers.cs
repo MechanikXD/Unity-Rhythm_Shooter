@@ -20,6 +20,13 @@ namespace Player.Weapons {
         private Action _unsubscribeFromEvents;
 
         private Coroutine _reloadRemoveInAnimation;
+
+        [Header("Animations")]
+        [SerializeField] private AnimationClip _walk;
+        [SerializeField] private AnimationClip _shoot;
+        [SerializeField] private AnimationClip _reloadStart;
+        [SerializeField] private AnimationClip _reloadSlow;
+        [SerializeField] private AnimationClip _reloadFast;
         
         private readonly static int WalkSpeed = Animator.StringToHash("WalkSpeed");
         private readonly static int ShootSpeed = Animator.StringToHash("ShootSpeed");
@@ -201,11 +208,11 @@ namespace Player.Weapons {
 
         private void CalculateAnimationsSpeed() {
             // Values driven from original animation speed
-            _animator.SetFloat(WalkSpeed, 1 / (_crotchet * 3f));
-            _animator.SetFloat(ShootSpeed, 3f * _halfCrotchet);
-            _animator.SetFloat(ReloadStartSpeed, 7f / (15f * _crotchet));
-            _animator.SetFloat(ReloadSlowSpeed, _crotchet * (3f / 2f));
-            _animator.SetFloat(ReloadFastSpeed, 37f / (60f * _halfCrotchet));
+            _animator.SetFloat(WalkSpeed, _walk.length / _crotchet);
+            _animator.SetFloat(ShootSpeed, _shoot.length / _halfCrotchet);
+            _animator.SetFloat(ReloadStartSpeed,  _reloadStart.length / (1.5f * _crotchet));
+            _animator.SetFloat(ReloadSlowSpeed, _reloadSlow.length / (_crotchet * 2f));
+            _animator.SetFloat(ReloadFastSpeed, _reloadFast.length / _halfCrotchet);
         }
     }
 }

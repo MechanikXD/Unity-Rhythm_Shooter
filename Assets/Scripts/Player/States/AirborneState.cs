@@ -8,6 +8,7 @@ namespace Player.States {
         private readonly float _gravityMultiplier;
         private readonly float _coyoteTime;
         
+        
         public AirborneState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) {
             _airborneMoveSpeed = Player.AirborneMoveSpeed;
