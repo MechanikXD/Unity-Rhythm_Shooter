@@ -1,5 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
-using Core.Behaviour.StateImplementations;
+using Core.Behaviour.FiniteStateMachine.StateImplementations;
 using Player.States;
 
 namespace Player {

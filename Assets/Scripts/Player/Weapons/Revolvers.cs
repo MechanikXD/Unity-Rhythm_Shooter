@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Core.Game;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
@@ -65,11 +66,12 @@ namespace Player.Weapons {
         }
         
         private void ShootForward(int damage) {
-            if (Physics.Raycast(_rayForward(new Vector2(Screen.width / 2f, Screen.height / 2f)),
-                    out var hit, _maxShootDistance) &&
+            var ray = _rayForward(new Vector2(Screen.width / 2f, Screen.height / 2f));
+            if (Physics.Raycast(ray, out var hit, _maxShootDistance) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
-                
-                damageable.TakeDamage(damage);
+                IDamageable playerDamageable = GameManager.Instance.Player;
+                damageable.TakeDamage(new DamageInfo(playerDamageable, damageable, damage, ray.origin,
+                    hit.point));
                 PlayerEvents.OnDamageDealt();
             }
             else {

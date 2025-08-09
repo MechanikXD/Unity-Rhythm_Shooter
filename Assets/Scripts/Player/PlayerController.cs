@@ -1,7 +1,9 @@
 using System.Collections;
+using Core.Behaviour.BehaviourInjection;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
+using Interactable;
 using Player.Weapons;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -9,13 +11,24 @@ using UnityEngine.InputSystem;
 
 namespace Player {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour {
+    public class PlayerController : MonoBehaviour, IDamageable {
         [SerializeField] private CharacterController _controller;
         [SerializeField] private Transform _attachedCamera;
         [SerializeField] private PlayerInput _playerInput;
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private WeaponBase[] _weapons;
         private StateMachine _stateMachine;
+        private BaseBehaviourInjection<DamageInfo> _healthBehaviour;
+
+        public BaseBehaviourInjection<DamageInfo> HealthBehaviour => _healthBehaviour;
+        
+        [SerializeField] private int _maxHealth;
+        private int _currentHealth;
+
+        int IDamageable.CurrentHealth {
+            get => _currentHealth;
+            set => _currentHealth = value;
+        }
 
         [Header("MOVE SOMEWHERE ELSE")]
         [SerializeField] private SongData _songData;
@@ -101,9 +114,21 @@ namespace Player {
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
+            _currentHealth = _maxHealth;
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
+
+            void DefaultHealthBehaviour(DamageInfo info) {
+                _currentHealth -= info.DamageValue;
+                
+                if (_currentHealth <= 0) {
+                    _currentHealth = 0;
+                    Die();
+                }
+            }
+
+            _healthBehaviour = new BaseBehaviourInjection<DamageInfo>(DefaultHealthBehaviour);
 
             MoveKey = _playerInput.actions["Move"];
             JumpKey = _playerInput.actions["Jump"];
@@ -147,5 +172,15 @@ namespace Player {
         public void OnReload() => _weaponController.Reload();
 
         #endregion
+
+        public void TakeDamage(DamageInfo damageInfo) => _healthBehaviour.Perform(damageInfo);
+        
+        public void Parried(DamageInfo damageInfo) {
+            throw new System.NotImplementedException();
+        }
+
+        public void Die() {
+            throw new System.NotImplementedException();
+        }
     }
 }

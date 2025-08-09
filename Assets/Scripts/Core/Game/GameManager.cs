@@ -15,6 +15,8 @@ namespace Core.Game {
         private PlayerController _playerReference;
         private CrosshairBeat _playerCrosshair;
 
+        public PlayerController Player => _playerReference;
+
         [CanBeNull] public CrosshairBeat PlayerCrosshair => _playerCrosshair;
 
         private Dictionary<(int unique, int global), RoomInfo> _levelRooms;
