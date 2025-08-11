@@ -24,8 +24,8 @@ namespace Player.Weapons.Base {
         [SerializeField] protected AnimationClip _reloadSlow;
         [SerializeField] protected AnimationClip _reloadFast;
 
-        private readonly static int WalkSpeed = Animator.StringToHash("WalkSpeed");
-        private readonly static int ShootSpeed = Animator.StringToHash("ShootSpeed");
+        protected readonly static int WalkSpeed = Animator.StringToHash("WalkSpeed");
+        protected readonly static int ShootSpeed = Animator.StringToHash("ShootSpeed");
         private readonly static int ReloadStartSpeed = Animator.StringToHash("ReloadStartSpeed");
         private readonly static int ReloadSlowSpeed = Animator.StringToHash("ReloadSlowSpeed");
         private readonly static int ReloadFastSpeed = Animator.StringToHash("ReloadFastSpeed");

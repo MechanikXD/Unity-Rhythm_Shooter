@@ -171,8 +171,7 @@ namespace Player.Weapons {
                 yield return new WaitForSeconds(delay);
                 _inAnimation = false;
             }
-            // TODO: Replace with selected animation time
-            StartCoroutine(SetNotInAnimation(0.6f));
+            StartCoroutine(SetNotInAnimation(1f));
             
             void AnimateWalk() {
                 if (IsWalking && !_inAnimation) 
@@ -184,7 +183,7 @@ namespace Player.Weapons {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AppendRepeatingAction("Weapon Walk", AnimateWalk);
+            Conductor.Instance.AppendRepeatingAction("Walk", AnimateWalk);
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;

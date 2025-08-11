@@ -25,6 +25,7 @@ namespace Player.Weapons {
         
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
+        private readonly static int IsBlocking = Animator.StringToHash("IsBlocking");
 
         private void ShieldedPlayerHealthBehaviour(DamageInfo info) {
             if (_canParry && _currentBlockDuration <= _parryWindowDuration) {
@@ -72,7 +73,7 @@ namespace Player.Weapons {
                 _attackCollider.DeactivateCollider();
             }
             
-            _animator.CrossFade("Shoot", _crossFade, -1, 0f);
+            _animator.CrossFade("Attack", _crossFade, -1, 0f);
             StartCoroutine(SetNotInAnimation());
         }
 
@@ -80,8 +81,9 @@ namespace Player.Weapons {
             if (!CanDoRightAction()) return;
 
             _currentDamageBlockingReduction = damageReduction;
-            _animator.CrossFade("Blocking Idle", _crossFade);
+            _animator.CrossFade("Shielded", _crossFade);
             _isBlocking = true;
+            _animator.SetBool(IsBlocking, _isBlocking);
         }
 
         public override bool CanDoLeftAction() => !_isBlocking && !_inAnimation;
@@ -101,9 +103,9 @@ namespace Player.Weapons {
             
             _attackCollider.DeactivateCollider();
             _currentBlockDuration = 0f;
-            _blockAction = _playerInput.actions["Right Action"];
+            _blockAction = _playerInput.actions["RightAction"];
             GameManager.Instance.Player.HealthBehaviour.ChangeBehaviour(ShieldedPlayerHealthBehaviour);
-            base.CalculateAnimationsSpeed();
+            CalculateAnimationsSpeed();
             
             _inAnimation = true;
             _animator.CrossFade("Selected", _crossFade, -1, 0f);
@@ -111,12 +113,11 @@ namespace Player.Weapons {
                 yield return new WaitForSeconds(delay);
                 _inAnimation = false;
             }
-            // TODO: Replace with selected animation time
-            StartCoroutine(SetNotInAnimation(0.6f));
+            StartCoroutine(SetNotInAnimation(35f / 60f));
             
             void AnimateWalk() {
                 if (IsWalking && !_inAnimation) 
-                    _animator.CrossFade(_isBlocking ? "Blocking Walk" : "Walk", _crossFade, -1, 0f);
+                    _animator.CrossFade(_isBlocking ? "Walk Shielded" : "Walk", _crossFade, -1, 0f);
             } 
             
             void SetIsWalking() => IsWalking = true;
@@ -124,7 +125,7 @@ namespace Player.Weapons {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AppendRepeatingAction("Weapon Walk", AnimateWalk);
+            Conductor.Instance.AppendRepeatingAction("Walk", AnimateWalk);
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;
@@ -134,18 +135,26 @@ namespace Player.Weapons {
 
         public override void WeaponUpdate() {
             if (_isBlocking && _blockAction.IsPressed()) {
+                _wasBlockingLastFrame = true;
                 _currentBlockDuration += Time.deltaTime;
             }
-            else if (_wasBlockingLastFrame) {
+            else if (_wasBlockingLastFrame && !_blockAction.IsPressed()) {
                 _animator.CrossFade("Idle", _crossFade);
+                _animator.SetBool(IsBlocking, _isBlocking);
                 _isBlocking = false;
                 _canParry = false;
+                _wasBlockingLastFrame = false;
             }
         }
 
         public override void OnWeaponDeselected() {
             _unsubscribeFromEvents();
             GameManager.Instance.Player.HealthBehaviour.ChangeToDefaultBehaviour();
+        }
+
+        protected override void CalculateAnimationsSpeed() {
+            _animator.SetFloat(WalkSpeed, _walk.length / Crotchet);
+            _animator.SetFloat(ShootSpeed, _action.length / HalfCrotchet);
         }
     }
 }

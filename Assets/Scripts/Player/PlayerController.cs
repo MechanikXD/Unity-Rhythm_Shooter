@@ -137,7 +137,7 @@ namespace Player {
 
         private void Start() {
             Conductor.Instance.Initialize(_songData, _songSource);
-            _weaponController.Initialize(_weapons[0]);
+            _weaponController.Initialize(_weapons[2]);
         }
 
         private void Update() {

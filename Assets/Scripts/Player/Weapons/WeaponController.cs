@@ -25,6 +25,7 @@ namespace Player.Weapons {
         }
 
         public void WeaponUpdate() {
+            _currentWeapon.WeaponUpdate();
             if (_doBufferCounting) {
                 _currentBufferTime += Time.deltaTime;
                 if (_currentBufferTime <= _maxInputBufferTime) return;
