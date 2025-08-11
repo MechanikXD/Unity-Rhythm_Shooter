@@ -1,5 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
-using Core.Behaviour.StateImplementations;
+using Core.Behaviour.FiniteStateMachine.StateImplementations;
 using UnityEngine;
 
 namespace Player.States {
@@ -42,7 +42,7 @@ namespace Player.States {
                 playerRelativeVector.y = _jumpUpwardsSpeed;
                 _targetVelocity = playerRelativeVector;
     
-                _currentVelocity = Vector3.Lerp(_currentVelocity, _targetVelocity, LerpSpeed * Time.deltaTime);
+                _currentVelocity =  Vector3.Lerp(_targetVelocity, _currentVelocity, LerpSpeed * Time.deltaTime);
     
                 Player.Controller.Move(_currentVelocity * Time.deltaTime);
             }

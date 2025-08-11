@@ -1,5 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
-using Core.Behaviour.StateImplementations;
+using Core.Behaviour.FiniteStateMachine.StateImplementations;
 using UnityEngine;
 
 namespace Player.States {
@@ -7,6 +7,7 @@ namespace Player.States {
         private readonly float _airborneMoveSpeed;
         private readonly float _gravityMultiplier;
         private readonly float _coyoteTime;
+        
         
         public AirborneState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) {

@@ -1,5 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
-using Core.Behaviour.StateImplementations;
+using Core.Behaviour.FiniteStateMachine.StateImplementations;
 using Core.Music;
 using UnityEngine;
 
@@ -44,13 +44,13 @@ namespace Player.States {
         }
         
         private void OnPlayerDashed(float songPosition) {
-            var beatType = Conductor.Instance.DetermineHitQuality(songPosition, ignoreDisabled:true);
+            var beatType = Conductor.Instance.GetBeatHitInfo(songPosition, ignoreDisabled:true);
             
-            if (beatType == BeatHitType.Disabled) return;
+            if (beatType.HitType == BeatHitType.Disabled) return;
             Conductor.Instance.SetInteractedThisBeat();
-            PlayerActionEvents.OnPlayerDashed(beatType);
+            PlayerActionEvents.OnPlayerDashed(beatType.HitType);
 
-            switch (beatType) {
+            switch (beatType.HitType) {
                 case BeatHitType.Perfect:
                     // Faster dash: 125% faster and 75% of original duration
                     _speedModifier = Player.DashSpeed * 0.32f;

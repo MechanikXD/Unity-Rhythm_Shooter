@@ -7,15 +7,22 @@ namespace Enemy.Base {
         protected StateMachine EnemyStateMachine;
         protected bool IsTarget;
         [SerializeField] private Vector3 _colliderSize;
-        
+
         [SerializeField] protected int _maxHealth;
-        protected int CurrentHealth;
+
+        protected int CurrentHealth { get; set; }
+
+        int IDamageable.CurrentHealth {
+            get => CurrentHealth;
+            set => CurrentHealth = value;
+        }
 
         public Vector3 ColliderSize => _colliderSize;
         public void SetIsTarget() => IsTarget = true;
 
-        public abstract void TakeDamage(int value);
-        public abstract void Die();
+        public abstract void TakeDamage(DamageInfo damageInfo);
+        public abstract void Parried(DamageInfo damageInfo);
 
+        public abstract void Die();
     }
 }

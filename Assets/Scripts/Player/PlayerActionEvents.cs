@@ -9,12 +9,12 @@ namespace Player {
     public static class PlayerActionEvents {
         public static void OnPlayerLeftAction(float songPosition, WeaponBase currentWeapon) {
             OnLeftAttempted(songPosition);
-            var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
+            var beatType = Conductor.Instance.GetBeatHitInfo(songPosition);
             
-            if (beatType == BeatHitType.Disabled) return;
+            if (beatType.HitType == BeatHitType.Disabled || !currentWeapon.CanDoLeftAction()) return;
             Conductor.Instance.SetInteractedThisBeat();
 
-            switch (beatType) {
+            switch (beatType.HitType) {
                 case BeatHitType.Perfect:
                     currentWeapon.LeftPerfectAction();
                     OnPerfectPerformed();
@@ -35,12 +35,12 @@ namespace Player {
         
         public static void OnPlayerRightAction(float songPosition, WeaponBase currentWeapon) {
             OnRightAttempted(songPosition);
-            var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
+            var beatType = Conductor.Instance.GetBeatHitInfo(songPosition);
             
-            if (beatType == BeatHitType.Disabled) return;
+            if (beatType.HitType == BeatHitType.Disabled || !currentWeapon.CanDoRightAction()) return;
             Conductor.Instance.SetInteractedThisBeat();
 
-            switch (beatType) {
+            switch (beatType.HitType) {
                 case BeatHitType.Perfect:
                     currentWeapon.RightPerfectAction();
                     OnPerfectPerformed();
@@ -61,12 +61,12 @@ namespace Player {
         
         public static void OnPlayerBothAction(float songPosition, WeaponBase currentWeapon) {
             OnBothAttempted(songPosition);
-            var beatType = Conductor.Instance.DetermineHitQuality(songPosition);
+            var beatType = Conductor.Instance.GetBeatHitInfo(songPosition);
             
-            if (beatType == BeatHitType.Disabled) return;
+            if (beatType.HitType == BeatHitType.Disabled || !currentWeapon.CanDoBothAction()) return;
             Conductor.Instance.SetInteractedThisBeat();
 
-            switch (beatType) {
+            switch (beatType.HitType) {
                 case BeatHitType.Perfect:
                     currentWeapon.BothPerfectAction();
                     OnPerfectPerformed();

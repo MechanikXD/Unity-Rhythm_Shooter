@@ -1,15 +1,16 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
 using DG.Tweening;
 using Enemy.Base;
+using Interactable;
 using Player.Statistics.Score;
 using UnityEngine;
 
 namespace Enemy.Types.Test {
-    public class TestEnemy : EnemyBase {
+    public class TestEnemy : EnemyBase, IDamageable {
         private Material _enemyMaterial;
         [SerializeField] private float _hitIndicatorFadeOff;
         private Tweener _materialColorAnimation;
-        
+
         protected void Awake() {
             IsTarget = false;
             EnemyStateMachine = new StateMachine();
@@ -18,8 +19,10 @@ namespace Enemy.Types.Test {
             _maxHealth = 5;
             CurrentHealth = 5;
         }
-        
-        public override void TakeDamage(int value) {
+
+        public override void Parried(DamageInfo damageInfo) => Debug.Log("Test enemy was parried!");
+
+        public override void TakeDamage(DamageInfo damageInfo) {
             ScoreController.Instance.AddScore(10);
             
             if (_materialColorAnimation is { active: true }) _materialColorAnimation.Kill();
@@ -28,7 +31,7 @@ namespace Enemy.Types.Test {
             _enemyMaterial.color = Color.red;
             _materialColorAnimation = _enemyMaterial.DOColor(originalEnemyColor, _hitIndicatorFadeOff);
 
-            CurrentHealth -= value;
+            CurrentHealth -= damageInfo.DamageValue;
             if (CurrentHealth <= 0) Die();
         }
 

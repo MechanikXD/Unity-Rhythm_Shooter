@@ -30,7 +30,7 @@ namespace UI.Managers {
         }
         
         // Creates new instance of Beat
-        public void InstantiateSelf(Image beatPrefab, RectTransform parent, bool isMirrored) {
+        public void Initialize(Image beatPrefab, RectTransform parent, bool isMirrored) {
             var gameObj = Object.Instantiate(beatPrefab, parent, false);
             _image = gameObj;
             _transform = gameObj.transform;

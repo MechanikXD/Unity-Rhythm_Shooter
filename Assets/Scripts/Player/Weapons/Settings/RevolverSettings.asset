@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a2e2a6b6a14362881afadbe1e07fa1, type: 3}
+  m_Name: RevolverSettings
+  m_EditorClassIdentifier: 
+  _controller: {fileID: 660220431562857523, guid: 90e8dd6610247b347bf32c4b2bf098b5, type: 3}
+  _weaponObject: {fileID: 7760747054822637426, guid: 90e8dd6610247b347bf32c4b2bf098b5, type: 3}
+  _animator: {fileID: 1384989215312896608, guid: 90e8dd6610247b347bf32c4b2bf098b5, type: 3}
+  _canDoDoubleAction: 0
+  _maxShootDistance: 50
