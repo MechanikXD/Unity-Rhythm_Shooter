@@ -18,9 +18,9 @@ namespace Player {
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private WeaponBase[] _weapons;
         private StateMachine _stateMachine;
-        private BaseBehaviourInjection<DamageInfo> _healthBehaviour;
+        private BehaviourInjection<DamageInfo> _healthBehaviour;
 
-        public BaseBehaviourInjection<DamageInfo> HealthBehaviour => _healthBehaviour;
+        public BehaviourInjection<DamageInfo> HealthBehaviour => _healthBehaviour;
         
         [SerializeField] private int _maxHealth;
         private int _currentHealth;
@@ -128,7 +128,7 @@ namespace Player {
                 }
             }
 
-            _healthBehaviour = new BaseBehaviourInjection<DamageInfo>(DefaultHealthBehaviour);
+            _healthBehaviour = new BehaviourInjection<DamageInfo>(DefaultHealthBehaviour);
 
             MoveKey = _playerInput.actions["Move"];
             JumpKey = _playerInput.actions["Jump"];
