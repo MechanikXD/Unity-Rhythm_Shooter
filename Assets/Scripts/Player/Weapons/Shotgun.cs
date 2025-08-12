@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
 using Interactable;
@@ -9,35 +10,37 @@ using Random = UnityEngine.Random;
 
 namespace Player.Weapons {
     public class Shotgun : WeaponBase {
-        private Func<Vector3, Ray> _screenPointToRay;
         [SerializeField] private int _pelletCount = 10;
         [SerializeField] protected float _spreadAngle;
         private int _currentAmmoCount;
         private bool _hasAmmoInChamber;
+
+        private BehaviourInjection<int> _leftActionBehaviour;
+        private BehaviourInjection<float> _rightActionBehaviour;
         
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
         private Coroutine _reloadRemoveInAnimation;
         
-        public override void LeftPerfectAction() => Shoot(1, _pelletCount);
+        public override void LeftPerfectAction() => _leftActionBehaviour.Perform(5);
 
-        public override void LeftGoodAction() => Shoot(1, _pelletCount - 3);
+        public override void LeftGoodAction() => _leftActionBehaviour.Perform(3);
 
         public override void LeftMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            Shoot(1, _pelletCount - 5);
+            _leftActionBehaviour.Perform(1);
         }
 
-        public override void RightPerfectAction() => Pump(HalfCrotchet);
+        public override void RightPerfectAction() => _rightActionBehaviour.Perform(HalfCrotchet);
 
-        public override void RightGoodAction() => Pump(HalfCrotchet);
+        public override void RightGoodAction() => _rightActionBehaviour.Perform(HalfCrotchet);
 
         public override void RightMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            Pump(Crotchet);
+            _rightActionBehaviour.Perform(Crotchet);
         }
 
-        private void Shoot(int damage, int pelletCount) {
+        private void Shoot(int damage) {
             if (!CanDoLeftAction()) return;
             
             _currentAmmoCount--;
@@ -47,10 +50,9 @@ namespace Player.Weapons {
             var widthDeviation = Screen.width / 2f * (1f - _spreadAngle / 90f);
             var heightDeviation = Screen.height / 2f * (1f - _spreadAngle / 90f);
 
-            var counter = pelletCount;
+            var counter = _pelletCount;
             while (counter > 0) {
-                var ray = _screenPointToRay(
-                    new Vector2(
+                var ray = ScreenPointToRay(new Vector2(
                         Random.Range(widthDeviation, Screen.width - widthDeviation),
                         Random.Range(heightDeviation, Screen.height - heightDeviation)));
                 
@@ -155,15 +157,12 @@ namespace Player.Weapons {
         }
 
         public override void OnWeaponSelected() {
-            if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
-            _screenPointToRay = Camera.main!.ScreenPointToRay;
-
-            HalfCrotchet = Conductor.Instance.SongData.HalfCrotchet;
-            Crotchet = Conductor.Instance.SongData.Crotchet;
-            
+            base.OnWeaponSelected();
             _currentAmmoCount = _maxAmmo;
             _hasAmmoInChamber = true;
-            base.CalculateAnimationsSpeed();
+
+            _leftActionBehaviour = new BehaviourInjection<int>(Shoot);
+            _rightActionBehaviour = new BehaviourInjection<float>(Pump);
             
             _inAnimation = true;
             _animator.CrossFade("Selected", _crossFade, -1, 0f);

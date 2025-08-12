@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
 using Interactable;
@@ -18,6 +19,9 @@ namespace Player.Weapons {
         [SerializeField] private float _passiveDamageReduction = 1f;
         [SerializeField] private float _shieldedDamageReduction = 0.6f;
         private float _currentDamageBlockingReduction;
+        
+        private BehaviourInjection<int> _leftActionBehaviour;
+        private BehaviourInjection<float> _rightActionBehaviour;
 
         private bool _wasBlockingLastFrame;
         private bool _canParry;
@@ -39,26 +43,27 @@ namespace Player.Weapons {
             }
         }
         
-        public override void LeftPerfectAction() => ShieldAttack(7);
+        public override void LeftPerfectAction() => _leftActionBehaviour.Perform(7);
 
-        public override void LeftGoodAction() => ShieldAttack(5);
+        public override void LeftGoodAction() => _leftActionBehaviour.Perform(5);
 
         public override void LeftMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            ShieldAttack(3);
+            _leftActionBehaviour.Perform(3);
         }
 
         public override void RightPerfectAction() {
             _canParry = true;
-            StartBlocking(_shieldedDamageReduction);
+            _rightActionBehaviour.Perform(_shieldedDamageReduction);
         }
 
         public override void RightGoodAction() => 
-            StartBlocking(_shieldedDamageReduction * 1.2f);
+            _rightActionBehaviour.Perform(_shieldedDamageReduction * 1.2f);
+        
 
         public override void RightMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            StartBlocking(_shieldedDamageReduction * 1.5f);
+            _rightActionBehaviour.Perform(_shieldedDamageReduction * 1.5f);
         }
 
         private void ShieldAttack(int damage) {
@@ -98,14 +103,14 @@ namespace Player.Weapons {
         public override void SlowReload() { }
 
         public override void OnWeaponSelected() {
-            HalfCrotchet = Conductor.Instance.SongData.HalfCrotchet;
-            Crotchet = Conductor.Instance.SongData.Crotchet;
-            
+            base.OnWeaponSelected();
             _attackCollider.DeactivateCollider();
             _currentBlockDuration = 0f;
             _blockAction = _playerInput.actions["RightAction"];
             GameManager.Instance.Player.HealthBehaviour.ChangeBehaviour(ShieldedPlayerHealthBehaviour);
-            CalculateAnimationsSpeed();
+
+            _leftActionBehaviour = new BehaviourInjection<int>(ShieldAttack);
+            _rightActionBehaviour = new BehaviourInjection<float>(StartBlocking);
             
             _inAnimation = true;
             _animator.CrossFade("Selected", _crossFade, -1, 0f);

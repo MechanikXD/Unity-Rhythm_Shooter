@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
 using Interactable;
@@ -17,52 +18,61 @@ namespace Player.Weapons {
         private bool _leftInAnimation;
         private bool _rightInAnimation;
 
+        private BehaviourInjection<int> _leftActionBehaviour;
+        private BehaviourInjection<int> _rightActionBehaviour;
+
         private Coroutine _reloadRemoveInAnimation;
         private Action _unsubscribeFromEvents;
 
         public override void LeftPerfectAction() => 
-            PerformAction(4, "Shoot Left", true);
+            PerformAction(4, true);
         public override void LeftGoodAction() => 
-            PerformAction(3, "Shoot Left", true);
+            PerformAction(3, true);
         public override void LeftMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            PerformAction(1, "Shoot Left", true);
+            PerformAction(1, true);
         }
 
         public override void RightPerfectAction() => 
-            PerformAction(4, "Shoot Right", false);
+            PerformAction(4, false);
         public override void RightGoodAction() => 
-            PerformAction(4, "Shoot Right", false);
+            PerformAction(3, false);
         public override void RightMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            PerformAction(1, "Shoot Right", false);
+            PerformAction(1, false);
         }
         
-        private void PerformAction(int damage, string animationName, bool left) {
+        private void PerformAction(int damage, bool left) {
             if (left) {
                 if (!CanDoLeftAction()) return;
                 _leftInAnimation = true;
                 _leftCurrentAmmo--;
+                
+                _leftActionBehaviour.Perform(damage);
+                
+                IEnumerator SetLeftNotInAnimation() {
+                    yield return new WaitForSeconds(HalfCrotchet);
+                    _leftInAnimation = false;
+                }
+                
+                _animator.CrossFade("Shoot Left", _crossFade, -1, 0f);
+                StartCoroutine(SetLeftNotInAnimation());
             }
             else {
                 if (!CanDoRightAction()) return;
                 _rightInAnimation = true;
                 _rightCurrentAmmo--;
+                
+                _rightActionBehaviour.Perform(damage);
+                
+                IEnumerator SetRightNotInAnimation() {
+                    yield return new WaitForSeconds(HalfCrotchet);
+                    _rightInAnimation = false;
+                }
+                
+                _animator.CrossFade("Shoot Right", _crossFade, -1, 0f);
+                StartCoroutine(SetRightNotInAnimation());
             }
-            
-            IEnumerator SetLeftNotInAnimation() {
-                yield return new WaitForSeconds(HalfCrotchet);
-                _leftInAnimation = false;
-            }
-
-            IEnumerator SetRightNotInAnimation() {
-                yield return new WaitForSeconds(HalfCrotchet);
-                _rightInAnimation = false;
-            }
-            
-            ShootForward(damage);
-            _animator.CrossFade(animationName, _crossFade, -1, 0f);
-            StartCoroutine(left ? SetLeftNotInAnimation() : SetRightNotInAnimation());
         }
         
         private void ShootForward(int damage) {
@@ -140,15 +150,12 @@ namespace Player.Weapons {
         }
 
         public override void OnWeaponSelected() {
-            if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
-
-            HalfCrotchet = Conductor.Instance.SongData.HalfCrotchet;
-            Crotchet = Conductor.Instance.SongData.Crotchet;
-            
-            _rayForward = Camera.main!.ScreenPointToRay;
+            base.OnWeaponSelected();
             _leftCurrentAmmo = _maxAmmo;
             _rightCurrentAmmo = _maxAmmo;
-            base.CalculateAnimationsSpeed();
+
+            _leftActionBehaviour = new BehaviourInjection<int>(ShootForward);
+            _rightActionBehaviour = new BehaviourInjection<int>(ShootForward);
             
             _leftInAnimation = true;
             _rightInAnimation = true;
