@@ -2,13 +2,14 @@
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
+using Core.Game.Session;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Player.Weapons {
+namespace Player.Weapons.Definitions {
     public class Shield : WeaponBase {
         [SerializeField] private ShieldAttackCollider _attackCollider;
         [SerializeField] private float _parryWindowDuration = 0.2f;
@@ -70,7 +71,7 @@ namespace Player.Weapons {
             if (!CanDoLeftAction()) return;
             
             _inAnimation = true;
-            _attackCollider.ActivateCollider(damage);
+            _attackCollider.ActivateCollider((int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage));
             
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);

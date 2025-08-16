@@ -2,13 +2,14 @@
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
+using Core.Game.Session;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Player.Weapons {
+namespace Player.Weapons.Definitions {
     public class Shotgun : WeaponBase {
         [SerializeField] private int _pelletCount = 10;
         [SerializeField] protected float _spreadAngle;
@@ -51,6 +52,7 @@ namespace Player.Weapons {
             var heightDeviation = Screen.height / 2f * (1f - _spreadAngle / 90f);
 
             var counter = _pelletCount;
+            var modifiedManage = (int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage);
             while (counter > 0) {
                 var ray = ScreenPointToRay(new Vector2(
                         Random.Range(widthDeviation, Screen.width - widthDeviation),
@@ -59,7 +61,7 @@ namespace Player.Weapons {
                 if (Physics.Raycast(ray, out var hit, _maxShootDistance)) {
                     if (hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                         IDamageable playerDamageable = GameManager.Instance.Player;
-                        damageable.TakeDamage(new DamageInfo(playerDamageable, damageable, damage, ray.origin,
+                        damageable.TakeDamage(new DamageInfo(playerDamageable, damageable, modifiedManage, ray.origin,
                             hit.point));
                         PlayerEvents.OnDamageDealt();
                     }

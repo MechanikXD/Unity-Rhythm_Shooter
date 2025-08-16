@@ -2,12 +2,13 @@
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
+using Core.Game.Session;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
 using UnityEngine;
 
-namespace Player.Weapons {
+namespace Player.Weapons.Definitions {
     public class Revolvers : WeaponBase {
         private bool _walkAnimationSwitch;
         private Func<Vector3, Ray> _rayForward;
@@ -48,7 +49,7 @@ namespace Player.Weapons {
                 _leftInAnimation = true;
                 _leftCurrentAmmo--;
                 
-                _leftActionBehaviour.Perform(damage);
+                _leftActionBehaviour.Perform((int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage));
                 
                 IEnumerator SetLeftNotInAnimation() {
                     yield return new WaitForSeconds(HalfCrotchet);
@@ -63,7 +64,7 @@ namespace Player.Weapons {
                 _rightInAnimation = true;
                 _rightCurrentAmmo--;
                 
-                _rightActionBehaviour.Perform(damage);
+                _rightActionBehaviour.Perform((int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage));
                 
                 IEnumerator SetRightNotInAnimation() {
                     yield return new WaitForSeconds(HalfCrotchet);
