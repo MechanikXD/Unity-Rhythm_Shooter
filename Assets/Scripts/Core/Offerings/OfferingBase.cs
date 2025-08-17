@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Offerings.Effect;
 using Core.Offerings.Target;
 using Core.Offerings.Trigger;
@@ -21,8 +22,8 @@ namespace Core.Offerings {
         [SerializeField] private OfferingBase[] _unlockOfferings;
 
         [Header("Logic")]
-        [SerializeField] private OfferingTrigger[] _triggers;
-        [SerializeField] private OfferingTarget[] _targets;
+        [SerializeField] private TriggerType[] _triggers;
+        [SerializeField] private TargetType[] _targets;
         // [SerializeField] private OfferingCondition[] _conditions;
         [SerializeField] private OfferingEffect[] _effects;
 
@@ -35,14 +36,30 @@ namespace Core.Offerings {
         public OfferingBase[] UnlockOfferings => _unlockOfferings;
 
         public void Apply() {
-            var targets = new List<IDamageable>();
-            foreach (var target in _targets) {
-                targets.AddRange(target.GetTargets());
-            }
-            
             // if conditions are met:
-            
-            
+            var targets = GetTargets();
+            var effect = GetEffect();
+            SubscribeAction(effect);
+
+        }
+
+        private DamageableBehaviour[] GetTargets() {
+            var targets = new List<DamageableBehaviour>();
+            foreach (var targetType in _targets) {
+                targets.AddRange(OfferingBuilder.GetTargets(targetType));
+            }
+
+            return targets.ToArray();
+        }
+
+        private void SubscribeAction(Action action) {
+            foreach (var trigger in _triggers) {
+                OfferingBuilder.SubscribeAction(trigger, action);
+            }
+        }
+
+        private Action GetEffect() {
+            return () => { };
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
+using Core.Game;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
@@ -14,25 +15,22 @@ namespace Player.Weapons.Definitions {
         [SerializeField] private PlayerInput _playerInput;
         private InputAction _blockAction;
         private float _currentBlockDuration;
+        private DamageableBehaviour _player;
 
         [SerializeField] private float _passiveDamageReduction = 1f;
         [SerializeField] private float _shieldedDamageReduction = 0.6f;
-        private float _currentDamageBlockingReduction;
         
         private BehaviourInjection<int> _leftActionBehaviour;
         private BehaviourInjection<float> _rightActionBehaviour;
 
         private bool _wasBlockingLastFrame;
+        // TODO: Finish Parry Mechanic
         private bool _canParry;
         private bool _isBlocking;
         
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
         private readonly static int IsBlocking = Animator.StringToHash("IsBlocking");
-
-        private void ShieldedPlayerHealthBehaviour(DamageInfo info) {
-            // TODO: Remake shield secondary
-        }
         
         public override void LeftPerfectAction() => _leftActionBehaviour.Perform(7);
 
@@ -76,7 +74,7 @@ namespace Player.Weapons.Definitions {
         private void StartBlocking(float damageReduction) {
             if (!CanDoRightAction()) return;
 
-            _currentDamageBlockingReduction = damageReduction;
+            _player.SetDamageReduction(_player.CurrentDamageReduction - _passiveDamageReduction + _shieldedDamageReduction);
             _animator.CrossFade("Shielded", _crossFade);
             _isBlocking = true;
             _animator.SetBool(IsBlocking, _isBlocking);
@@ -98,6 +96,7 @@ namespace Player.Weapons.Definitions {
             _attackCollider.DeactivateCollider();
             _currentBlockDuration = 0f;
             _blockAction = _playerInput.actions["RightAction"];
+            _player = GameManager.Instance.Player;
 
             _leftActionBehaviour = new BehaviourInjection<int>(ShieldAttack);
             _rightActionBehaviour = new BehaviourInjection<float>(StartBlocking);
@@ -139,6 +138,8 @@ namespace Player.Weapons.Definitions {
                 _isBlocking = false;
                 _canParry = false;
                 _wasBlockingLastFrame = false;
+                _player.SetDamageReduction(_player.CurrentDamageReduction -
+                    _shieldedDamageReduction + _passiveDamageReduction);
             }
         }
 

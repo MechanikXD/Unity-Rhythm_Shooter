@@ -10,7 +10,7 @@ using UnityEngine.InputSystem;
 
 namespace Player {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour, IDamageable {
+    public class PlayerController : DamageableBehaviour {
         [SerializeField] private CharacterController _controller;
         [SerializeField] private Transform _attachedCamera;
         [SerializeField] private PlayerInput _playerInput;
@@ -25,7 +25,6 @@ namespace Player {
 
         public PlayerStates States { get; private set; }
         public CharacterController Controller => _controller;
-        public Vector3 Position => transform.position;
 
         public InputAction MoveKey { get; private set; }
         public InputAction JumpKey { get; private set; }
@@ -42,9 +41,8 @@ namespace Player {
         [Header("Movement Settings")]
         [SerializeField] public float _gravityMultiplier = 0.85f;
         private Vector2 _moveDirection; // Store data from OnMove method
-        [SerializeField] private float _moveSpeed = 10f;
 
-        public float MoveSpeed => _moveSpeed;
+        public float MoveSpeed => _moveSpeed;   // was 7f
 
         [Header("Jump Settings")]
         [SerializeField] private float _coyoteTime = 0.2f;
@@ -98,7 +96,8 @@ namespace Player {
 
         #region Event Functions
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
@@ -109,6 +108,12 @@ namespace Player {
             MoveKey = _playerInput.actions["Move"];
             JumpKey = _playerInput.actions["Jump"];
             DashKey = _playerInput.actions["Dash"];
+        }
+
+        protected override void EnterParriedState() { }
+
+        public override void Die() {
+            throw new System.NotImplementedException();
         }
 
         private void Start() {
@@ -148,13 +153,5 @@ namespace Player {
         public void OnReload() => _weaponController.Reload();
 
         #endregion
-
-        public void TakeDamage(DamageInfo damageInfo) {
-            throw new System.NotImplementedException();
-        }
-
-        public void Die() {
-            throw new System.NotImplementedException();
-        }
     }
 }

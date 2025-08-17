@@ -14,11 +14,5 @@ namespace Core.Offerings.Effect {
 
         public int Status => _status;
         public string Name => _uniqueEffectName;
-
-        public void ApplyEffect(IDamageable[] targets, OfferingEffect[] effects) {
-            foreach (var target in targets) {
-                
-            }
-        }
     }
 }

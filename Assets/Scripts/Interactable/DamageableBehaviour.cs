@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Interactable {
@@ -16,7 +15,7 @@ namespace Interactable {
         public int CurrentHealth { get; protected set; }
         
         [SerializeField] protected float _defaultDamageReduction;
-        protected float CurrentDamageReduction;
+        public float CurrentDamageReduction { get; protected set; }
         private bool _canTakeDamage;
         
         [SerializeField] protected int _damage;
@@ -76,7 +75,8 @@ namespace Interactable {
         public virtual void TakeDamage(DamageInfo damageInfo) {
             if (!_canTakeDamage) return;
 
-            CurrentHealth -= (int)(damageInfo.DamageValue * CurrentDamageReduction);
+            CurrentHealth -= (int)(damageInfo.DamageValue -
+                                   damageInfo.DamageValue * CurrentDamageReduction);
             if (CurrentHealth <= 0) {
                 CurrentHealth = 0;
                 Die();
@@ -89,6 +89,8 @@ namespace Interactable {
         }
 
         public void SetDamageAbility(bool canBeDamaged) => _canTakeDamage = canBeDamaged;
+
+        public void SetDamageReduction(float value) => CurrentDamageReduction = value;
 
         public void SetMaxHealth(int newValue, bool adjustCurrentHealth = true) {
             if (newValue <= 0) return;
