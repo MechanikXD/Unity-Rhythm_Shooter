@@ -20,8 +20,13 @@ namespace Enemy.Base {
         public Vector3 ColliderSize => _colliderSize;
         public void SetIsTarget() => IsTarget = true;
 
+        public int CurrentStatuses { get; }
         public abstract void TakeDamage(DamageInfo damageInfo);
         public abstract void Parried(DamageInfo damageInfo);
+
+        public void ApplyStatus(int status) {
+            throw new System.NotImplementedException();
+        }
 
         public abstract void Die();
     }

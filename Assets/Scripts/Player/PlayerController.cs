@@ -173,9 +173,14 @@ namespace Player {
 
         #endregion
 
+        public int CurrentStatuses { get; }
         public void TakeDamage(DamageInfo damageInfo) => _healthBehaviour.Perform(damageInfo);
         
         public void Parried(DamageInfo damageInfo) {
+            throw new System.NotImplementedException();
+        }
+
+        public void ApplyStatus(int status) {
             throw new System.NotImplementedException();
         }
 
