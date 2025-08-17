@@ -2,7 +2,6 @@
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
-using Core.Game.Session;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
@@ -49,7 +48,7 @@ namespace Player.Weapons.Definitions {
                 _leftInAnimation = true;
                 _leftCurrentAmmo--;
                 
-                _leftActionBehaviour.Perform((int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage));
+                _leftActionBehaviour.Perform(damage);
                 
                 IEnumerator SetLeftNotInAnimation() {
                     yield return new WaitForSeconds(HalfCrotchet);
@@ -64,7 +63,7 @@ namespace Player.Weapons.Definitions {
                 _rightInAnimation = true;
                 _rightCurrentAmmo--;
                 
-                _rightActionBehaviour.Perform((int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage));
+                _rightActionBehaviour.Perform(damage);
                 
                 IEnumerator SetRightNotInAnimation() {
                     yield return new WaitForSeconds(HalfCrotchet);

@@ -1,5 +1,4 @@
 using System.Collections;
-using Core.Behaviour.BehaviourInjection;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
@@ -18,17 +17,6 @@ namespace Player {
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private WeaponBase[] _weapons;
         private StateMachine _stateMachine;
-        private BehaviourInjection<DamageInfo> _healthBehaviour;
-
-        public BehaviourInjection<DamageInfo> HealthBehaviour => _healthBehaviour;
-        
-        [SerializeField] private int _maxHealth;
-        private int _currentHealth;
-
-        int IDamageable.CurrentHealth {
-            get => _currentHealth;
-            set => _currentHealth = value;
-        }
 
         [Header("MOVE SOMEWHERE ELSE")]
         [SerializeField] private SongData _songData;
@@ -114,21 +102,9 @@ namespace Player {
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
-            _currentHealth = _maxHealth;
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
-
-            void DefaultHealthBehaviour(DamageInfo info) {
-                _currentHealth -= info.DamageValue;
-                
-                if (_currentHealth <= 0) {
-                    _currentHealth = 0;
-                    Die();
-                }
-            }
-
-            _healthBehaviour = new BehaviourInjection<DamageInfo>(DefaultHealthBehaviour);
 
             MoveKey = _playerInput.actions["Move"];
             JumpKey = _playerInput.actions["Jump"];
@@ -173,14 +149,7 @@ namespace Player {
 
         #endregion
 
-        public int CurrentStatuses { get; }
-        public void TakeDamage(DamageInfo damageInfo) => _healthBehaviour.Perform(damageInfo);
-        
-        public void Parried(DamageInfo damageInfo) {
-            throw new System.NotImplementedException();
-        }
-
-        public void ApplyStatus(int status) {
+        public void TakeDamage(DamageInfo damageInfo) {
             throw new System.NotImplementedException();
         }
 

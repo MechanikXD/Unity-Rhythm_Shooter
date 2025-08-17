@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
-using Core.Game;
-using Core.Game.Session;
 using Core.Music;
 using Interactable;
 using Player.Weapons.Base;
@@ -33,15 +31,7 @@ namespace Player.Weapons.Definitions {
         private readonly static int IsBlocking = Animator.StringToHash("IsBlocking");
 
         private void ShieldedPlayerHealthBehaviour(DamageInfo info) {
-            if (_canParry && _currentBlockDuration <= _parryWindowDuration) {
-                foreach (var target in info.Targets) target.Parried(info);
-            }
-            else if (_isBlocking) {
-                info.Targets[0].TakeDirectDamage((int)(info.DamageValue * _currentDamageBlockingReduction));
-            }
-            else {
-                info.Targets[0].TakeDirectDamage((int)(info.DamageValue * _passiveDamageReduction));
-            }
+            // TODO: Remake shield secondary
         }
         
         public override void LeftPerfectAction() => _leftActionBehaviour.Perform(7);
@@ -71,7 +61,7 @@ namespace Player.Weapons.Definitions {
             if (!CanDoLeftAction()) return;
             
             _inAnimation = true;
-            _attackCollider.ActivateCollider((int)SessionModel.PlayerDamageModifier.GetModifiedValue(damage));
+            _attackCollider.ActivateCollider(damage);
             
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);
@@ -108,7 +98,6 @@ namespace Player.Weapons.Definitions {
             _attackCollider.DeactivateCollider();
             _currentBlockDuration = 0f;
             _blockAction = _playerInput.actions["RightAction"];
-            GameManager.Instance.Player.HealthBehaviour.ChangeBehaviour(ShieldedPlayerHealthBehaviour);
 
             _leftActionBehaviour = new BehaviourInjection<int>(ShieldAttack);
             _rightActionBehaviour = new BehaviourInjection<float>(StartBlocking);
@@ -155,7 +144,6 @@ namespace Player.Weapons.Definitions {
 
         public override void OnWeaponDeselected() {
             _unsubscribeFromEvents();
-            GameManager.Instance.Player.HealthBehaviour.ChangeToDefaultBehaviour();
         }
 
         protected override void CalculateAnimationsSpeed() {

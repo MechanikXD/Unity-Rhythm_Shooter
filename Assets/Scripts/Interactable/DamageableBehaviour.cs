@@ -1,0 +1,145 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Interactable {
+    [RequireComponent(typeof(Rigidbody))]
+    public abstract class DamageableBehaviour : MonoBehaviour, IDamageable {
+        [SerializeField] protected Rigidbody _body;
+        public Vector3 Position => transform.position;
+        [SerializeField] protected float _moveSpeed;
+        
+        [SerializeField] protected int _maxHealth;
+        private int _currentMaxHealth;
+        public float HealthMultiplier { get; private set; } = 1f;
+        public int HealthIncrement { get; private set; } = 0;
+        public int CurrentHealth { get; protected set; }
+        
+        [SerializeField] protected float _defaultDamageReduction;
+        protected float CurrentDamageReduction;
+        private bool _canTakeDamage;
+        
+        [SerializeField] protected int _damage;
+        protected int CurrentDamage;
+        public float DamageMultiplier { get; private set; } = 1f;
+        public int DamageIncrement { get; private set; } = 0;
+        
+        // TODO: Make actual status class
+        public HashSet<int> CurrentStatuses { get; private set; }
+        [SerializeField] protected int _staggerThreshold;
+        private int _currentsStagger;
+
+        protected virtual void Awake() {
+            CurrentStatuses = new HashSet<int>();
+
+            _currentsStagger = _staggerThreshold;
+            CurrentHealth = _maxHealth;
+            CurrentDamage = _damage;
+            CurrentDamageReduction = _defaultDamageReduction;
+            _canTakeDamage = true;
+            
+            RecalculateCurrentDamage();
+            RecalculateMaxHealth();
+        }
+
+        public virtual void ApplyStatus(int status) {
+            if (!CurrentStatuses.Add(status)) {
+                // Repeated apply
+            }
+            // status.Activate
+        }
+
+        public virtual void RemoveStatus(int status) {
+            if (CurrentStatuses.Contains(status)) {
+                CurrentStatuses.Remove(status);
+                // status deactivate
+            }
+        }
+
+        public virtual void ClearStatuses() {
+            foreach (var status in CurrentStatuses) {
+                // Deactivate status
+            }
+            CurrentStatuses.Clear();
+        }
+
+        public virtual void Parried(int value) {
+            _currentsStagger -= value;
+            if (_currentsStagger <= 0) {
+                _currentsStagger = 0;
+                EnterParriedState();
+            }
+        }
+
+        protected abstract void EnterParriedState();
+
+        public virtual void TakeDamage(DamageInfo damageInfo) {
+            if (!_canTakeDamage) return;
+
+            CurrentHealth -= (int)(damageInfo.DamageValue * CurrentDamageReduction);
+            if (CurrentHealth <= 0) {
+                CurrentHealth = 0;
+                Die();
+            }
+            else if (damageInfo.Force > 0) {
+                // TODO: Test that, may be in wrong order
+                _body.AddForce((damageInfo.HitPosition - damageInfo.SourcePosition).normalized *
+                              damageInfo.Force);
+            }
+        }
+
+        public void SetDamageAbility(bool canBeDamaged) => _canTakeDamage = canBeDamaged;
+
+        public void SetMaxHealth(int newValue, bool adjustCurrentHealth = true) {
+            if (newValue <= 0) return;
+
+            var oldMaxHealth = _currentMaxHealth;
+            _currentMaxHealth = newValue;
+            
+            if (CurrentHealth > _currentMaxHealth) {
+                CurrentHealth = _currentMaxHealth;
+            }
+            else if (adjustCurrentHealth) {
+                var relativeHealth = CurrentHealth / oldMaxHealth;
+                CurrentHealth = _currentMaxHealth * relativeHealth;
+            }
+        }
+
+        public void ChangeDamageMultiplier(float newValue) {
+            if (newValue < 0) return;
+            DamageMultiplier = newValue;
+            RecalculateCurrentDamage();
+        }
+        
+        public void ChangeDamageIncrement(int newValue) {
+            if (newValue < 0) return;
+            DamageIncrement = newValue;
+            RecalculateCurrentDamage();
+        }
+
+        public void RecalculateCurrentDamage() {
+            CurrentDamage = (int)((_damage + DamageIncrement) * DamageMultiplier);
+            if (CurrentDamage <= 0) CurrentDamage = 1;
+        }
+        
+        public void ChangeHealthMultiplier(float newValue) {
+            if (newValue < 0) return;
+            HealthMultiplier = newValue;
+            RecalculateMaxHealth();
+        }
+        
+        public void ChangeHealthIncrement(int newValue) {
+            if (newValue < 0) return;
+            HealthIncrement = newValue;
+            RecalculateMaxHealth();
+        }
+        
+        public void RecalculateMaxHealth() {
+            var newValue = (int)((_maxHealth + HealthIncrement) * HealthMultiplier);
+            if (newValue <= 0) newValue = 1;
+            SetMaxHealth(newValue);
+        }
+
+        public abstract void Die();
+    }
+}
