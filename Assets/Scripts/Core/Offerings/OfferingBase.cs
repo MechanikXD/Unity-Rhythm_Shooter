@@ -10,8 +10,9 @@ namespace Core.Offerings {
         [SerializeField] private string _title;
         [SerializeField] private string _description;
         [SerializeField] private OfferingAffinity _affinity;
-        
+
         [Header("Deck Related")]
+        [SerializeField] private bool _inStartingHand;
         [SerializeField] private OfferingBase[] _conflictOfferings;
         [SerializeField] private OfferingBase[] _unlockOfferings;
 
@@ -22,7 +23,8 @@ namespace Core.Offerings {
         public string Title => _title;
         public string Description => _description;
         public OfferingAffinity Affinity => _affinity;
-        
+
+        public bool InStartingHand => _inStartingHand;
         public OfferingBase[] ConflictOfferings => _conflictOfferings;
         public OfferingBase[] UnlockOfferings => _unlockOfferings;
 
