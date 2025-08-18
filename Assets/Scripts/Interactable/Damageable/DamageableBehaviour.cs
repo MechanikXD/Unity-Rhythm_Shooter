@@ -24,8 +24,6 @@ namespace Interactable.Damageable {
         protected int CurrentDamage;
         public float DamageMultiplier { get; private set; } = 1f;
         public int DamageIncrement { get; private set; }
-        
-        // TODO: Make actual status class
         public HashSet<StatusBase> CurrentStatuses { get; private set; }
         [SerializeField] protected int _staggerThreshold;
         private int _currentsStagger;

@@ -4,8 +4,6 @@ using UnityEngine;
 
 namespace Core.Offerings.Components {
     public abstract class OfferingEffect : MonoBehaviour {
-        [SerializeField] protected EffectType _type;
-        // TODO: Create actual status class
         [SerializeField] protected StatusBase _status;
         [SerializeField] protected float _value;
 
