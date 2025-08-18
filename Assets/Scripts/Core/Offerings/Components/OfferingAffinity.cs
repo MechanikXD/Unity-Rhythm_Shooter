@@ -1,4 +1,4 @@
-﻿namespace Core.Offerings {
+﻿namespace Core.Offerings.Components {
     public enum OfferingAffinity {
         None,
         Hatred,

@@ -1,4 +1,4 @@
-﻿namespace Core.Offerings.Target {
+﻿namespace Core.Offerings.Components {
     public enum TargetType {
         Player,
         Enemy,

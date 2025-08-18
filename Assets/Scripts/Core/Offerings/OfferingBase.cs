@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Core.Offerings.Effect;
-using Core.Offerings.Target;
-using Core.Offerings.Trigger;
-using Interactable;
-using NUnit.Framework;
+﻿using Core.Offerings.Components;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,10 +16,7 @@ namespace Core.Offerings {
         [SerializeField] private OfferingBase[] _unlockOfferings;
 
         [Header("Logic")]
-        [SerializeField] private TriggerType[] _triggers;
-        [SerializeField] private TargetType[] _targets;
-        // [SerializeField] private OfferingCondition[] _conditions;
-        [SerializeField] private OfferingEffect[] _effects;
+        [SerializeField] private OfferingEffect _effect;
 
         public Image Art => _art;
         public string Title => _title;
@@ -35,31 +26,8 @@ namespace Core.Offerings {
         public OfferingBase[] ConflictOfferings => _conflictOfferings;
         public OfferingBase[] UnlockOfferings => _unlockOfferings;
 
-        public void Apply() {
-            // if conditions are met:
-            var targets = GetTargets();
-            var effect = GetEffect();
-            SubscribeAction(effect);
+        public void Apply() => _effect.SubscribeEffect();
 
-        }
-
-        private DamageableBehaviour[] GetTargets() {
-            var targets = new List<DamageableBehaviour>();
-            foreach (var targetType in _targets) {
-                targets.AddRange(OfferingBuilder.GetTargets(targetType));
-            }
-
-            return targets.ToArray();
-        }
-
-        private void SubscribeAction(Action action) {
-            foreach (var trigger in _triggers) {
-                OfferingBuilder.SubscribeAction(trigger, action);
-            }
-        }
-
-        private Action GetEffect() {
-            return () => { };
-        }
+        public void Remove() => _effect.UnsubscribeEffect();
     }
 }

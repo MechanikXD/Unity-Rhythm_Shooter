@@ -79,10 +79,13 @@ namespace Player.Weapons.Definitions {
             var ray = _rayForward(new Vector2(Screen.width / 2f, Screen.height / 2f));
             if (Physics.Raycast(ray, out var hit, _maxShootDistance) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
+                
                 IDamageable playerDamageable = GameManager.Instance.Player;
-                damageable.TakeDamage(new DamageInfo(playerDamageable, damageable, damage, ray.origin,
-                    hit.point));
-                PlayerEvents.OnDamageDealt();
+                var damageInfo = new DamageInfo(playerDamageable, damageable, damage, ray.origin,
+                    hit.point);
+                
+                damageable.TakeDamage(damageInfo);
+                PlayerEvents.OnDamageDealt(damageInfo);
             }
             else {
                 PlayerEvents.OnAttackFailed();
@@ -107,7 +110,7 @@ namespace Player.Weapons.Definitions {
                 if (IsReloading && CanFastReload) SlowReload();
             }
             
-            Conductor.Instance.AppendOnNextBeat(() => {
+            Conductor.Instance.AddOnNextBeat(() => {
                 _animator.CrossFade("Reload Start", _crossFade, -1, 0f);
                 IsReloading = true;
                 
@@ -172,7 +175,7 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AppendRepeatingAction("Weapon Walk", AnimateWalk);
+            Conductor.Instance.AddRepeatingAction("Weapon Walk", AnimateWalk);
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;

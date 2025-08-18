@@ -13,6 +13,7 @@ namespace Interactable {
         public float HealthMultiplier { get; private set; } = 1f;
         public int HealthIncrement { get; private set; } = 0;
         public int CurrentHealth { get; protected set; }
+        public int MaxHealth => _currentMaxHealth;
         
         [SerializeField] protected float _defaultDamageReduction;
         public float CurrentDamageReduction { get; protected set; }

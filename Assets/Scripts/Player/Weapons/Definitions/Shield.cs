@@ -119,7 +119,7 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AppendRepeatingAction("Walk", AnimateWalk);
+            Conductor.Instance.AddRepeatingAction("Walk", AnimateWalk);
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;

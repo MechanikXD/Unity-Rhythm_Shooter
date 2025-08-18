@@ -1,4 +1,5 @@
 ﻿using System;
+using Interactable;
 
 namespace Player {
     public static class PlayerEvents {
@@ -17,11 +18,11 @@ namespace Player {
         public static void OnStartWalkingEvent() => StartWalking?.Invoke();
         public static void OnStoppedWalkingEvent() => StoppedWalking?.Invoke();
         
-        public static event Action DamageDealt;
+        public static event Action<DamageInfo> DamageDealt;
         public static event Action AttackFailed;
 
         public static void OnAttackFailed() => AttackFailed?.Invoke();
-        public static void OnDamageDealt() => DamageDealt?.Invoke();
+        public static void OnDamageDealt(DamageInfo info) => DamageDealt?.Invoke(info);
         
         public static event Action<long> ScoreChanged;
         public static event Action<int> ComboCountChanged;

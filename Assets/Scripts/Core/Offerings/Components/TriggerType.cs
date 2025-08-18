@@ -1,10 +1,9 @@
-﻿namespace Core.Offerings.Trigger {
+﻿namespace Core.Offerings.Components {
     public enum TriggerType {
         Instant,
         EveryBeat,
         PlayerDashed,
         PlayerDamaged,
-        EnemyDamaged,
         EnemyDied,
         PlayerDied,
         LeftAction,
@@ -12,6 +11,6 @@
         PlayerDashedInEnemy,
         DamageDealt,
         AttackMissed,
-        Reload
+        AfterReload
     }
 }

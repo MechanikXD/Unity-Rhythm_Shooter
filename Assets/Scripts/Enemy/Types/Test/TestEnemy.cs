@@ -36,9 +36,9 @@ namespace Enemy.Types.Test {
         public override void Die() {
             ScoreController.Instance.AddScore(50);
             
-            EnemyEvents.OnEnemyDefeated();
-            if (IsTarget) EnemyEvents.OnTargetDefeated();
-            else EnemyEvents.OnNormalDefeated();
+            EnemyEvents.OnEnemyDefeated(this);
+            if (IsTarget) EnemyEvents.OnTargetDefeated(this);
+            else EnemyEvents.OnNormalDefeated(this);
             
             Destroy(gameObject);
         }

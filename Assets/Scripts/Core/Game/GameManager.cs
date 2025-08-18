@@ -2,6 +2,8 @@
 using Core.Behaviour.FiniteStateMachine;
 using Core.Game.States;
 using Core.Level.Room;
+using Enemy.Base;
+using Interactable;
 using JetBrains.Annotations;
 using Player;
 using UI.Managers;
@@ -14,8 +16,10 @@ namespace Core.Game {
         private GameStates _states;
         private PlayerController _playerReference;
         private CrosshairBeat _playerCrosshair;
+        private RoomInfo _activeRoom;
 
         public PlayerController Player => _playerReference;
+        public DamageableBehaviour[] ActiveEnemies => _activeRoom.ActiveEnemies;
 
         [CanBeNull] public CrosshairBeat PlayerCrosshair => _playerCrosshair;
 
@@ -44,6 +48,7 @@ namespace Core.Game {
         }
 
         public void EnterBattleState(RoomInfo enteredRoom) {
+            _activeRoom = enteredRoom;
             enteredRoom.StartCombat();
             _stateMachine.ChangeState(enteredRoom.IsBossBattle
                 ? _states.BossBattleState
