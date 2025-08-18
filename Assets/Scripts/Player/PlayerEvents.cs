@@ -1,5 +1,6 @@
 ﻿using System;
 using Interactable;
+using Interactable.Damageable;
 
 namespace Player {
     public static class PlayerEvents {

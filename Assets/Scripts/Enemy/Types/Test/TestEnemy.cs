@@ -2,6 +2,7 @@
 using DG.Tweening;
 using Enemy.Base;
 using Interactable;
+using Interactable.Damageable;
 using Player.Statistics.Score;
 using UnityEngine;
 

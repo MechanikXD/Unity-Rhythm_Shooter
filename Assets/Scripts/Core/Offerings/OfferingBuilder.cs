@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Core.Game;
 using Core.Offerings.Components;
-using Interactable;
+using Interactable.Damageable;
 using UnityEngine;
 
 namespace Core.Offerings {

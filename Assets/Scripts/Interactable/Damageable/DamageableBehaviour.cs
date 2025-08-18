@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using Interactable.Status;
 using UnityEngine;
 
-namespace Interactable {
+namespace Interactable.Damageable {
     [RequireComponent(typeof(Rigidbody))]
     public abstract class DamageableBehaviour : MonoBehaviour, IDamageable {
         [SerializeField] protected Rigidbody _body;
@@ -11,7 +12,7 @@ namespace Interactable {
         [SerializeField] protected int _maxHealth;
         private int _currentMaxHealth;
         public float HealthMultiplier { get; private set; } = 1f;
-        public int HealthIncrement { get; private set; } = 0;
+        public int HealthIncrement { get; private set; }
         public int CurrentHealth { get; protected set; }
         public int MaxHealth => _currentMaxHealth;
         
@@ -22,15 +23,15 @@ namespace Interactable {
         [SerializeField] protected int _damage;
         protected int CurrentDamage;
         public float DamageMultiplier { get; private set; } = 1f;
-        public int DamageIncrement { get; private set; } = 0;
+        public int DamageIncrement { get; private set; }
         
         // TODO: Make actual status class
-        public HashSet<int> CurrentStatuses { get; private set; }
+        public HashSet<StatusBase> CurrentStatuses { get; private set; }
         [SerializeField] protected int _staggerThreshold;
         private int _currentsStagger;
 
         protected virtual void Awake() {
-            CurrentStatuses = new HashSet<int>();
+            CurrentStatuses = new HashSet<StatusBase>();
 
             _currentsStagger = _staggerThreshold;
             CurrentHealth = _maxHealth;
@@ -42,23 +43,25 @@ namespace Interactable {
             RecalculateMaxHealth();
         }
 
-        public virtual void ApplyStatus(int status) {
-            if (!CurrentStatuses.Add(status)) {
-                // Repeated apply
+        public virtual void ApplyStatus(StatusBase status) {
+            if (CurrentStatuses.Add(status)) {
+                status.ApplyStatus(this);
             }
-            // status.Activate
+            else {
+                status.RepeatedApply();
+            }
         }
 
-        public virtual void RemoveStatus(int status) {
-            if (CurrentStatuses.Contains(status)) {
-                CurrentStatuses.Remove(status);
-                // status deactivate
-            }
+        public virtual void RemoveStatus(StatusBase status) {
+            if (!CurrentStatuses.Contains(status)) return;
+
+            status.RemoveStatus();
+            CurrentStatuses.Remove(status);
         }
 
         public virtual void ClearStatuses() {
             foreach (var status in CurrentStatuses) {
-                // Deactivate status
+                status.RemoveStatus();
             }
             CurrentStatuses.Clear();
         }

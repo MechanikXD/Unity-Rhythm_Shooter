@@ -1,5 +1,6 @@
 ﻿using System;
 using Interactable;
+using Interactable.Damageable;
 using Player.Statistics.Score.Rank;
 using UnityEngine;
 

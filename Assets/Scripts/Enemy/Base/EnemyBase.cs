@@ -1,5 +1,6 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
 using Interactable;
+using Interactable.Damageable;
 using UnityEngine;
 
 namespace Enemy.Base {

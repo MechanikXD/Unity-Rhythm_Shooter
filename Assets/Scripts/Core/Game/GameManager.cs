@@ -4,6 +4,7 @@ using Core.Game.States;
 using Core.Level.Room;
 using Enemy.Base;
 using Interactable;
+using Interactable.Damageable;
 using JetBrains.Annotations;
 using Player;
 using UI.Managers;

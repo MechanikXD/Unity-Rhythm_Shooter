@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Interactable {
+namespace Interactable.Damageable {
     public class DamageInfo {
         public IDamageable Source { get; private set; }
         public IDamageable[] Targets { get; private set; }

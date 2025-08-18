@@ -4,6 +4,7 @@ using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
 using Interactable;
+using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;

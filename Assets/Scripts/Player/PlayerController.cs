@@ -3,6 +3,7 @@ using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
 using Interactable;
+using Interactable.Damageable;
 using Player.Weapons;
 using Player.Weapons.Base;
 using UnityEngine;

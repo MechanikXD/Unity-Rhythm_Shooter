@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Core.Game;
 using Interactable;
+using Interactable.Damageable;
 using UnityEngine;
 
 namespace Player.Weapons.Definitions {
