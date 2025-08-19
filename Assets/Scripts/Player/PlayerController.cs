@@ -1,9 +1,9 @@
 using System.Collections;
-using Core.Behaviour.BehaviourInjection;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
 using Interactable;
+using Interactable.Damageable;
 using Player.Weapons;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -11,24 +11,13 @@ using UnityEngine.InputSystem;
 
 namespace Player {
     [RequireComponent(typeof(CharacterController))]
-    public class PlayerController : MonoBehaviour, IDamageable {
+    public class PlayerController : DamageableBehaviour {
         [SerializeField] private CharacterController _controller;
         [SerializeField] private Transform _attachedCamera;
         [SerializeField] private PlayerInput _playerInput;
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private WeaponBase[] _weapons;
         private StateMachine _stateMachine;
-        private BehaviourInjection<DamageInfo> _healthBehaviour;
-
-        public BehaviourInjection<DamageInfo> HealthBehaviour => _healthBehaviour;
-        
-        [SerializeField] private int _maxHealth;
-        private int _currentHealth;
-
-        int IDamageable.CurrentHealth {
-            get => _currentHealth;
-            set => _currentHealth = value;
-        }
 
         [Header("MOVE SOMEWHERE ELSE")]
         [SerializeField] private SongData _songData;
@@ -37,7 +26,6 @@ namespace Player {
 
         public PlayerStates States { get; private set; }
         public CharacterController Controller => _controller;
-        public Vector3 Position => transform.position;
 
         public InputAction MoveKey { get; private set; }
         public InputAction JumpKey { get; private set; }
@@ -54,9 +42,8 @@ namespace Player {
         [Header("Movement Settings")]
         [SerializeField] public float _gravityMultiplier = 0.85f;
         private Vector2 _moveDirection; // Store data from OnMove method
-        [SerializeField] private float _moveSpeed = 10f;
 
-        public float MoveSpeed => _moveSpeed;
+        public float MoveSpeed => _moveSpeed;   // was 7f
 
         [Header("Jump Settings")]
         [SerializeField] private float _coyoteTime = 0.2f;
@@ -110,29 +97,24 @@ namespace Player {
 
         #region Event Functions
 
-        private void Awake() {
+        protected override void Awake() {
+            base.Awake();
             _stateMachine = new StateMachine();
             States = new PlayerStates(_stateMachine, this);
             _stateMachine.Initialize(States.IdleState);
-            _currentHealth = _maxHealth;
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
 
-            void DefaultHealthBehaviour(DamageInfo info) {
-                _currentHealth -= info.DamageValue;
-                
-                if (_currentHealth <= 0) {
-                    _currentHealth = 0;
-                    Die();
-                }
-            }
-
-            _healthBehaviour = new BehaviourInjection<DamageInfo>(DefaultHealthBehaviour);
-
             MoveKey = _playerInput.actions["Move"];
             JumpKey = _playerInput.actions["Jump"];
             DashKey = _playerInput.actions["Dash"];
+        }
+
+        protected override void EnterParriedState() { }
+
+        public override void Die() {
+            throw new System.NotImplementedException();
         }
 
         private void Start() {
@@ -172,15 +154,5 @@ namespace Player {
         public void OnReload() => _weaponController.Reload();
 
         #endregion
-
-        public void TakeDamage(DamageInfo damageInfo) => _healthBehaviour.Perform(damageInfo);
-        
-        public void Parried(DamageInfo damageInfo) {
-            throw new System.NotImplementedException();
-        }
-
-        public void Die() {
-            throw new System.NotImplementedException();
-        }
     }
 }

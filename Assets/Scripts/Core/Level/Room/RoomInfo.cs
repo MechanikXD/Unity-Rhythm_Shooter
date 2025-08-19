@@ -4,6 +4,8 @@ using System.Linq;
 using Core.Level.Room.Enemy;
 using Enemy;
 using Enemy.Base;
+using Interactable;
+using Interactable.Damageable;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -28,17 +30,20 @@ namespace Core.Level.Room {
         private Queue<EnemyBase> _enemyToSpawn;
         [SerializeField] private RoomEnterTrigger[] _roomEnterTriggers;
         [SerializeField] private int _prefabId;
+        private Dictionary<int, DamageableBehaviour> _activeEnemies;
         public int PrefabId => _prefabId;   // Identifies this room, shared with other same rooms
         public int RoomId { get; private set; } // Identifies this room in level
         public bool IsBossBattle => _isBossBattle;
         
         public List<Transform> ExitPositions => _exits;
         public int ExitCount => _exits.Count;
+        public DamageableBehaviour[] ActiveEnemies => _activeEnemies.Values.ToArray();
 
         private void Awake() {
             _exitBlockers = new List<GameObject>();
             _enemyToSpawn = new Queue<EnemyBase>();
             _removedExits = new List<Transform>();
+            _activeEnemies = new Dictionary<int, DamageableBehaviour>();
             
             foreach (var trigger in _roomEnterTriggers) trigger.SetReference(this);
         }
@@ -137,8 +142,7 @@ namespace Core.Level.Room {
                     spawnPosition.y += nextEnemy.ColliderSize.y / 2;
                     
                     _currentEnemyCount++;
-                    Instantiate(nextEnemy, spawnPosition, spawnPoint.rotation).transform
-                        .SetParent(_enemyParent, false);
+                    InstantiateNewEnemy(nextEnemy, spawnPosition, spawnPoint.rotation, _enemyParent);
                     Physics.SyncTransforms();
                     return true;
                 }
@@ -150,8 +154,7 @@ namespace Core.Level.Room {
             
             spawnPosition.y += nextEnemy.ColliderSize.y / 2;
             _currentEnemyCount++;
-            Instantiate(nextEnemy, spawnPosition, randomPoint.rotation).transform
-                .SetParent(_enemyParent, false);
+            InstantiateNewEnemy(nextEnemy, spawnPosition, randomPoint.rotation, _enemyParent);
             Physics.SyncTransforms();
             return true;
         }
@@ -183,8 +186,7 @@ namespace Core.Level.Room {
                 var spawnPosition = spawnPoint.localPosition;
                 spawnPosition.y += colliderSize.y / 2;
                 
-                Instantiate(newEnemy, spawnPosition, spawnPoint.rotation).transform
-                    .SetParent(_enemyParent, false);
+                InstantiateNewEnemy(newEnemy, spawnPosition, spawnPoint.rotation, _enemyParent);
                 Physics.SyncTransforms();
             }
         }
@@ -204,8 +206,12 @@ namespace Core.Level.Room {
         }
 
         private void SetupCombatEvents() {
-            void DecreaseEnemyCount() => _currentEnemyCount--;
-            void SpawnNextEnemy() => TrySpawnNextEnemy();
+            void DecreaseEnemyCount(EnemyBase enemy) {
+                _currentEnemyCount--;
+                _activeEnemies.Remove(enemy.GetInstanceID());
+            }
+
+            void SpawnNextEnemy(EnemyBase _) => TrySpawnNextEnemy();
             
             EnemyEvents.EnemyDefeated += DecreaseEnemyCount;
             EnemyEvents.TargetDefeated += _enemyInfo.TargetDefeated;
@@ -226,6 +232,14 @@ namespace Core.Level.Room {
             }
 
             RoomEvents.CombatFinished += Unsubscribe;
+        }
+
+        private void InstantiateNewEnemy(EnemyBase enemy, Vector3 position, Quaternion rotation,
+            Transform parent) {
+            var instance = Instantiate(enemy, position, rotation);
+            instance.transform.SetParent(parent, false);
+            Physics.SyncTransforms();
+            _activeEnemies.Add(instance.GetInstanceID(), instance);
         }
     }
 }

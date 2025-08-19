@@ -41,7 +41,7 @@ namespace Core.Level.Room.Enemy {
             return _currentWave < _waves.Length;
         }
 
-        public void TargetDefeated() {
+        public void TargetDefeated(EnemyBase _) {
             _targetsDefeated++;
         }
 

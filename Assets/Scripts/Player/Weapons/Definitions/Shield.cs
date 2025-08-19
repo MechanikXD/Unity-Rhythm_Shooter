@@ -4,44 +4,34 @@ using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
 using Interactable;
+using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Player.Weapons {
+namespace Player.Weapons.Definitions {
     public class Shield : WeaponBase {
         [SerializeField] private ShieldAttackCollider _attackCollider;
         [SerializeField] private float _parryWindowDuration = 0.2f;
         [SerializeField] private PlayerInput _playerInput;
         private InputAction _blockAction;
         private float _currentBlockDuration;
+        private DamageableBehaviour _player;
 
         [SerializeField] private float _passiveDamageReduction = 1f;
         [SerializeField] private float _shieldedDamageReduction = 0.6f;
-        private float _currentDamageBlockingReduction;
         
         private BehaviourInjection<int> _leftActionBehaviour;
         private BehaviourInjection<float> _rightActionBehaviour;
 
         private bool _wasBlockingLastFrame;
+        // TODO: Finish Parry Mechanic
         private bool _canParry;
         private bool _isBlocking;
         
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
         private readonly static int IsBlocking = Animator.StringToHash("IsBlocking");
-
-        private void ShieldedPlayerHealthBehaviour(DamageInfo info) {
-            if (_canParry && _currentBlockDuration <= _parryWindowDuration) {
-                foreach (var target in info.Targets) target.Parried(info);
-            }
-            else if (_isBlocking) {
-                info.Targets[0].TakeDirectDamage((int)(info.DamageValue * _currentDamageBlockingReduction));
-            }
-            else {
-                info.Targets[0].TakeDirectDamage((int)(info.DamageValue * _passiveDamageReduction));
-            }
-        }
         
         public override void LeftPerfectAction() => _leftActionBehaviour.Perform(7);
 
@@ -85,7 +75,7 @@ namespace Player.Weapons {
         private void StartBlocking(float damageReduction) {
             if (!CanDoRightAction()) return;
 
-            _currentDamageBlockingReduction = damageReduction;
+            _player.SetDamageReduction(_player.CurrentDamageReduction - _passiveDamageReduction + _shieldedDamageReduction);
             _animator.CrossFade("Shielded", _crossFade);
             _isBlocking = true;
             _animator.SetBool(IsBlocking, _isBlocking);
@@ -107,7 +97,7 @@ namespace Player.Weapons {
             _attackCollider.DeactivateCollider();
             _currentBlockDuration = 0f;
             _blockAction = _playerInput.actions["RightAction"];
-            GameManager.Instance.Player.HealthBehaviour.ChangeBehaviour(ShieldedPlayerHealthBehaviour);
+            _player = GameManager.Instance.Player;
 
             _leftActionBehaviour = new BehaviourInjection<int>(ShieldAttack);
             _rightActionBehaviour = new BehaviourInjection<float>(StartBlocking);
@@ -130,7 +120,7 @@ namespace Player.Weapons {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AppendRepeatingAction("Walk", AnimateWalk);
+            Conductor.Instance.AddRepeatingAction("Walk", AnimateWalk);
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;
@@ -149,12 +139,13 @@ namespace Player.Weapons {
                 _isBlocking = false;
                 _canParry = false;
                 _wasBlockingLastFrame = false;
+                _player.SetDamageReduction(_player.CurrentDamageReduction -
+                    _shieldedDamageReduction + _passiveDamageReduction);
             }
         }
 
         public override void OnWeaponDeselected() {
             _unsubscribeFromEvents();
-            GameManager.Instance.Player.HealthBehaviour.ChangeToDefaultBehaviour();
         }
 
         protected override void CalculateAnimationsSpeed() {

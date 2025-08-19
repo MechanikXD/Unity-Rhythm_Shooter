@@ -1,4 +1,6 @@
 ﻿using System;
+using Interactable;
+using Interactable.Damageable;
 using Player.Statistics.Score.Rank;
 using UnityEngine;
 
@@ -89,7 +91,7 @@ namespace Player.Statistics.Score {
             PlayerEvents.OnScoreChanged(_currentScore);
         }
 
-        private void IncreaseComboCounter() {
+        private void IncreaseComboCounter(DamageInfo _) {
             _comboCounter += 1;
             _comboProtector = true;
             if (_maxComboRecorded < _comboCounter) _maxComboRecorded = _comboCounter;

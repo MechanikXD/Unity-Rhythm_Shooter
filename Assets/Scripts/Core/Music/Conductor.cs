@@ -101,7 +101,7 @@ namespace Core.Music {
         /// </summary>
         /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
         /// <param name="action"> Action that will be called </param>
-        public void AppendRepeatingAction(string key, Action action) => _onEveryBeat.Add(key, action);
+        public void AddRepeatingAction(string key, Action action) => _onEveryBeat.Add(key, action);
         /// <summary>
         /// Remove an action that previously has been called each beat
         /// </summary>
@@ -112,14 +112,14 @@ namespace Core.Music {
         /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
         /// <param name="action"> Action that will be called </param>
-        public void AppendOnNextBeat(Action action) => _onNextBeat.Add(action);
+        public void AddOnNextBeat(Action action) => _onNextBeat.Add(action);
         /// <summary>
         /// Register an action to be called to a certain duration (in beats)
         /// </summary>
         /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
         /// <param name="action"> Action that will be called </param>
         /// <param name="callCount"> Amount of times said action will be called </param>
-        public void AppendContinuousAction(string key, Action action, int callCount) {
+        public void AddContinuousAction(string key, Action action, int callCount) {
             _onNextBeatsActions.Add(key, action);
             _onNextBeatsCounts.Add(key, callCount);
         }

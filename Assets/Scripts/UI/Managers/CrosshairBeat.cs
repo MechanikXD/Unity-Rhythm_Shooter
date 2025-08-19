@@ -99,7 +99,7 @@ namespace UI.Managers {
             };
             
             // This will skip first beat
-            Conductor.Instance.AppendRepeatingAction("StartNewBeats", 
+            Conductor.Instance.AddRepeatingAction("StartNewBeats", 
                 () => _beatQueue.StartNewBeats(_singleBeatTime, _beatOffset));
         }
         private void UnsubscribeFromEvents() {
@@ -136,7 +136,7 @@ namespace UI.Managers {
             if (_beatQueue.Any(Modify)) return;
             // Still to few, call recursively when new inactive appears
             // TODO: Fix modifications of beats past max capacity
-            Conductor.Instance.AppendContinuousAction("Modify Beats",
+            Conductor.Instance.AddContinuousAction("Modify Beats",
                 () => Modify(_beatQueue.PeekFront()),
                 skipBeats + counter - _beatQueue.Length);
         }

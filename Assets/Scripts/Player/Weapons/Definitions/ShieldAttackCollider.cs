@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using Core.Game;
 using Interactable;
+using Interactable.Damageable;
 using UnityEngine;
 
-namespace Player.Weapons {
+namespace Player.Weapons.Definitions {
     [RequireComponent(typeof(Collider))]
     public class ShieldAttackCollider : MonoBehaviour {
         [SerializeField] private Collider _attackCollider;
