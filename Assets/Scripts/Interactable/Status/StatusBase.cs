@@ -8,19 +8,31 @@ namespace Interactable.Status {
         protected DamageableBehaviour Attached;
         protected int CurrentDuration;
 
-        public virtual void ApplyStatus(DamageableBehaviour damageable) {
-            Attached = damageable;
+        public virtual void ApplyStatus(DamageableBehaviour damageable, Transform parent) {
+            if (Attached != null) {
+                parent.gameObject.AddComponent(this.GetType());  
+                Attached = damageable;
+            }
+            else {
+                this.enabled = true;
+            }
+            
             Conductor.Instance.AddRepeatingAction(GetInstanceID().ToString(), OnEachBeat);
             CurrentDuration = _durationInBeats;
             OnStatusApply();
         }
         
         protected abstract void OnStatusApply();
-        public abstract void RepeatedApply();
+
+        public virtual void RepeatedApply() {
+            // Refresh duration
+            CurrentDuration = _durationInBeats;
+        }
         protected virtual void EachBeatAction() {}
 
         protected virtual void OnEachBeat() {
             EachBeatAction();
+            // Decrease duration of this status
             CurrentDuration--;
             if (CurrentDuration <= 0) {
                 Attached.RemoveStatus(this);
@@ -31,8 +43,7 @@ namespace Interactable.Status {
         public virtual void RemoveStatus() {
             OnStatusRemoved();
             Conductor.Instance.RemoveRepeatingAction(GetInstanceID().ToString());
-            Attached = null;
-            Destroy(this);
+            this.enabled = false;
         }
     }
 }

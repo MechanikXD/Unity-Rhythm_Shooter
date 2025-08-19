@@ -25,6 +25,7 @@ namespace Interactable.Damageable {
         public float DamageMultiplier { get; private set; } = 1f;
         public int DamageIncrement { get; private set; }
         public HashSet<StatusBase> CurrentStatuses { get; private set; }
+        [SerializeField] protected Transform _statusParent;
         [SerializeField] protected int _staggerThreshold;
         private int _currentsStagger;
 
@@ -43,7 +44,7 @@ namespace Interactable.Damageable {
 
         public virtual void ApplyStatus(StatusBase status) {
             if (CurrentStatuses.Add(status)) {
-                status.ApplyStatus(this);
+                status.ApplyStatus(this, _statusParent);
             }
             else {
                 status.RepeatedApply();

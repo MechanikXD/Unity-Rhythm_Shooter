@@ -17,7 +17,7 @@ namespace Interactable.Status.Definitions {
         }
 
         public override void RepeatedApply() {
-            CurrentDuration = _durationInBeats;
+            base.RepeatedApply();
             _currentStack++;
         }
 
