@@ -1,4 +1,4 @@
-﻿namespace Core.Offerings.Definitions.General.Builder.Components {
+﻿namespace Core.Offerings.Definitions.General.Builder {
     public enum EventTrigger {
         DamageDealt,
         DamageTaken,

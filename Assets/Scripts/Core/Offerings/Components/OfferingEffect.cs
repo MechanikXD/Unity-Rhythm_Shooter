@@ -13,5 +13,11 @@ namespace Core.Offerings.Components {
         public abstract void SubscribeEffect();
         protected abstract void Effect(DamageableBehaviour damageable);
         public abstract void UnsubscribeEffect();
+
+        protected void ApplyStatusOnTargets(DamageInfo info) {
+            foreach (var target in info.Targets) {
+                target.ApplyStatus(_status);  
+            }
+        }
     }
 }

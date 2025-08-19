@@ -1,5 +1,4 @@
 ﻿using Core.Offerings.Components;
-using Interactable;
 using Interactable.Damageable;
 using UnityEngine;
 

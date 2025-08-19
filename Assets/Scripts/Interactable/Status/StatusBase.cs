@@ -17,8 +17,10 @@ namespace Interactable.Status {
         
         protected abstract void OnStatusApply();
         public abstract void RepeatedApply();
+        protected virtual void EachBeatAction() {}
 
         protected virtual void OnEachBeat() {
+            EachBeatAction();
             CurrentDuration--;
             if (CurrentDuration <= 0) {
                 Attached.RemoveStatus(this);

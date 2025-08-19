@@ -57,6 +57,10 @@ namespace Interactable.Damageable {
             CurrentStatuses.Remove(status);
         }
 
+        public virtual bool HasStatus(StatusBase statusBase) {
+            return CurrentStatuses.Contains(statusBase);
+        }
+
         public virtual void ClearStatuses() {
             foreach (var status in CurrentStatuses) {
                 status.RemoveStatus();
