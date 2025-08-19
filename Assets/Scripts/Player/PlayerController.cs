@@ -2,7 +2,6 @@ using System.Collections;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
-using Interactable;
 using Interactable.Damageable;
 using Player.Weapons;
 using Player.Weapons.Base;
@@ -119,7 +118,7 @@ namespace Player {
 
         private void Start() {
             Conductor.Instance.Initialize(_songData, _songSource);
-            _weaponController.Initialize(_weapons[2]);
+            _weaponController.Initialize(_weapons[1]);
         }
 
         private void Update() {
@@ -128,6 +127,12 @@ namespace Player {
         }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
+
+        public int GetCalculatedDamage(int baseValue) {
+            var damage = (int)((baseValue + DamageIncrement) * DamageMultiplier);
+            if (damage <= 0) damage = 1;
+            return damage;
+        }
 
         public void OnMove(InputValue currentMoveDirection) =>
             _moveDirection = currentMoveDirection.Get<Vector2>();

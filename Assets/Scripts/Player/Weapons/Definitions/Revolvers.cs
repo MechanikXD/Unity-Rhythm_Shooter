@@ -3,7 +3,6 @@ using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
-using Interactable;
 using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -11,7 +10,6 @@ using UnityEngine;
 namespace Player.Weapons.Definitions {
     public class Revolvers : WeaponBase {
         private bool _walkAnimationSwitch;
-        private Func<Vector3, Ray> _rayForward;
         
         private int _leftCurrentAmmo;
         private int _rightCurrentAmmo;
@@ -77,12 +75,13 @@ namespace Player.Weapons.Definitions {
         }
         
         private void ShootForward(int damage) {
-            var ray = _rayForward(new Vector2(Screen.width / 2f, Screen.height / 2f));
+            var ray = ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
             if (Physics.Raycast(ray, out var hit, _maxShootDistance) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                 
-                IDamageable playerDamageable = GameManager.Instance.Player;
-                var damageInfo = new DamageInfo(playerDamageable, damageable, damage, ray.origin,
+                var player = GameManager.Instance.Player;
+                var calculatedDamage = player.GetCalculatedDamage(damage);
+                var damageInfo = new DamageInfo(player, damageable, calculatedDamage, ray.origin,
                     hit.point);
                 
                 damageable.TakeDamage(damageInfo);

@@ -60,8 +60,9 @@ namespace Player.Weapons.Definitions {
                 if (Physics.Raycast(ray, out var hit, _maxShootDistance)) {
                     if (hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                         
-                        IDamageable playerDamageable = GameManager.Instance.Player;
-                        var damageInfo = new DamageInfo(playerDamageable, damageable, damage,
+                        var player = GameManager.Instance.Player;
+                        var calculatedDamage = player.GetCalculatedDamage(damage);
+                        var damageInfo = new DamageInfo(player, damageable, calculatedDamage,
                             ray.origin,
                             hit.point);
                         

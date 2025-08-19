@@ -60,7 +60,9 @@ namespace Player.Weapons.Definitions {
             if (!CanDoLeftAction()) return;
             
             _inAnimation = true;
-            _attackCollider.ActivateCollider(damage);
+            var player = GameManager.Instance.Player;
+            var calculatedDamage = player.GetCalculatedDamage(damage);
+            _attackCollider.ActivateCollider(calculatedDamage);
             
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);

@@ -109,7 +109,7 @@ namespace Interactable.Damageable {
                 CurrentHealth = _currentMaxHealth;
             }
             else if (adjustCurrentHealth) {
-                var relativeHealth = CurrentHealth / oldMaxHealth;
+                var relativeHealth = oldMaxHealth != 0 ? CurrentHealth / oldMaxHealth : 1;
                 CurrentHealth = _currentMaxHealth * relativeHealth;
             }
         }

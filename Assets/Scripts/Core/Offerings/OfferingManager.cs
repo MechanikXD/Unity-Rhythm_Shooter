@@ -35,7 +35,7 @@ namespace Core.Offerings {
                 return Array.Empty<OfferingBase>();
             }
 
-            var actualCount = Mathf.Min(count, shuffled.Count);
+            var actualCount = Mathf.Min(Mathf.Min(count, 4), shuffled.Count);
                 
             var offers = new OfferingBase[actualCount];
             for (var i = 0; i < actualCount; i++) offers[i] = shuffled[i];

@@ -4,7 +4,6 @@ using System.Linq;
 using Core.Level.Room.Enemy;
 using Enemy;
 using Enemy.Base;
-using Interactable;
 using Interactable.Damageable;
 using UnityEngine;
 using Random = UnityEngine.Random;
