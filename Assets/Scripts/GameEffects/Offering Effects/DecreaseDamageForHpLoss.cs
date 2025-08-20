@@ -2,7 +2,8 @@
 using Interactable.Damageable;
 using UnityEngine;
 
-namespace Core.Offerings.Definitions.Test {
+namespace GameEffects.Offering_Effects {
+    [CreateAssetMenu(fileName = "DecreaseDamageForHpLoss", menuName = "Scriptable Objects/Offering Effect/DRed On HP Loss")]
     public class DecreaseDamageForHpLoss : OfferingEffect {
         [SerializeField] private float _maxDamageReduction;
         private float _currentReductionProvided; 

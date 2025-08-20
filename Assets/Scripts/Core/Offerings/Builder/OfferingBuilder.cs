@@ -5,7 +5,7 @@ using Enemy.Base;
 using Interactable.Damageable;
 using Player;
 
-namespace Core.Offerings.Definitions.General.Builder {
+namespace Core.Offerings.Builder {
     public static class OfferingBuilder {
         private readonly static Dictionary<EventTrigger, object> EventSubscribers =
             new Dictionary<EventTrigger, object>();
@@ -16,7 +16,7 @@ namespace Core.Offerings.Definitions.General.Builder {
                 return () => PlayerEvents.DamageDealt -= action;
             });
     
-            EventSubscribers[EventTrigger.EnemyDefeated] = new Func<Action<EnemyBase>, Action>(action => {
+            EventSubscribers[EventTrigger.EnemyDefeated] = new Func<Action<EnemyDefeatedInfo>, Action>(action => {
                 EnemyEvents.EnemyDefeated += action;
                 return () => EnemyEvents.EnemyDefeated -= action;
             });

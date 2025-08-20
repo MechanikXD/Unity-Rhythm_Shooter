@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Interactable.Status;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Interactable.Damageable {
@@ -25,13 +25,12 @@ namespace Interactable.Damageable {
         protected int CurrentDamage;
         public float DamageMultiplier { get; private set; } = 1f;
         public int DamageIncrement { get; private set; }
-        public HashSet<StatusBase> CurrentStatuses { get; private set; }
-        [SerializeField] protected Transform _statusParent;
+        public Dictionary<StatusEffect, StatusBase> CurrentStatuses { get; private set; }
         [SerializeField] protected int _staggerThreshold;
         private int _currentsStagger;
 
         protected virtual void Awake() {
-            CurrentStatuses = new HashSet<StatusBase>();
+            CurrentStatuses = new Dictionary<StatusEffect, StatusBase>();
 
             _currentsStagger = _staggerThreshold;
             CurrentHealth = _maxHealth;
@@ -43,28 +42,36 @@ namespace Interactable.Damageable {
             RecalculateMaxHealth();
         }
 
-        public virtual void ApplyStatus(StatusBase status) {
-            if (CurrentStatuses.Add(status)) {
-                _statusParent.gameObject.AddComponent(status.GetType());
+        protected void OnDestroy() {
+            ClearStatuses();
+        }
+
+        public virtual void ApplyStatus(StatusEffect status) {
+            if (!HasStatus(status)) {
+                var newStatusBase = new StatusBase(this, status);
+                CurrentStatuses.Add(status, newStatusBase);
+                newStatusBase.ApplyStatus();
             }
             else {
-                status.RepeatedApply();
+                var thisStatusBase = CurrentStatuses[status];
+                
+                if (thisStatusBase.IsActive) thisStatusBase.RepeatedApply();
+                else thisStatusBase.ApplyStatus();
             }
         }
 
-        public virtual void RemoveStatus(StatusBase status) {
-            if (!CurrentStatuses.Contains(status)) return;
+        public virtual void RemoveStatus(StatusEffect status) {
+            if (!HasStatus(status)) return;
 
-            status.RemoveStatus();
-            CurrentStatuses.Remove(status);
+            CurrentStatuses[status].RemoveStatus();
         }
 
-        public virtual bool HasStatus(StatusBase statusBase) {
-            return CurrentStatuses.Contains(statusBase);
+        public virtual bool HasStatus(StatusEffect statusBase) {
+            return CurrentStatuses.ContainsKey(statusBase);
         }
 
         public virtual void ClearStatuses() {
-            foreach (var status in CurrentStatuses) {
+            foreach (var status in CurrentStatuses.Values) {
                 status.RemoveStatus();
             }
             CurrentStatuses.Clear();

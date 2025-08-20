@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace Core.Offerings {
-    [CreateAssetMenu(fileName = "OfferingBase", menuName = "Scriptable Objects/Offering")]
+    [CreateAssetMenu(fileName = "OfferingBase", menuName = "Scriptable Objects/Offering Base")]
     public class OfferingBase : ScriptableObject {
         [Header("Visual")]
         [SerializeField] private Image _art;

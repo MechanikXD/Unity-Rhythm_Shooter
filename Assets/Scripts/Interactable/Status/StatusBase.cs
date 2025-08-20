@@ -1,58 +1,49 @@
 ﻿using Core.Music;
 using Interactable.Damageable;
-using UnityEngine;
 
 namespace Interactable.Status {
-    public abstract class StatusBase : MonoBehaviour {
-        [SerializeField] protected int _durationInBeats;
-        protected DamageableBehaviour Attached;
-        protected int CurrentDuration;
+    public class StatusBase {
+        private readonly StatusEffect _status;
+        private readonly DamageableBehaviour _attached;
+        private bool _isActive;
+        private int _currentDuration;
 
-        public virtual void ApplyStatus(DamageableBehaviour damageable, Transform parent) {
-            if (Attached == null) {
-                parent.gameObject.AddComponent(this.GetType());  
-                Attached = damageable;
-                Conductor.Instance.AddRepeatingAction(GetKey(), OnEachBeat);
-            }
-            else {
-                this.enabled = true;
-            }
-            
-            CurrentDuration = _durationInBeats;
-            OnStatusApply();
+        public bool IsActive => _isActive;
+
+        public StatusBase(DamageableBehaviour damageable, StatusEffect status) {
+            _attached = damageable;
+            _status = status;
         }
-        
-        protected abstract void OnStatusApply();
 
-        public virtual void RepeatedApply() {
-            // Refresh duration
-            CurrentDuration = _durationInBeats;
+        public void ApplyStatus() {
+            Conductor.NextBeatEvent += OnEachBeat;
+            _currentDuration = _status.Duration;
+            _status.OnStatusApply(_attached);
+            _isActive = true;
         }
-        protected virtual void EachBeatAction() {}
 
-        protected virtual void OnEachBeat() {
-            if (CurrentDuration <= 0) return;
+        public void RepeatedApply() {
+            if (!_isActive) return;
             
-            EachBeatAction();
+            _status.OnRepeatedApply(_attached);
+            _currentDuration = _status.Duration;
+        }
+
+        private void OnEachBeat() {
+            if (!_isActive) return;
+            
+            _status.EachBeatAction(_attached);
             // Decrease duration of this status
-            CurrentDuration--;
-            if (CurrentDuration <= 0) {
-                Attached.RemoveStatus(this);
+            _currentDuration--;
+            if (_currentDuration <= 0) {
+                _attached.RemoveStatus(_status);
             }
         }
-        protected abstract void OnStatusRemoved();
 
-        public virtual void RemoveStatus() {
-            OnStatusRemoved();
-            this.enabled = false;
-        }
-
-        private string GetKey() {
-            return $"{Attached.GetInstanceID()}{gameObject.GetInstanceID()}";
-        }
-
-        private void OnDisable() {
-            Conductor.Instance.RemoveRepeatingAction(GetKey());
+        public void RemoveStatus() {
+            _status.OnStatusRemoved(_attached);
+            Conductor.NextBeatEvent -= OnEachBeat;
+            _isActive = false;
         }
     }
 }

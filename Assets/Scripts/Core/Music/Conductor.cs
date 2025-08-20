@@ -16,9 +16,7 @@ namespace Core.Music {
         
         [SerializeField] private float _perfectHitWindow = 0.11f;
         [SerializeField] private float _goodHitWindow = 0.17f;
-
-        private readonly Dictionary<string, Action> _onEveryBeat = new Dictionary<string, Action>();
-
+        
         private readonly Dictionary<string, Action> _onNextBeatsActions = new Dictionary<string, Action>();
         private readonly Dictionary<string, int> _onNextBeatsCounts = new Dictionary<string, int>();
 
@@ -103,18 +101,6 @@ namespace Core.Music {
         }
         /// <summary> Set that interaction was performed in current beat </summary>
         public void SetInteractedThisBeat() => _interactedThisBeat = true;
-
-        /// <summary>
-        /// Register an actions that will be called each beat
-        /// </summary>
-        /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
-        /// <param name="action"> Action that will be called </param>
-        public void AddRepeatingAction(string key, Action action) => _onEveryBeat.Add(key, action);
-        /// <summary>
-        /// Remove an action that previously has been called each beat
-        /// </summary>
-        /// <param name="key"> Unique identifier for said action </param>
-        public void RemoveRepeatingAction(string key) => _onEveryBeat.Remove(key);
         /// <summary>
         /// Calls given action on very next beat
         /// Do not call this method in OnDisable or OnDestroy 
@@ -204,7 +190,6 @@ namespace Core.Music {
                 NextBeatEvent?.Invoke();
                 _lastBeat += _songData.Crotchet;
 
-                foreach (var action in _onEveryBeat.Values) action();
                 foreach (var action in _onNextBeat) action();
                 _onNextBeat.Clear();
                 

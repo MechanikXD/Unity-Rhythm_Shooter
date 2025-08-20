@@ -1,10 +1,11 @@
 ﻿using System;
+using Core.Offerings.Builder;
 using Core.Offerings.Components;
-using Core.Offerings.Definitions.General.Builder;
 using Interactable.Damageable;
 using UnityEngine;
 
-namespace Core.Offerings.Definitions.General {
+namespace GameEffects.Offering_Effects {
+    [CreateAssetMenu(fileName = "InflictStatusOnEnemy", menuName = "Scriptable Objects/Offering Effect/Action Inflict Status")]
     public class InflictStatusOnEnemy : OfferingEffect {
         [SerializeField] private EventTrigger _trigger;
 

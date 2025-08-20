@@ -175,9 +175,10 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AddRepeatingAction("Weapon Walk", AnimateWalk);
+            Conductor.NextBeatEvent += AnimateWalk;
 
             _unsubscribeFromEvents = () => {
+                Conductor.NextBeatEvent -= AnimateWalk;
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
             };

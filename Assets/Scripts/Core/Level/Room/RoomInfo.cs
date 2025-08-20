@@ -205,12 +205,12 @@ namespace Core.Level.Room {
         }
 
         private void SetupCombatEvents() {
-            void DecreaseEnemyCount(EnemyBase enemy) {
+            void DecreaseEnemyCount(EnemyDefeatedInfo enemy) {
                 _currentEnemyCount--;
-                _activeEnemies.Remove(enemy.GetInstanceID());
+                _activeEnemies.Remove(enemy.ID);
             }
 
-            void SpawnNextEnemy(EnemyBase _) => TrySpawnNextEnemy();
+            void SpawnNextEnemy(EnemyDefeatedInfo _) => TrySpawnNextEnemy();
             
             EnemyEvents.EnemyDefeated += DecreaseEnemyCount;
             EnemyEvents.TargetDefeated += _enemyInfo.TargetDefeated;
