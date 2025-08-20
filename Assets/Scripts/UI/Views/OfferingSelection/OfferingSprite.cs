@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace UI.Views.OfferingSelection {
     public class OfferingSprite : MonoBehaviour {
-        private Image _background;
+        private bool _canInteractWith;
         [SerializeField] private float _moveDistance;
         [SerializeField] private float _moveDuration;
         private Vector2 _originalPosition;
@@ -17,8 +17,7 @@ namespace UI.Views.OfferingSelection {
         private Tweener _currentMovement;
 
         private void Awake() {
-            _background = GetComponent<Image>();
-            _originalPosition = _background.transform.position;
+            _originalPosition = transform.position;
         }
 
         public void SetUp(OfferingBase offering) {
@@ -26,6 +25,7 @@ namespace UI.Views.OfferingSelection {
             _art = offering.Art;
             _title.SetText(offering.Title);
             _description.SetText(offering.Description);
+            _canInteractWith = true;
         }
 
         public void Clear() {
@@ -33,11 +33,13 @@ namespace UI.Views.OfferingSelection {
             _art = null;
             _title.SetText("");
             _description.SetText("");
+            _canInteractWith = false;
         }
 
         private void OnMouseDown() {
+            if (!_canInteractWith) return;
             OfferingManager.SelectOffering(_offering);
-            // TODO: Disable selection screen
+            UIManager.Instance.ExitLastCanvas();
         }
 
         private void OnMouseEnter() {
@@ -54,14 +56,13 @@ namespace UI.Views.OfferingSelection {
 
         public void Enable() {
             gameObject.SetActive(true);
-            _background.raycastTarget = true;
         }
 
         public void Disable() {
             gameObject.SetActive(false);
-            _currentMovement.Kill();
+            _currentMovement?.Kill();
         }
 
-        public void DisableInteractions() => _background.raycastTarget = false;
+        public void DisableInteractions() => _canInteractWith = false;
     }
 }

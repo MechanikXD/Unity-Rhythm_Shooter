@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Core.Game;
 using Core.Music.Songs.Scriptable_Objects;
+using UI;
 using UnityEngine;
 
 namespace Core.Music {
@@ -77,6 +77,11 @@ namespace Core.Music {
             }
         }
         
+        private void OnDisable() {
+            UIManager.PauseStateEntered -= _songSource.Pause;
+            UIManager.PauseStateExited -= _songSource.UnPause;
+        }
+
         /// <summary>
         /// Initializes all necessary fields and references of this singleton and start playing tha music
         /// </summary>
@@ -92,6 +97,9 @@ namespace Core.Music {
             _dspSongTime = (float)AudioSettings.dspTime;
             _songSource.Play();
             _isInitialized = true;
+            
+            UIManager.PauseStateEntered += _songSource.Pause;
+            UIManager.PauseStateExited += _songSource.UnPause;
         }
         /// <summary> Set that interaction was performed in current beat </summary>
         public void SetInteractedThisBeat() => _interactedThisBeat = true;
@@ -178,8 +186,8 @@ namespace Core.Music {
         public void DisableNextInteractions(int count, int halfBeats=0) {
             _interactionsDisabled = true;
             var earlyHalfBeat = GetBeatHitInfo().Relative == BeatHitRelative.Early ? 1 : 0;
-            if (GameManager.Instance.PlayerCrosshair != null)
-                GameManager.Instance.PlayerCrosshair.SetNextBeatsInactive(count + earlyHalfBeat, 0);
+            if (UIManager.Instance.Crosshair != null)
+                UIManager.Instance.Crosshair.SetNextBeatsInactive(count + earlyHalfBeat, 0);
             
             // Including current beat, because counting on half crochet need to be *2
             _disabledInteractionsCount = count * 2 + halfBeats + earlyHalfBeat;

@@ -1,4 +1,5 @@
-﻿using DG.Tweening;
+﻿using System;
+using DG.Tweening;
 using JetBrains.Annotations;
 using UI.ScriptableObjects.Base;
 using UnityEngine;
@@ -14,9 +15,10 @@ namespace UI.Managers {
         private Transform _transform;
         private bool _isMirrored;
         [CanBeNull] private BeatSettings _settings;
-        private Tweener _animation;
+        private Tween _animation;
+        private Action _unsubscribeAction;
 
-        public Tweener CurrentAnimation => _animation;
+        public Tween CurrentAnimation => _animation;
         
         /// <summary>
         /// Sets new settings for current instance of beat. if in progress only changes it's color. 
@@ -36,8 +38,21 @@ namespace UI.Managers {
             _transform = gameObj.transform;
             _isMirrored = isMirrored;
 
+            void PauseAnimation() => _animation.Pause();
+            void ResumeAnimation() => _animation.Play();
+            
+            UIManager.PauseStateEntered += PauseAnimation;
+            UIManager.PauseStateExited += ResumeAnimation;
+
+            _unsubscribeAction = () => {
+                UIManager.PauseStateEntered -= PauseAnimation;
+                UIManager.PauseStateExited -= ResumeAnimation;
+            };
+
             if (_isMirrored) _transform.localScale = new Vector3(-1, -1, 1);
         }
+
+        public void UnsubscribeFromEvents() => _unsubscribeAction();
         
         /// <summary>
         /// Moves beat to starting position, from where it will be further animated.

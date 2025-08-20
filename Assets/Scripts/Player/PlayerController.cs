@@ -3,6 +3,7 @@ using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
 using Interactable.Damageable;
+using Player.Interactions;
 using Player.Weapons;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -16,6 +17,7 @@ namespace Player {
         [SerializeField] private PlayerInput _playerInput;
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private WeaponBase[] _weapons;
+        [SerializeField] private PlayerInteractionTrigger _interactionTrigger;
         private StateMachine _stateMachine;
 
         [Header("MOVE SOMEWHERE ELSE")]
@@ -157,6 +159,10 @@ namespace Player {
         public void OnRightAction() => _weaponController.RightAction();
 
         public void OnReload() => _weaponController.Reload();
+
+        public void OnPause() => PlayerEvents.OnPausePressed();
+
+        public void OnInteract() => _interactionTrigger.Interact();
 
         #endregion
     }

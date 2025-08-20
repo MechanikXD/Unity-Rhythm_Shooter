@@ -105,6 +105,7 @@ namespace UI.Managers {
         private void UnsubscribeFromEvents() {
             _unsubscribeFromEventsAction?.Invoke();
             _unsubscribeFromEventsAction = null;    // Clean up
+            _beatQueue.UnsubscribeFromEvents();
         }
 
         public void SetNextBeatsInactive(int count, int skipBeats) {

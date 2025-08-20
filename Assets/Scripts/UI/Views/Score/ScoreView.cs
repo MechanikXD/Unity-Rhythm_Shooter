@@ -3,14 +3,18 @@ using TMPro;
 using UnityEngine;
 
 namespace UI.Views.Score {
-    public class ScoreView : MonoBehaviour {
+    public class ScoreView : CanvasView {
         [SerializeField] private TMP_Text _scoreText;
         [SerializeField] private TMP_Text _comboText;
         
         [SerializeField] private RankView[] _rankObjects;
         private int _currentRankIndex;
 
-        public void Awake() => SetDefaultValues();
+        protected override void Awake() {
+            base.Awake();
+            SetDefaultValues();
+        }
+
         public void OnEnable() => SubscribeToEvents();
         public void OnDisable() => UnsubscribeFromEvents();
 
