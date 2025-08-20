@@ -76,9 +76,9 @@ namespace Player.Weapons.Definitions {
         
         private void ShootForward(int damage) {
             var ray = ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
-            if (Physics.Raycast(ray, out var hit, _maxShootDistance) &&
+            if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
-                
+
                 var player = GameManager.Instance.Player;
                 var calculatedDamage = player.GetCalculatedDamage(damage);
                 var damageInfo = new DamageInfo(player, damageable, calculatedDamage, ray.origin,

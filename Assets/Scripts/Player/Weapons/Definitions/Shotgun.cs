@@ -3,7 +3,6 @@ using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
-using Interactable;
 using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -57,7 +56,7 @@ namespace Player.Weapons.Definitions {
                         Random.Range(widthDeviation, Screen.width - widthDeviation),
                         Random.Range(heightDeviation, Screen.height - heightDeviation)));
                 
-                if (Physics.Raycast(ray, out var hit, _maxShootDistance)) {
+                if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer)) {
                     if (hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                         
                         var player = GameManager.Instance.Player;

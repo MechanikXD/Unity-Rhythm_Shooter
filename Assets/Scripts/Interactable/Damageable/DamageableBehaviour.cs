@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Interactable.Status;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Interactable.Damageable {
@@ -44,7 +45,7 @@ namespace Interactable.Damageable {
 
         public virtual void ApplyStatus(StatusBase status) {
             if (CurrentStatuses.Add(status)) {
-                status.ApplyStatus(this, _statusParent);
+                _statusParent.gameObject.AddComponent(status.GetType());
             }
             else {
                 status.RepeatedApply();

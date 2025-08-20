@@ -44,7 +44,7 @@ namespace Core.Offerings {
         }
 
         public static void SelectOffering(OfferingBase offering) {
-            if (!_activeOfferings.Contains(offering) || !_possibleOfferings.Contains(offering)) return;
+            if (_activeOfferings.Contains(offering) || !_possibleOfferings.Contains(offering)) return;
 
             _blockedOfferings.UnionWith(offering.ConflictOfferings);
             _possibleOfferings.UnionWith(

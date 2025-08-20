@@ -12,7 +12,7 @@ namespace Interactable.Status.Definitions {
 
         protected override void EachBeatAction() {
             var damageInfo = new DamageInfo(null, new IDamageable[] { Attached },
-                (_damagePerStack * _currentStack), Vector3.zero, Attached.Position);
+                _damagePerStack * _currentStack, Vector3.zero, Attached.Position);
             Attached.TakeDamage(damageInfo);
         }
 
