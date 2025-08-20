@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: GazeOnPrimary
   m_EditorClassIdentifier: 
   _art: {fileID: 0}
-  _title: 
-  _description: 
-  _affinity: 0
-  _inStartingHand: 0
+  _title: Gaze
+  _description: Inflict 1 Gaze with Attacks for 5 Beats
+  _affinity: 1
+  _inStartingHand: 1
   _conflictOfferings: []
   _unlockOfferings: []
-  _effect: {fileID: 0}
+  _effect: {fileID: 5752283401509694186, guid: 139a1937473c9754596ee3659b516a1f, type: 3}
