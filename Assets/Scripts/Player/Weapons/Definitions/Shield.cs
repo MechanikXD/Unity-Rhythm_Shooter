@@ -60,7 +60,9 @@ namespace Player.Weapons.Definitions {
             if (!CanDoLeftAction()) return;
             
             _inAnimation = true;
-            _attackCollider.ActivateCollider(damage);
+            var player = GameManager.Instance.Player;
+            var calculatedDamage = player.GetCalculatedDamage(damage);
+            _attackCollider.ActivateCollider(calculatedDamage);
             
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);
@@ -120,9 +122,10 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AddRepeatingAction("Walk", AnimateWalk);
+            Conductor.NextBeatEvent += AnimateWalk;
 
             _unsubscribeFromEvents = () => {
+                Conductor.NextBeatEvent -= AnimateWalk;
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
             };

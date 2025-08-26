@@ -1,6 +1,6 @@
 ﻿using System;
+using Enemy;
 using Enemy.Base;
-using Unity.Collections;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -41,7 +41,7 @@ namespace Core.Level.Room.Enemy {
             return _currentWave < _waves.Length;
         }
 
-        public void TargetDefeated(EnemyBase _) {
+        public void TargetDefeated(EnemyDefeatedInfo _) {
             _targetsDefeated++;
         }
 

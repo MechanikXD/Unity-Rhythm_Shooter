@@ -1,7 +1,6 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
 using DG.Tweening;
 using Enemy.Base;
-using Interactable;
 using Interactable.Damageable;
 using Player.Statistics.Score;
 using UnityEngine;
@@ -36,10 +35,12 @@ namespace Enemy.Types.Test {
 
         public override void Die() {
             ScoreController.Instance.AddScore(50);
+
+            var info = new EnemyDefeatedInfo(this.GetType(), GetInstanceID(), Position, IsTarget);
             
-            EnemyEvents.OnEnemyDefeated(this);
-            if (IsTarget) EnemyEvents.OnTargetDefeated(this);
-            else EnemyEvents.OnNormalDefeated(this);
+            EnemyEvents.OnEnemyDefeated(info);
+            if (IsTarget) EnemyEvents.OnTargetDefeated(info);
+            else EnemyEvents.OnNormalDefeated(info);
             
             Destroy(gameObject);
         }

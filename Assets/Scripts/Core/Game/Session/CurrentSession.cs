@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Enemy;
-using Enemy.Base;
 using Player;
 using Player.Statistics.Score;
 
@@ -22,7 +21,7 @@ namespace Core.Game.Session {
             _currencyGained = 0;
             _currentMaxCombo = 0;
 
-            void IncreaseEnemiesDefeatedCount(EnemyBase _) => _enemiesDefeated++;
+            void IncreaseEnemiesDefeatedCount(EnemyDefeatedInfo _) => _enemiesDefeated++;
 
             void RecordMaxCombo(int value) {
                 if (value > _currentMaxCombo) _currentMaxCombo = value;

@@ -2,8 +2,8 @@ using System.Collections;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Songs.Scriptable_Objects;
-using Interactable;
 using Interactable.Damageable;
+using Player.Interactions;
 using Player.Weapons;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -17,6 +17,7 @@ namespace Player {
         [SerializeField] private PlayerInput _playerInput;
         [SerializeField] private WeaponController _weaponController;
         [SerializeField] private WeaponBase[] _weapons;
+        [SerializeField] private PlayerInteractionTrigger _interactionTrigger;
         private StateMachine _stateMachine;
 
         [Header("MOVE SOMEWHERE ELSE")]
@@ -119,7 +120,7 @@ namespace Player {
 
         private void Start() {
             Conductor.Instance.Initialize(_songData, _songSource);
-            _weaponController.Initialize(_weapons[2]);
+            _weaponController.Initialize(_weapons[1]);
         }
 
         private void Update() {
@@ -128,6 +129,12 @@ namespace Player {
         }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
+
+        public int GetCalculatedDamage(int baseValue) {
+            var damage = (int)((baseValue + DamageIncrement) * DamageMultiplier);
+            if (damage <= 0) damage = 1;
+            return damage;
+        }
 
         public void OnMove(InputValue currentMoveDirection) =>
             _moveDirection = currentMoveDirection.Get<Vector2>();
@@ -152,6 +159,10 @@ namespace Player {
         public void OnRightAction() => _weaponController.RightAction();
 
         public void OnReload() => _weaponController.Reload();
+
+        public void OnPause() => PlayerEvents.OnPausePressed();
+
+        public void OnInteract() => _interactionTrigger.Interact();
 
         #endregion
     }

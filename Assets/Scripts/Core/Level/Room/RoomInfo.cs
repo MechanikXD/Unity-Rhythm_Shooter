@@ -4,7 +4,6 @@ using System.Linq;
 using Core.Level.Room.Enemy;
 using Enemy;
 using Enemy.Base;
-using Interactable;
 using Interactable.Damageable;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -206,12 +205,12 @@ namespace Core.Level.Room {
         }
 
         private void SetupCombatEvents() {
-            void DecreaseEnemyCount(EnemyBase enemy) {
+            void DecreaseEnemyCount(EnemyDefeatedInfo enemy) {
                 _currentEnemyCount--;
-                _activeEnemies.Remove(enemy.GetInstanceID());
+                _activeEnemies.Remove(enemy.ID);
             }
 
-            void SpawnNextEnemy(EnemyBase _) => TrySpawnNextEnemy();
+            void SpawnNextEnemy(EnemyDefeatedInfo _) => TrySpawnNextEnemy();
             
             EnemyEvents.EnemyDefeated += DecreaseEnemyCount;
             EnemyEvents.TargetDefeated += _enemyInfo.TargetDefeated;

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.Managers {
     public class BeatQueue : IEnumerable<(Beat left, Beat right)> {
-        private Queue<(Beat left, Beat right)> _beats;
+        private readonly Queue<(Beat left, Beat right)> _beats;
         private readonly BeatSettings _defaultSettings;
         public int Length { get; }
 
@@ -25,6 +25,13 @@ namespace UI.Managers {
                 right.Initialize(prefab, rightArea, true);
                 right.SetDefaultState(defaultState);
                 _beats.Enqueue((left, right));
+            }
+        }
+
+        public void UnsubscribeFromEvents() {
+            foreach (var beat in _beats) {
+                beat.left.UnsubscribeFromEvents();
+                beat.right.UnsubscribeFromEvents();
             }
         }
         

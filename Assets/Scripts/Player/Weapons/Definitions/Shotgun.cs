@@ -3,7 +3,6 @@ using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
-using Interactable;
 using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -57,11 +56,12 @@ namespace Player.Weapons.Definitions {
                         Random.Range(widthDeviation, Screen.width - widthDeviation),
                         Random.Range(heightDeviation, Screen.height - heightDeviation)));
                 
-                if (Physics.Raycast(ray, out var hit, _maxShootDistance)) {
+                if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer)) {
                     if (hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
                         
-                        IDamageable playerDamageable = GameManager.Instance.Player;
-                        var damageInfo = new DamageInfo(playerDamageable, damageable, damage,
+                        var player = GameManager.Instance.Player;
+                        var calculatedDamage = player.GetCalculatedDamage(damage);
+                        var damageInfo = new DamageInfo(player, damageable, calculatedDamage,
                             ray.origin,
                             hit.point);
                         
@@ -187,11 +187,12 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.Instance.AddRepeatingAction("Walk", AnimateWalk);
+            Conductor.NextBeatEvent += AnimateWalk;
 
             _unsubscribeFromEvents = () => {
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
+                Conductor.NextBeatEvent -= AnimateWalk;
             };
         }
 

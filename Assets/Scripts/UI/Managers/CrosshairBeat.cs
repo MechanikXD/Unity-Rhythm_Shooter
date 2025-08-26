@@ -52,6 +52,9 @@ namespace UI.Managers {
         private void OnDisable() => UnsubscribeFromEvents();
 
         private void SubscribeToEvents() {
+            void RunNewBeats() => _beatQueue.StartNewBeats(_singleBeatTime, _beatOffset);
+            Conductor.NextBeatEvent += RunNewBeats;
+            
             void LeftPerfect() => ShowLeftGradient(1);
             void LeftGood() => ShowLeftGradient(0.65f);
             void LeftMissed() => ShowLeftGradient(0.3f);
@@ -81,6 +84,8 @@ namespace UI.Managers {
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
 
             _unsubscribeFromEventsAction = () => {
+                Conductor.NextBeatEvent -= RunNewBeats;
+                
                 PlayerActionEvents.LeftPerfectPerformed -= LeftPerfect;
                 PlayerActionEvents.LeftGoodPerformed -= LeftGood;
                 PlayerActionEvents.LeftMissPerformed -= LeftMissed;
@@ -97,14 +102,11 @@ namespace UI.Managers {
                 PlayerActionEvents.GoodPerformed -= ShowGoodPopUp;
                 PlayerActionEvents.MissPerformed -= ShowMissPopUp;
             };
-            
-            // This will skip first beat
-            Conductor.Instance.AddRepeatingAction("StartNewBeats", 
-                () => _beatQueue.StartNewBeats(_singleBeatTime, _beatOffset));
         }
         private void UnsubscribeFromEvents() {
             _unsubscribeFromEventsAction?.Invoke();
             _unsubscribeFromEventsAction = null;    // Clean up
+            _beatQueue.UnsubscribeFromEvents();
         }
 
         public void SetNextBeatsInactive(int count, int skipBeats) {

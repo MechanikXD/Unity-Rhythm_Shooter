@@ -30,6 +30,7 @@ namespace Player {
         public static event Action RankIncreased;
         public static event Action RankDecreased;
         public static event Action<float> RankPerformanceChanged;
+        public static event Action PausePressed;
 
         public static void OnScoreChanged(long newScore) => ScoreChanged?.Invoke(newScore);
         public static void OnComboCountChanged(int newComboCount) => ComboCountChanged?.Invoke(newComboCount);
@@ -37,5 +38,7 @@ namespace Player {
         public static void OnRankDecreased() => RankDecreased?.Invoke();
         public static void OnRankPerformanceChanged(float newRankPerformance) =>
             RankPerformanceChanged?.Invoke(newRankPerformance);
+
+        public static void OnPausePressed() => PausePressed?.Invoke();
     }
 }

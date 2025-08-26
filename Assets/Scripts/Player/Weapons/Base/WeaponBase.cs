@@ -1,10 +1,9 @@
 ﻿using System;
-using Core.Behaviour.BehaviourInjection;
 using Core.Music;
 using UnityEngine;
 
 namespace Player.Weapons.Base {
-    public abstract class WeaponBase : MonoBehaviour {
+    public abstract class WeaponBase : MonoBehaviour { 
         [SerializeField] protected Animator _animator;
         [SerializeField] protected float _crossFade;
         [SerializeField] private bool _canDoDoubleAction;
@@ -12,6 +11,7 @@ namespace Player.Weapons.Base {
         [SerializeField] protected int _maxAmmo;
         
         protected Func<Vector3, Ray> ScreenPointToRay;
+        protected LayerMask IgnorePlayer;
         
         public bool IsReloading { get; protected set; }
         public bool CanFastReload { get; protected set; }
@@ -70,6 +70,7 @@ namespace Player.Weapons.Base {
         public virtual void OnWeaponSelected() {
             if (Camera.main == null) Debug.LogError("No Main Camera was Found!");
             ScreenPointToRay = Camera.main!.ScreenPointToRay;
+            IgnorePlayer = LayerMask.NameToLayer("Ignore Player");
 
             HalfCrotchet = Conductor.Instance.SongData.HalfCrotchet;
             Crotchet = Conductor.Instance.SongData.Crotchet;
