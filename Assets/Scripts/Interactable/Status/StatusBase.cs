@@ -16,7 +16,7 @@ namespace Interactable.Status {
         }
 
         public void ApplyStatus() {
-            Conductor.NextBeatEvent += OnEachBeat;
+            Conductor.NextBeat += OnEachBeat;
             _currentDuration = _status.Duration;
             _status.OnStatusApply(_attached);
             _isActive = true;
@@ -42,7 +42,7 @@ namespace Interactable.Status {
 
         public void RemoveStatus() {
             _status.OnStatusRemoved(_attached);
-            Conductor.NextBeatEvent -= OnEachBeat;
+            Conductor.NextBeat -= OnEachBeat;
             _isActive = false;
         }
     }

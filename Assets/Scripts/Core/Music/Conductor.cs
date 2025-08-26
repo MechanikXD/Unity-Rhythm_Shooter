@@ -16,13 +16,18 @@ namespace Core.Music {
         
         [SerializeField] private float _perfectHitWindow = 0.11f;
         [SerializeField] private float _goodHitWindow = 0.17f;
-        
-        private readonly Dictionary<string, Action> _onNextBeatsActions = new Dictionary<string, Action>();
-        private readonly Dictionary<string, int> _onNextBeatsCounts = new Dictionary<string, int>();
 
         private readonly List<Action> _onNextBeat = new List<Action>();
+        private readonly List<Action> _onNextHalfBeat = new List<Action>();
+        private readonly List<Action> _beforeNextBeat = new List<Action>();
+        private readonly List<Action> _afterNextBeat = new List<Action>();
+
+        private bool _afterBeatWasCalled;
+        private bool _beforeBeatWasCalled;
         
-        public static event Action NextBeatEvent;
+        public static event Action NextBeat;
+        public static event Action NextHalfBeat;
+        
         public static Conductor Instance {
             get {
                 if (_instance != null) return _instance;
@@ -108,25 +113,23 @@ namespace Core.Music {
         /// <param name="action"> Action that will be called </param>
         public void AddOnNextBeat(Action action) => _onNextBeat.Add(action);
         /// <summary>
-        /// Register an action to be called to a certain duration (in beats)
+        /// Calls given action on very next half beat, beats itself also counts.
+        /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
-        /// <param name="key"> Unique identifier for this action, so can be accessed if needed </param>
         /// <param name="action"> Action that will be called </param>
-        /// <param name="callCount"> Amount of times said action will be called </param>
-        public void AddContinuousAction(string key, Action action, int callCount) {
-            _onNextBeatsActions.Add(key, action);
-            _onNextBeatsCounts.Add(key, callCount);
-        }
+        public void AddOnNextHalfBeat(Action action) => _onNextHalfBeat.Add(action);
         /// <summary>
-        /// Remove an action that previously has been called for some duration
-        /// Do not call this method in OnDisable or OnDestroy
+        /// Calls given action just before players "good" action window 
+        /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
-        /// <param name="key"> Unique identifier for said action </param>
-        public void RemoveContinuousAction(string key) {
-            _onNextBeatsActions.Remove(key);
-            _onNextBeatsCounts.Remove(key);
-        }
-
+        /// <param name="action"> Action that will be called </param>
+        public void AddBeforeNextBeat(Action action) => _beforeNextBeat.Add(action);
+        /// <summary>
+        /// Calls given action just after players "good" action window has passed
+        /// Do not call this method in OnDisable or OnDestroy 
+        /// </summary>
+        /// <param name="action"> Action that will be called </param>
+        public void AddAfterNextBeat(Action action) => _afterNextBeat.Add(action);
         /// <summary>
         /// Determines "Quality" of action based on given song position.
         /// Calculated as relative distance to closest beat.  
@@ -187,32 +190,51 @@ namespace Core.Music {
             // Beat passed
             if (_songPosition > _lastBeat + _songData.Crotchet) {
                 _interactedThisBeat = false;
-                NextBeatEvent?.Invoke();
+                _beforeBeatWasCalled = false;
+                _afterBeatWasCalled = false;
+                
+                NextBeat?.Invoke();
                 _lastBeat += _songData.Crotchet;
 
-                foreach (var action in _onNextBeat) action();
-                _onNextBeat.Clear();
-                
-                var keysToRemove = new List<string>();
-                foreach (var pair in _onNextBeatsActions) {
-                    pair.Value();
-                    
-                    _onNextBeatsCounts[pair.Key] -= 1;
-                    if (_onNextBeatsCounts[pair.Key] <= 0) keysToRemove.Add(pair.Key);
-                }
-                foreach (var key in keysToRemove) {
-                    _onNextBeatsActions.Remove(key);
-                    _onNextBeatsCounts.Remove(key);
+                if (_onNextBeat.Count > 0) {
+                    foreach (var action in _onNextBeat) action();
+                    _onNextBeat.Clear();
                 }
             }
             // Half beat passed
             if (_songPosition > _lastHalfBeat + _songData.HalfCrotchet) {
+                NextHalfBeat?.Invoke();
                 _lastHalfBeat = _songPosition;
+
+                if (_onNextHalfBeat.Count > 0) {
+                    foreach (var action in _onNextHalfBeat) action();
+                    _onNextHalfBeat.Clear();
+                }
+                
                 if (_disabledInteractionsCount > 0) {
                     _disabledInteractionsCount--;
                     if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
                 }
             }
+            // After beat
+            if (!_afterBeatWasCalled && _songPosition > _lastBeat + _goodHitWindow) {
+                if (_afterNextBeat.Count > 0) {
+                    foreach (var action in _afterNextBeat) action();
+                    _afterNextBeat.Clear();
+                }
+
+                _afterBeatWasCalled = true;
+            }
+            // Before beat
+            if (!_beforeBeatWasCalled && _songPosition > _lastBeat + _songData.Crotchet - _goodHitWindow) {
+                if (_beforeNextBeat.Count > 0) {
+                    foreach (var action in _beforeNextBeat) action();
+                    _beforeNextBeat.Clear();
+                }
+
+                _beforeBeatWasCalled = true;
+            }
+            
             // Update loop count
             if (_loopBeatPosition >= _songData.BeatsPerLoop)
                 _completedLoops++;
