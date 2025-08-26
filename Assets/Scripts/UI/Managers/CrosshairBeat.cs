@@ -53,7 +53,7 @@ namespace UI.Managers {
 
         private void SubscribeToEvents() {
             void RunNewBeats() => _beatQueue.StartNewBeats(_singleBeatTime, _beatOffset);
-            Conductor.NextBeatEvent += RunNewBeats;
+            Conductor.NextBeat += RunNewBeats;
             
             void LeftPerfect() => ShowLeftGradient(1);
             void LeftGood() => ShowLeftGradient(0.65f);
@@ -84,7 +84,7 @@ namespace UI.Managers {
             PlayerActionEvents.MissPerformed += ShowMissPopUp;
 
             _unsubscribeFromEventsAction = () => {
-                Conductor.NextBeatEvent -= RunNewBeats;
+                Conductor.NextBeat -= RunNewBeats;
                 
                 PlayerActionEvents.LeftPerfectPerformed -= LeftPerfect;
                 PlayerActionEvents.LeftGoodPerformed -= LeftGood;
@@ -138,9 +138,12 @@ namespace UI.Managers {
             if (_beatQueue.Any(Modify)) return;
             // Still to few, call recursively when new inactive appears
             // TODO: Fix modifications of beats past max capacity
-            Conductor.Instance.AddContinuousAction("Modify Beats",
-                () => Modify(_beatQueue.PeekFront()),
-                skipBeats + counter - _beatQueue.Length);
+            void ModifyWrapper() {
+                if (Modify(_beatQueue.PeekFront())) {
+                    Conductor.NextBeat -= ModifyWrapper;
+                }
+            }
+            Conductor.NextBeat += ModifyWrapper;
         }
         
         // Shows left gradient of crosshair

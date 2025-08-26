@@ -3,6 +3,8 @@ using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
+using Core.Music.Sequence;
+using Core.Music.Sequence.Components;
 using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -101,20 +103,19 @@ namespace Player.Weapons.Definitions {
             _leftInAnimation = true;
             _rightInAnimation = true;
             Conductor.Instance.DisableNextInteractions(1);
-            
-            IEnumerator AfterAnimation() {
-                yield return new WaitForSeconds(Crotchet + Conductor.Instance.HalfBeatHitWindow);
-                CanFastReload = true;
-                yield return new WaitForSeconds(Crotchet);
-                // Did not hit next beat -> force slow reload
-                if (IsReloading && CanFastReload) SlowReload();
-            }
+
+            var sequenceBuilder = new ActionSequenceBuilder();
+            sequenceBuilder.Append(Trigger.AfterBeat, _ => CanFastReload = true);
+            sequenceBuilder.Append(Trigger.AfterBeat, () => IsReloading && CanFastReload,
+                _ => SlowReload());
+            var sequence = sequenceBuilder.ToSequence();
+            var animationTimer = new CustomBeatTimer(sequence.Start, 1, 1);
             
             Conductor.Instance.AddOnNextBeat(() => {
                 _animator.CrossFade("Reload Start", _crossFade, -1, 0f);
                 IsReloading = true;
                 
-                StartCoroutine(AfterAnimation());
+                animationTimer.StartTimer();
             });
         }
         public override void FastReload() {
@@ -175,10 +176,10 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.NextBeatEvent += AnimateWalk;
+            Conductor.NextBeat += AnimateWalk;
 
             _unsubscribeFromEvents = () => {
-                Conductor.NextBeatEvent -= AnimateWalk;
+                Conductor.NextBeat -= AnimateWalk;
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
             };

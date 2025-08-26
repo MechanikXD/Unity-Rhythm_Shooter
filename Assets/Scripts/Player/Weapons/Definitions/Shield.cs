@@ -122,10 +122,10 @@ namespace Player.Weapons.Definitions {
 
             PlayerEvents.StartWalking += SetIsWalking;
             PlayerEvents.StoppedWalking += SetNotWalking;
-            Conductor.NextBeatEvent += AnimateWalk;
+            Conductor.NextBeat += AnimateWalk;
 
             _unsubscribeFromEvents = () => {
-                Conductor.NextBeatEvent -= AnimateWalk;
+                Conductor.NextBeat -= AnimateWalk;
                 PlayerEvents.StartWalking -= SetIsWalking;
                 PlayerEvents.StoppedWalking -= SetNotWalking;
             };
