@@ -3,6 +3,6 @@
         NextBeat,
         NextHalfBeat,
         AfterBeat,
-        BeforeBeat
+        BeforeBeat,
     }
 }

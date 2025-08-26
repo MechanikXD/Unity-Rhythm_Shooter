@@ -187,21 +187,8 @@ namespace Core.Music {
             // Update song position
             _songPosition = (float)(AudioSettings.dspTime - _dspSongTime) * _songSource.pitch - _songData.Offset;
             _songBeatPosition = (int)(_songPosition / _songData.Crotchet);
-            // Beat passed
-            if (_songPosition > _lastBeat + _songData.Crotchet) {
-                _interactedThisBeat = false;
-                _beforeBeatWasCalled = false;
-                _afterBeatWasCalled = false;
-                
-                NextBeat?.Invoke();
-                _lastBeat += _songData.Crotchet;
-
-                if (_onNextBeat.Count > 0) {
-                    foreach (var action in _onNextBeat) action();
-                    _onNextBeat.Clear();
-                }
-            }
             // Half beat passed
+            // Half beat goes first because it can overlap with normal beats.
             if (_songPosition > _lastHalfBeat + _songData.HalfCrotchet) {
                 NextHalfBeat?.Invoke();
                 _lastHalfBeat = _songPosition;
@@ -214,6 +201,20 @@ namespace Core.Music {
                 if (_disabledInteractionsCount > 0) {
                     _disabledInteractionsCount--;
                     if (_disabledInteractionsCount == 0) _interactionsDisabled = false;
+                }
+            }
+            // Beat passed
+            if (_songPosition > _lastBeat + _songData.Crotchet) {
+                _interactedThisBeat = false;
+                _beforeBeatWasCalled = false;
+                _afterBeatWasCalled = false;
+                
+                NextBeat?.Invoke();
+                _lastBeat += _songData.Crotchet;
+
+                if (_onNextBeat.Count > 0) {
+                    foreach (var action in _onNextBeat) action();
+                    _onNextBeat.Clear();
                 }
             }
             // After beat

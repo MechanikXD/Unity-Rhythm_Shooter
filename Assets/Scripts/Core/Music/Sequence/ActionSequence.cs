@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Core.Game;
 using Core.Music.Sequence.Components;
 using UnityEngine;
 
@@ -47,8 +49,18 @@ namespace Core.Music.Sequence {
             // Check sequence reached it's end
             if (_currentActorIndex >= _actions.Count) IsFinished = true;
             // If not - queue next actor
-            else _invoker[_actions[_currentActorIndex].Trigger]();
+            else AppendNextFrame();
         }
+        // Using this prevents errors from conductor when the same list is being modified during iteration
+        private void AppendNextFrame() {
+            IEnumerator OnNextFrame() {
+                yield return null;
+                _invoker[_actions[_currentActorIndex].Trigger]();
+            }
+            
+            GameManager.Instance.StartCoroutine(OnNextFrame());
+        }
+        
         /// <summary>
         /// Starts sequence within this instance. Sequence must be provided via Initialize() method,
         /// Otherwise NullReference may occur.
