@@ -1,6 +1,9 @@
-﻿using Core.Behaviour.FiniteStateMachine;
+﻿using System.Linq;
+using Core.Behaviour.FiniteStateMachine;
 using DG.Tweening;
 using Enemy.Base;
+using Enemy.States.Base;
+using Enemy.States.General;
 using Interactable.Damageable;
 using Player.Statistics.Score;
 using UnityEngine;
@@ -10,9 +13,16 @@ namespace Enemy.Types.Test {
         private Material _enemyMaterial;
         [SerializeField] private float _hitIndicatorFadeOff;
         private Tweener _materialColorAnimation;
+        private EnemyState[] _myStates;
 
         protected override void Awake() {
             base.Awake();
+
+            var idle = new IdleState(EnemyStateMachine, this, null, 15);
+            var chase = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { idle }, _moveSpeed);
+            idle.SetOutStates(new EnemyState[] { chase });
+            
+            _myStates = new EnemyState[] { idle, chase };
             
             IsTarget = false;
             EnemyStateMachine = new StateMachine();
@@ -44,5 +54,8 @@ namespace Enemy.Types.Test {
             
             Destroy(gameObject);
         }
+
+        public override bool HasState<T>() => 
+            _myStates.Any(state => state.GetType() == typeof(T));
     }
 }
