@@ -7,7 +7,6 @@ namespace Enemy.States.General {
     public class GoToDestination : EnemyState {
         private Vector3 _destination;
         private float _moveSpeed;
-        private const float Proximity = 0.1f;
 
         public GoToDestination(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
             float moveSpeed) : base(stateMachine, enemy, outStates) {
@@ -24,7 +23,7 @@ namespace Enemy.States.General {
         }
 
         public override void FrameUpdate() {
-            if (ReachedDestination(_destination, Proximity)) {
+            if (ReachedDestination(_destination, EnemyBase.Proximity)) {
                 AttachedStateMachine.ChangeState(OutStates[0]);
             }
         }

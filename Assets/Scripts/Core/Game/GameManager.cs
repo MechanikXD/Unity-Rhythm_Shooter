@@ -5,6 +5,7 @@ using Core.Level.Room;
 using Core.Offerings;
 using Interactable.Damageable;
 using Player;
+using Unity.AI.Navigation;
 using UnityEngine;
 
 namespace Core.Game {

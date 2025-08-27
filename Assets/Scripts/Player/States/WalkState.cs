@@ -24,7 +24,8 @@ namespace Player.States {
                 AttachedStateMachine.ChangeState(Player.States.DashState);
             
             var moveVector = Player.GetCameraRelativeVector(_moveSpeed);
-            Player.Controller.Move(moveVector * Time.deltaTime);
+            var gravityVector = Physics.gravity * Player._gravityMultiplier;
+            Player.Controller.Move((moveVector + gravityVector) * Time.deltaTime);
         }
 
         public override void ExitState() => PlayerEvents.OnStoppedWalkingEvent();

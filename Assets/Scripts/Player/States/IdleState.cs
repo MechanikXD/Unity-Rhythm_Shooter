@@ -1,5 +1,6 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
 using Core.Behaviour.FiniteStateMachine.StateImplementations;
+using UnityEngine;
 
 namespace Player.States {
     public class IdleState : PlayerState {
@@ -15,6 +16,9 @@ namespace Player.States {
             
             if (Player.DashKey.IsPressed() && !Player.DashInCooldown)
                 AttachedStateMachine.ChangeState(Player.States.DashState);
+            
+            var gravityVector = Physics.gravity * Player._gravityMultiplier;
+            Player.Controller.Move(gravityVector * Time.deltaTime);
         }
     }
 }

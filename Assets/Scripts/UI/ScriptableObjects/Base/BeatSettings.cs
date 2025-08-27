@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace UI.ScriptableObjects.Base {
     [CreateAssetMenu(fileName = "BeatSettings", menuName = "Scriptable Objects/BeatSettings")]
     public class BeatSettings : ScriptableObject {
-        [SerializeField] private Vector2 _fadeInOutTime = new Vector2(0.1f, 0.1f);
+        [SerializeField] private Vector2 _fadeInOutTime = new Vector2(0.5f, 0.1f);
         [SerializeField] private Vector2 _startEndPosition = new Vector2(-150f, 150f);
         [SerializeField] private Color _beatColor = Color.white;
 

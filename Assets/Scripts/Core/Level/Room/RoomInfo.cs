@@ -6,6 +6,7 @@ using Enemy;
 using Enemy.Base;
 using Interactable.Damageable;
 using UnityEngine;
+using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace Core.Level.Room {
@@ -133,15 +134,12 @@ namespace Core.Level.Room {
             }
             
             var randomPoint = _enemySpawnPoints[Random.Range(0, _enemySpawnPoints.Length)];
-            var spawnPosition = randomPoint.localPosition;
             if (SpawnPointIsOccupied(randomPoint, nextEnemy.ColliderSize)) {
                 foreach (var spawnPoint in _enemySpawnPoints) {
                     if (SpawnPointIsOccupied(spawnPoint, nextEnemy.ColliderSize)) continue;
-                    spawnPosition = spawnPoint.localPosition;
-                    spawnPosition.y += nextEnemy.ColliderSize.y / 2;
                     
                     _currentEnemyCount++;
-                    InstantiateNewEnemy(nextEnemy, spawnPosition, spawnPoint.rotation, _enemyParent);
+                    InstantiateNewEnemy(nextEnemy, spawnPoint.localPosition, spawnPoint.rotation, _enemyParent);
                     Physics.SyncTransforms();
                     return true;
                 }
@@ -151,9 +149,8 @@ namespace Core.Level.Room {
                 return false;
             }
             
-            spawnPosition.y += nextEnemy.ColliderSize.y / 2;
             _currentEnemyCount++;
-            InstantiateNewEnemy(nextEnemy, spawnPosition, randomPoint.rotation, _enemyParent);
+            InstantiateNewEnemy(nextEnemy, randomPoint.localPosition, randomPoint.rotation, _enemyParent);
             Physics.SyncTransforms();
             return true;
         }
@@ -182,10 +179,7 @@ namespace Core.Level.Room {
                 var newEnemy = _enemyToSpawn.Dequeue();
                 _currentEnemyCount++;
                 
-                var spawnPosition = spawnPoint.localPosition;
-                spawnPosition.y += colliderSize.y / 2;
-                
-                InstantiateNewEnemy(newEnemy, spawnPosition, spawnPoint.rotation, _enemyParent);
+                InstantiateNewEnemy(newEnemy, spawnPoint.localPosition, spawnPoint.rotation, _enemyParent);
                 Physics.SyncTransforms();
             }
         }
@@ -236,8 +230,23 @@ namespace Core.Level.Room {
         private void InstantiateNewEnemy(EnemyBase enemy, Vector3 position, Quaternion rotation,
             Transform parent) {
             var instance = Instantiate(enemy, position, rotation);
+            
+            // Disable agent to prevent auto-warping
+            instance.Agent.enabled = false;
+            
+            // Set position and parent first
+            instance.transform.position = position;
             instance.transform.SetParent(parent, false);
             Physics.SyncTransforms();
+    
+            // Re-enable agent and warp to current position
+            instance.Agent.enabled = true;
+            
+            // Check if current position is valid before warping
+            if (NavMesh.SamplePosition(instance.transform.position, out var hit, 1.0f, NavMesh.AllAreas)) {
+                instance.Agent.Warp(hit.position);
+            }
+            
             _activeEnemies.Add(instance.GetInstanceID(), instance);
         }
     }

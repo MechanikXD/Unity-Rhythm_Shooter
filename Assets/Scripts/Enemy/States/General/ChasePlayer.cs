@@ -9,7 +9,6 @@ namespace Enemy.States.General {
     public class ChasePlayer : EnemyState {
         private DamageableBehaviour _playerRef;
         private float _moveSpeed;
-        private const float Proximity = 0.1f;
 
         public ChasePlayer(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates, 
             float moveSpeed) : base(stateMachine, enemy, outStates) {
@@ -21,7 +20,7 @@ namespace Enemy.States.General {
         }
 
         public override void FixedUpdate() {
-            if (ReachedDestination(_playerRef.Position, Proximity)) {
+            if (ReachedDestination(_playerRef.Position, EnemyBase.Proximity)) {
                 AttachedStateMachine.ChangeState(OutStates[0]);
             }
             else {

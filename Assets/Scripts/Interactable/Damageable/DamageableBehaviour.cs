@@ -4,7 +4,7 @@ using Interactable.Status;
 using UnityEngine;
 
 namespace Interactable.Damageable {
-    [RequireComponent(typeof(Rigidbody))]
+    // [RequireComponent(typeof(Rigidbody))]
     public abstract class DamageableBehaviour : MonoBehaviour, IDamageable {
         [SerializeField] protected Rigidbody _body;
         public Vector3 Position => transform.position;
