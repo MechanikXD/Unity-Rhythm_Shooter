@@ -44,8 +44,6 @@ namespace Player {
         [SerializeField] public float _gravityMultiplier = 0.85f;
         private Vector2 _moveDirection; // Store data from OnMove method
 
-        public float MoveSpeed => _moveSpeed;   // was 7f
-
         [Header("Jump Settings")]
         [SerializeField] private float _coyoteTime = 0.2f;
         [SerializeField] private float _verticalJumpSpeed = 5f;
@@ -113,6 +111,7 @@ namespace Player {
         }
 
         protected override void EnterParriedState() { }
+        protected override void UpdateMoveSpeedOnCharacter() { }
 
         public override void Die() {
             throw new System.NotImplementedException();

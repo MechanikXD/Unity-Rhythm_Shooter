@@ -9,8 +9,8 @@ namespace GameEffects.Statuses {
         [SerializeField] private float _percentDamageDecrease;
 
         public override void OnStatusApply(DamageableBehaviour attachedTo) {
-            attachedTo.ChangeDamageIncrement(attachedTo.DamageIncrement - _flatDamageDecrease);
-            attachedTo.ChangeDamageMultiplier(attachedTo.DamageMultiplier - _percentDamageDecrease);
+            attachedTo.SetDamageIncrement(attachedTo.DamageIncrement - _flatDamageDecrease);
+            attachedTo.SetDamageMultiplier(attachedTo.DamageMultiplier - _percentDamageDecrease);
         }
 
         public override void EachBeatAction(DamageableBehaviour _) { }
@@ -18,8 +18,8 @@ namespace GameEffects.Statuses {
         public override void OnRepeatedApply(DamageableBehaviour _) { }
 
         public override void OnStatusRemoved(DamageableBehaviour attachedTo) {
-            attachedTo.ChangeDamageIncrement(attachedTo.DamageIncrement + _flatDamageDecrease);
-            attachedTo.ChangeDamageMultiplier(attachedTo.DamageMultiplier + _percentDamageDecrease);
+            attachedTo.SetDamageIncrement(attachedTo.DamageIncrement + _flatDamageDecrease);
+            attachedTo.SetDamageMultiplier(attachedTo.DamageMultiplier + _percentDamageDecrease);
         }
     }
 }

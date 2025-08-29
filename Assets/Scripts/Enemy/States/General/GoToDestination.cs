@@ -6,21 +6,18 @@ using UnityEngine;
 namespace Enemy.States.General {
     public class GoToDestination : EnemyState {
         private Vector3 _destination;
-        private float _moveSpeed;
 
-        public GoToDestination(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            float moveSpeed) : base(stateMachine, enemy, outStates) {
-            _moveSpeed = moveSpeed;
-        }
+        public GoToDestination(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates) 
+            : base(stateMachine, enemy, outStates) { }
 
-        public void SetDestination(Vector3 destination) {
-            _destination = destination;
-        }
+        public void SetDestination(Vector3 destination) => _destination = destination;
         
         public override void EnterState() {
-            Enemy.Agent.speed = _moveSpeed;
             Enemy.Agent.SetDestination(_destination);
+            SetMoveSpeed(Enemy.CurrentSpeed);
         }
+
+        public override void SetMoveSpeed(float value) => Enemy.Agent.speed = value;
 
         public override void FrameUpdate() {
             if (ReachedDestination(_destination, EnemyBase.Proximity)) {

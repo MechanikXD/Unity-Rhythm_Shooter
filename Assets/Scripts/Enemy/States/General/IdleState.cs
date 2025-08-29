@@ -12,6 +12,8 @@ namespace Enemy.States.General {
             float idleTime) : base(stateMachine, enemy, outStates) {
             _idleTime = idleTime;
         }
+
+        public void SetIdleTime(float time) => _idleTime = time;
         
         public override void EnterState() {
             _currentIdleTime = 0f;

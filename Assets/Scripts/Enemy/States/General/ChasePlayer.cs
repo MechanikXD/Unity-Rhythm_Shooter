@@ -7,17 +7,16 @@ using UnityEngine;
 
 namespace Enemy.States.General {
     public class ChasePlayer : EnemyState {
-        private DamageableBehaviour _playerRef;
-        private float _moveSpeed;
+        private readonly DamageableBehaviour _playerRef;
 
-        public ChasePlayer(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates, 
-            float moveSpeed) : base(stateMachine, enemy, outStates) {
-            _moveSpeed = moveSpeed;
-        }
-        public override void EnterState() {
+        public ChasePlayer(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates) :
+            base(stateMachine, enemy, outStates) {
             _playerRef = GameManager.Instance.Player;
-            Enemy.Agent.speed = _moveSpeed;
         }
+
+        public override void EnterState() => SetMoveSpeed(Enemy.CurrentSpeed);
+
+        public override void SetMoveSpeed(float value) => Enemy.Agent.speed = value;
 
         public override void FixedUpdate() {
             if (ReachedDestination(_playerRef.Position, EnemyBase.Proximity)) {

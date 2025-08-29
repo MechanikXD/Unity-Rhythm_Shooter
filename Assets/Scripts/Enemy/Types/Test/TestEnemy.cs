@@ -15,15 +15,18 @@ namespace Enemy.Types.Test {
         private Tweener _materialColorAnimation;
         private EnemyState[] _myStates;
 
+        private IdleState _idleState;
+        private ChasePlayer _chaseState;
+
         protected override void Awake() {
             base.Awake();
-            var idle = new IdleState(EnemyStateMachine, this, null, 15);
-            var chase = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { idle }, _moveSpeed);
-            idle.SetOutStates(new EnemyState[] { chase });
+            _idleState = new IdleState(EnemyStateMachine, this, null, 15);
+            _chaseState = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { _idleState });
+            _idleState.SetOutStates(new EnemyState[] { _chaseState });
             
-            _myStates = new EnemyState[] { idle, chase };
+            _myStates = new EnemyState[] { _idleState, _chaseState };
             
-            EnemyStateMachine.Initialize(idle);
+            EnemyStateMachine.Initialize(_idleState);
             
             IsTarget = false;
             _enemyMaterial = _renderer.material;
@@ -41,6 +44,10 @@ namespace Enemy.Types.Test {
             var originalEnemyColor = _enemyMaterial.color;
             _enemyMaterial.color = Color.red;
             _materialColorAnimation = _enemyMaterial.DOColor(originalEnemyColor, _hitIndicatorFadeOff);
+        }
+
+        protected override void UpdateMoveSpeedOnCharacter() {
+            _chaseState.SetMoveSpeed(CurrentSpeed);
         }
 
         public override void Die() {

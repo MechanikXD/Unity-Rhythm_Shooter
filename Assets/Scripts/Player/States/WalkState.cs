@@ -4,12 +4,8 @@ using UnityEngine;
 
 namespace Player.States {
     public class WalkState : PlayerState {
-        private readonly float _moveSpeed;
-
         public WalkState(StateMachine stateMachine, PlayerController controller) : base(
-            stateMachine, controller) {
-            _moveSpeed = Player.MoveSpeed;
-        }
+            stateMachine, controller) { }
 
         public override void EnterState() => PlayerEvents.OnStartWalkingEvent();
 
@@ -23,7 +19,7 @@ namespace Player.States {
             if (Player.DashKey.IsPressed() && !Player.DashInCooldown)
                 AttachedStateMachine.ChangeState(Player.States.DashState);
             
-            var moveVector = Player.GetCameraRelativeVector(_moveSpeed);
+            var moveVector = Player.GetCameraRelativeVector(Player.CurrentSpeed);
             var gravityVector = Physics.gravity * Player._gravityMultiplier;
             Player.Controller.Move((moveVector + gravityVector) * Time.deltaTime);
         }

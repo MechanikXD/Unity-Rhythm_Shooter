@@ -11,6 +11,8 @@ namespace Enemy.States.Base {
             OutStates = outStates;
         }
 
+        public virtual void SetMoveSpeed(float value) {}
+
         public void SetOutStates(EnemyState[] outStates) => OutStates = outStates;
     }
 }
