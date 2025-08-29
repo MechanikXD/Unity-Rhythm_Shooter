@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 954fb218fd5b4b0881cf73133778b4c0, type: 3}
+  m_Name: TestLevelSettings
+  m_EditorClassIdentifier: 
+  _startRoom: {fileID: 329982639844952515, guid: d9ccc9d90af0d7b4d90ee2b41f317d05, type: 3}
+  _rooms:
+  - {fileID: 5165998516970438092, guid: 717c1548998927346b070bc07f12bbdb, type: 3}
+  - {fileID: 7182148789382544803, guid: 515c951efbae3a04db89f4934a7f571d, type: 3}
+  _finalRoom: {fileID: 4910693519442983440, guid: 831a11ed9525d644aa858d3dadfe9b46, type: 3}
+  _pathBlocker: {fileID: 29656344890519162, guid: 41e4050153297d4428724dce53fe44d9, type: 3}
+  _roomsBetweenStartAndEnd: 5
+  _additionalRooms: 7
+  _probabilityRange: []
