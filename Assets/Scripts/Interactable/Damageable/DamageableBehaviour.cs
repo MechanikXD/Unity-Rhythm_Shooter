@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Interactable.Status;
 using UnityEngine;
 
 namespace Interactable.Damageable {
-    [RequireComponent(typeof(Rigidbody))]
     public abstract class DamageableBehaviour : MonoBehaviour, IDamageable {
         [SerializeField] protected Rigidbody _body;
         public Vector3 Position => transform.position;
         [SerializeField] protected float _moveSpeed;
+        protected float MoveSpeedMultiplier = 1f;
+        public float CurrentSpeed { get; protected set; }
         
         [SerializeField] protected int _maxHealth;
         private int _currentMaxHealth;
@@ -36,10 +36,11 @@ namespace Interactable.Damageable {
             CurrentHealth = _maxHealth;
             CurrentDamage = _damage;
             CurrentDamageReduction = _defaultDamageReduction;
+            CurrentSpeed = _moveSpeed;
             _canTakeDamage = true;
             
-            RecalculateCurrentDamage();
-            RecalculateMaxHealth();
+            UpdateCurrentDamage();
+            UpdateMaxHealth();
         }
 
         protected void OnDestroy() {
@@ -122,36 +123,50 @@ namespace Interactable.Damageable {
             }
         }
 
-        public void ChangeDamageMultiplier(float newValue) {
-            if (newValue < 0) return;
-            DamageMultiplier = newValue;
-            RecalculateCurrentDamage();
+        public void SetMoveSpeed(float newValue) {
+            if (newValue < 0) newValue = 0;
+            
+            CurrentSpeed = newValue * MoveSpeedMultiplier;
         }
         
-        public void ChangeDamageIncrement(int newValue) {
-            if (newValue < 0) return;
-            DamageIncrement = newValue;
-            RecalculateCurrentDamage();
+        public void SetMoveSpeedMultiplier(float newValue) {
+            if (newValue < 0) newValue = 0;
+            
+            MoveSpeedMultiplier = newValue;
         }
 
-        public void RecalculateCurrentDamage() {
+        protected abstract void UpdateMoveSpeedOnCharacter();
+
+        public void SetDamageMultiplier(float newValue) {
+            if (newValue < 0) return;
+            DamageMultiplier = newValue;
+            UpdateCurrentDamage();
+        }
+        
+        public void SetDamageIncrement(int newValue) {
+            if (newValue < 0) return;
+            DamageIncrement = newValue;
+            UpdateCurrentDamage();
+        }
+
+        public void UpdateCurrentDamage() {
             CurrentDamage = (int)((_damage + DamageIncrement) * DamageMultiplier);
             if (CurrentDamage <= 0) CurrentDamage = 1;
         }
         
-        public void ChangeHealthMultiplier(float newValue) {
+        public void SetHealthMultiplier(float newValue) {
             if (newValue < 0) return;
             HealthMultiplier = newValue;
-            RecalculateMaxHealth();
+            UpdateMaxHealth();
         }
         
-        public void ChangeHealthIncrement(int newValue) {
+        public void SetHealthIncrement(int newValue) {
             if (newValue < 0) return;
             HealthIncrement = newValue;
-            RecalculateMaxHealth();
+            UpdateMaxHealth();
         }
         
-        public void RecalculateMaxHealth() {
+        public void UpdateMaxHealth() {
             var newValue = (int)((_maxHealth + HealthIncrement) * HealthMultiplier);
             if (newValue <= 0) newValue = 1;
             SetMaxHealth(newValue);

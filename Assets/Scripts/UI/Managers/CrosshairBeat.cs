@@ -19,7 +19,8 @@ namespace UI.Managers {
 
         [SerializeField] private Image _leftGradientImage;
         [SerializeField] private Image _rightGradientImage;
-        [SerializeField] private Vector2 _fadeInOutTime = new Vector2(0.05f, 0.5f);
+        [SerializeField] private Vector2 _indicatorFadeInOutTime = new Vector2(0.05f, 0.5f);
+        [SerializeField] private Vector2 _beatsFadeInOutTime = new Vector2(0.5f, 0.05f);
         private Sequence _leftGradientAnimation;
         private Sequence _rightGradientAnimation;
 
@@ -154,8 +155,8 @@ namespace UI.Managers {
 
             var startColor = new Color(255,255,255, strength);
             _leftGradientAnimation = DOTween.Sequence();
-            _leftGradientAnimation.Append(_leftGradientImage.DOColor(startColor, _fadeInOutTime.x));
-            _leftGradientAnimation.Append(_leftGradientImage.DOColor(_transparentWhite, _fadeInOutTime.y));
+            _leftGradientAnimation.Append(_leftGradientImage.DOColor(startColor, _indicatorFadeInOutTime.x));
+            _leftGradientAnimation.Append(_leftGradientImage.DOColor(_transparentWhite, _indicatorFadeInOutTime.y));
             _leftGradientAnimation.Play();
         }
         // Shows right gradient of crosshair
@@ -166,16 +167,16 @@ namespace UI.Managers {
             
             var startColor = new Color(255,255,255, strength);
             _rightGradientAnimation = DOTween.Sequence();
-            _rightGradientAnimation.Append(_rightGradientImage.DOColor(startColor, _fadeInOutTime.x));
-            _rightGradientAnimation.Append(_rightGradientImage.DOColor(_transparentWhite, _fadeInOutTime.y));
+            _rightGradientAnimation.Append(_rightGradientImage.DOColor(startColor, _indicatorFadeInOutTime.x));
+            _rightGradientAnimation.Append(_rightGradientImage.DOColor(_transparentWhite, _indicatorFadeInOutTime.y));
             _rightGradientAnimation.Play();
         }
         // Shows pop-up under crosshair of action "Quality" 
         private void ShowPopUp(TextMeshProUGUI textField) {
             _currentPopUp?.Complete();
             _currentPopUp = DOTween.Sequence();
-            _currentPopUp.Append(textField.DOColor(Color.black, _fadeInOutTime.x));
-            _currentPopUp.Append(textField.DOColor(_transparentBlack, _fadeInOutTime.y));
+            _currentPopUp.Append(textField.DOColor(Color.black, _indicatorFadeInOutTime.x));
+            _currentPopUp.Append(textField.DOColor(_transparentBlack, _indicatorFadeInOutTime.y));
             _currentPopUp.Play();
         }
     }
