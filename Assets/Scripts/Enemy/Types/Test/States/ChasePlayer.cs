@@ -5,7 +5,7 @@ using Enemy.States.Base;
 using Interactable.Damageable;
 using UnityEngine;
 
-namespace Enemy.States.General {
+namespace Enemy.Types.Test.States {
     public class ChasePlayer : EnemyState {
         private readonly DamageableBehaviour _playerRef;
 

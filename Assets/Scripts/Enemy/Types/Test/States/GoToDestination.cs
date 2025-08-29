@@ -3,7 +3,7 @@ using Enemy.Base;
 using Enemy.States.Base;
 using UnityEngine;
 
-namespace Enemy.States.General {
+namespace Enemy.Types.Test.States {
     public class GoToDestination : EnemyState {
         private Vector3 _destination;
 

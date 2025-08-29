@@ -10,7 +10,7 @@ namespace Core.Music {
     /// <b>Initialize</b> method mush be called to start music playing.
     /// </summary>
     public class Conductor : MonoBehaviour {
-        private static Conductor _instance;
+        public static Conductor Instance;
         private bool _isInitialized;
         private bool _interactedThisBeat;
         
@@ -22,27 +22,16 @@ namespace Core.Music {
         private readonly List<Action> _beforeNextBeat = new List<Action>();
         private readonly List<Action> _afterNextBeat = new List<Action>();
 
+        private List<Action> _appendActions;
+
         private bool _afterBeatWasCalled;
         private bool _beforeBeatWasCalled;
         
         public static event Action NextBeat;
         public static event Action NextHalfBeat;
         
-        public static Conductor Instance {
-            get {
-                if (_instance != null) return _instance;
-                
-                // This is called only once per scene
-                // ReSharper disable Unity.PerformanceCriticalCodeInvocation
-                var newObject = new GameObject(nameof(Conductor));
-                _instance = newObject.AddComponent<Conductor>();
-                return _instance;
-                // ReSharper restore Unity.PerformanceCriticalCodeInvocation
-            }
-        }
-        
-        private SongData _songData;
-        private AudioSource _songSource;
+        [SerializeField] private SongData _songData;
+        [SerializeField] private AudioSource _songSource;
         
         private float _songPosition;
         private int _songBeatPosition;
@@ -79,30 +68,38 @@ namespace Core.Music {
                 Distance = distance;
             }
         }
-        
+
+        private void Awake() {
+            ToSingleton();
+            Initialize();
+        }
+
         private void OnDisable() {
             UIManager.PauseStateEntered -= _songSource.Pause;
             UIManager.PauseStateExited -= _songSource.UnPause;
         }
 
-        /// <summary>
-        /// Initializes all necessary fields and references of this singleton and start playing tha music
-        /// </summary>
-        /// <param name="songData"> record class with info about the song </param>
-        /// <param name="audioSource"> Source of music </param>
-        public void Initialize(SongData songData, AudioSource audioSource) {
-            _songData = songData;
-            _songSource = audioSource;
+        private void Initialize() {
             _disabledInteractionsCount = 0;
             
             _lastBeat = 0f;
-            _songSource.clip = songData.Audio;
+            _appendActions = new List<Action>();
+            _songSource.clip = _songData.Audio;
             _dspSongTime = (float)AudioSettings.dspTime;
             _songSource.Play();
             _isInitialized = true;
             
             UIManager.PauseStateEntered += _songSource.Pause;
             UIManager.PauseStateExited += _songSource.UnPause;
+        }
+
+        private void ToSingleton() {
+            if (Instance != null) {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
         }
         /// <summary> Set that interaction was performed in current beat </summary>
         public void SetInteractedThisBeat() => _interactedThisBeat = true;
@@ -111,25 +108,29 @@ namespace Core.Music {
         /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
         /// <param name="action"> Action that will be called </param>
-        public void AddOnNextBeat(Action action) => _onNextBeat.Add(action);
+        public void AddOnNextBeat(Action action) => 
+            _appendActions.Add(() => _onNextBeat.Add(action));
         /// <summary>
         /// Calls given action on very next half beat, beats itself also counts.
         /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
         /// <param name="action"> Action that will be called </param>
-        public void AddOnNextHalfBeat(Action action) => _onNextHalfBeat.Add(action);
+        public void AddOnNextHalfBeat(Action action) => 
+            _appendActions.Add(() => _onNextHalfBeat.Add(action));
         /// <summary>
         /// Calls given action just before players "good" action window 
         /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
         /// <param name="action"> Action that will be called </param>
-        public void AddBeforeNextBeat(Action action) => _beforeNextBeat.Add(action);
+        public void AddBeforeNextBeat(Action action) => 
+            _appendActions.Add(() => _beforeNextBeat.Add(action));
         /// <summary>
         /// Calls given action just after players "good" action window has passed
         /// Do not call this method in OnDisable or OnDestroy 
         /// </summary>
         /// <param name="action"> Action that will be called </param>
-        public void AddAfterNextBeat(Action action) => _afterNextBeat.Add(action);
+        public void AddAfterNextBeat(Action action) => 
+            _appendActions.Add(() => _afterNextBeat.Add(action));
         /// <summary>
         /// Determines "Quality" of action based on given song position.
         /// Calculated as relative distance to closest beat.  
@@ -240,6 +241,14 @@ namespace Core.Music {
             if (_loopBeatPosition >= _songData.BeatsPerLoop)
                 _completedLoops++;
             _loopBeatPosition = _songBeatPosition - _completedLoops * _songData.BeatsPerLoop;
+        }
+
+        private void LateUpdate() {
+            foreach (var action in _appendActions) {
+                action();
+            }
+            
+            _appendActions.Clear();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Core.Behaviour.FiniteStateMachine;
+﻿using System;
+using Core.Behaviour.FiniteStateMachine;
 using Enemy.Base;
 
 namespace Enemy.States.Base {

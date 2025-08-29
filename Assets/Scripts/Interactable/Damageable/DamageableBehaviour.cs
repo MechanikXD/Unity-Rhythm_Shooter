@@ -22,7 +22,7 @@ namespace Interactable.Damageable {
         private bool _canTakeDamage;
         
         [SerializeField] protected int _damage;
-        protected int CurrentDamage;
+        public int CurrentDamage { get; protected set; }
         public float DamageMultiplier { get; private set; } = 1f;
         public int DamageIncrement { get; private set; }
         public Dictionary<StatusEffect, StatusBase> CurrentStatuses { get; private set; }

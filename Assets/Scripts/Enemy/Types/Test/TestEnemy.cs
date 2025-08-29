@@ -2,7 +2,7 @@
 using DG.Tweening;
 using Enemy.Base;
 using Enemy.States.Base;
-using Enemy.States.General;
+using Enemy.Types.Test.States;
 using Interactable.Damageable;
 using Player.Statistics.Score;
 using UnityEngine;
