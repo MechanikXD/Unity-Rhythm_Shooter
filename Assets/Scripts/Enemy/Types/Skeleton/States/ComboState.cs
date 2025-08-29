@@ -70,7 +70,14 @@ namespace Enemy.Types.Skeleton.States {
         public override void EnterState() {
             _destination = Enemy.Position;
             PlayOrRestartSequence();
+            Enemy.Agent.updateRotation = false;
             Enemy.PlayAnimation(_windUpAnimationKey);
+        }
+
+        public override void ExitState() {
+            Enemy.Agent.updateRotation = true;
+            // Slight move forward to prevent rotation
+            Enemy.Agent.SetDestination(Enemy.Position + Enemy.Forward * 0.01f);
         }
 
         private void PlayOrRestartSequence() {
