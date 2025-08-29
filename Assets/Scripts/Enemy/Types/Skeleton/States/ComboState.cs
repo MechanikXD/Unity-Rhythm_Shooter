@@ -1,4 +1,5 @@
-﻿using Core.Behaviour.FiniteStateMachine;
+﻿using System.Collections;
+using Core.Behaviour.FiniteStateMachine;
 using Core.Music;
 using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
@@ -54,15 +55,22 @@ namespace Enemy.Types.Skeleton.States {
                 Enemy.PlayAnimation(animations[4].name);
                 _moveSpeed = ExitAnimationBackMovement / animations[4].length;
                 _destination -= Enemy.Forward * ExitAnimationBackMovement;
+                Enemy.StartCoroutine(ForceExitStateAfter(animations[4].length, 0));
             });
 
             _comboSequence = sequenceBuilder.ToSequence();
         }
 
+        private IEnumerator ForceExitStateAfter(float delay, int stateIndex) {
+            yield return new WaitForSeconds(delay);
+            AttachedStateMachine.ChangeState(OutStates[stateIndex]);
+        }
+
+
         public override void EnterState() {
             _destination = Enemy.Position;
-            Enemy.PlayAnimation(_windUpAnimationKey);
             PlayOrRestartSequence();
+            Enemy.PlayAnimation(_windUpAnimationKey);
         }
 
         private void PlayOrRestartSequence() {
@@ -71,10 +79,7 @@ namespace Enemy.Types.Skeleton.States {
         }
 
         public override void FrameUpdate() {
-            if (AtDestination()) {
-                if (_comboSequence.IsFinished) AttachedStateMachine.ChangeState(OutStates[0]);
-                return;
-            }
+            if (AtDestination()) return;
 
             Enemy.transform.position = Vector3.MoveTowards(Enemy.Position, _destination,
                 _moveSpeed * Time.deltaTime);

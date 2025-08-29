@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Core.Music;
+﻿using Core.Music;
 using Enemy.Base;
 using Enemy.States.Base;
 using Enemy.Types.Skeleton.States;
@@ -7,8 +6,6 @@ using UnityEngine;
 
 namespace Enemy.Types.Skeleton {
     public class SkeletonMelee : EnemyBase {
-        private EnemyState[] _myStates;
-
         private IdleState _idleState;
         private ComboState _comboState;
         private ChasePlayer _chaseState;
@@ -41,8 +38,6 @@ namespace Enemy.Types.Skeleton {
             _chaseState = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { _comboState }, _walkAnimation);
             _idleState.SetOutStates(new EnemyState[] { _comboState, _chaseState });
             
-            _myStates = new EnemyState[] { _idleState, _comboState };
-            
             var crotchet = Conductor.Instance.SongData.Crotchet;
             _animator.SetFloat(Combo1Speed, _combo1.length / crotchet);
             _animator.SetFloat(Combo2Speed, _combo2.length / crotchet);
@@ -52,7 +47,7 @@ namespace Enemy.Types.Skeleton {
         protected override void EnterParriedState() { }
 
         protected override void UpdateMoveSpeedOnCharacter() {
-            //_chaseState.SetMoveSpeed(CurrentSpeed);
+            _chaseState.SetMoveSpeed(CurrentSpeed);
         }
 
         public override void Die() {
@@ -65,8 +60,5 @@ namespace Enemy.Types.Skeleton {
             
             Destroy(gameObject, _deathAnimation.Length);
         }
-
-        public override bool HasState<T>() => 
-            _myStates.Any(state => state.GetType() == typeof(T));
     }
 }

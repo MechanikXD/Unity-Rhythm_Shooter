@@ -21,8 +21,6 @@ namespace Enemy.Base {
         public Vector3 ColliderSize => _colliderSize;
         public void SetIsTarget() => IsTarget = true;
 
-        public abstract bool HasState<T>() where T : EnemyState;
-
         protected virtual void Update() => EnemyStateMachine.CurrentState.FrameUpdate();
 
         protected virtual void FixedUpdate() => EnemyStateMachine.CurrentState.FixedUpdate();

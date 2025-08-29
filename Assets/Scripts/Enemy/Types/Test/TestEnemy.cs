@@ -61,8 +61,5 @@ namespace Enemy.Types.Test {
             
             Destroy(gameObject);
         }
-
-        public override bool HasState<T>() => 
-            _myStates.Any(state => state.GetType() == typeof(T));
     }
 }
