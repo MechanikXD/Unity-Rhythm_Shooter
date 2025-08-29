@@ -19,7 +19,7 @@ namespace Enemy.Types.Test.States {
         public override void SetMoveSpeed(float value) => Enemy.Agent.speed = value;
 
         public override void FixedUpdate() {
-            if (ReachedDestination(_playerRef.Position, EnemyBase.Proximity)) {
+            if (ReachedDestination(_playerRef.Position, EnemyBase.PlayerProximity)) {
                 AttachedStateMachine.ChangeState(OutStates[0]);
             }
             else {

@@ -81,7 +81,7 @@ namespace Enemy.Types.Skeleton.States {
         }
 
         private bool AtDestination() => 
-            Vector3.Distance(Enemy.Position, _destination) < 0.1f;
+            Vector3.Distance(Enemy.Position, _destination) < 0.5f;
 
         private void AttackForward() {
             if (!Physics.Raycast(Enemy.Position, Vector3.forward, out var hit, AttackDistance,

@@ -27,7 +27,7 @@ namespace Enemy.Types.Skeleton.States {
             _currentIdleTime += Time.deltaTime;
 
             if (_currentIdleTime >= _idleTime) 
-                AttachedStateMachine.ChangeState(OutStates[PlayerIsNearby() ? 1 : 0]);
+                AttachedStateMachine.ChangeState(OutStates[PlayerIsNearby() ? 0 : 1]);
         }
 
         private bool PlayerIsNearby() {

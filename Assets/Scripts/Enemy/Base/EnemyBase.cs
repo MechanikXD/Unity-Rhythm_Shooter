@@ -11,7 +11,7 @@ namespace Enemy.Base {
         [SerializeField] protected float _crossFade;
         public float CrossFade => _crossFade;
         public Animator Animator => _animator;
-        public const float Proximity = 1f;
+        public const float PlayerProximity = 2f;
         protected StateMachine EnemyStateMachine;
         public NavMeshAgent Agent { private set; get; }
         protected bool IsTarget;

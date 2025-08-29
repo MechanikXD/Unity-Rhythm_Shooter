@@ -11,7 +11,7 @@ namespace Enemy.Types.Skeleton {
 
         private IdleState _idleState;
         private ComboState _comboState;
-        //private ChasePlayer _chaseState;
+        private ChasePlayer _chaseState;
         
         [SerializeField] private string _idleAnimation;
         [SerializeField] private string _walkAnimation;
@@ -30,16 +30,16 @@ namespace Enemy.Types.Skeleton {
         protected override void Awake() {
             base.Awake();
             
-            _idleState = new IdleState(EnemyStateMachine, this, null, 2, _idleAnimation);
+            _idleState = new IdleState(EnemyStateMachine, this, null, 5, _idleAnimation);
             EnemyStateMachine.Initialize(_idleState);
         }
 
         protected void Start() {
-            // _chaseState = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { _idleState });
             _comboState = new ComboState(EnemyStateMachine, this,
                 new EnemyState[] { _idleState },
                 new[] { _windUp, _combo1, _combo2, _combo3, _fromCombo });
-            _idleState.SetOutStates(new EnemyState[] { _comboState });
+            _chaseState = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { _comboState }, _walkAnimation);
+            _idleState.SetOutStates(new EnemyState[] { _comboState, _chaseState });
             
             _myStates = new EnemyState[] { _idleState, _comboState };
             

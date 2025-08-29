@@ -48,11 +48,9 @@ namespace Core.Music.Sequence {
             // Check sequence reached it's end
             if (_currentActorIndex >= _actions.Count) {
                 IsFinished = true;
-                Debug.Log("Finishing sequence");
             }
             // If not - queue next actor
             else {
-                Debug.Log("Starting next action");
                 _invoker[_actions[_currentActorIndex].Trigger]();
             }
         }
@@ -62,7 +60,6 @@ namespace Core.Music.Sequence {
         /// Otherwise NullReference may occur.
         /// </summary>
         public void Start() {
-            Debug.Log("Sequence was Started");
             if (_currentActorIndex == 0) _invoker[_actions[_currentActorIndex].Trigger]();
             else Debug.Log("Sequence was started prior. Maybe you meant to Resume() it?");
         }
@@ -88,7 +85,6 @@ namespace Core.Music.Sequence {
         /// </summary>
         /// <param name="setOnPause"> Use to set sequence on pause after rewinding </param>
         public void Restart(bool setOnPause=false) {
-            Debug.Log("Sequence was restarted");
             IsFinished = false;
             _currentActorIndex = 0;
             

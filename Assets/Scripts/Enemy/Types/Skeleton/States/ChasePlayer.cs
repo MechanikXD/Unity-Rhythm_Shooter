@@ -25,8 +25,8 @@ namespace Enemy.Types.Skeleton.States {
         public override void SetMoveSpeed(float value) => Enemy.Agent.speed = value;
 
         public override void FixedUpdate() {
-            if (ReachedDestination(_playerRef.Position, EnemyBase.Proximity)) {
-                AttachedStateMachine.ChangeState(OutStates[1]); // Combo state
+            if (ReachedDestination(_playerRef.Position, EnemyBase.PlayerProximity)) {
+                AttachedStateMachine.ChangeState(OutStates[0]); // Combo state
             }
             else {
                 Enemy.Agent.SetDestination(_playerRef.Position);
