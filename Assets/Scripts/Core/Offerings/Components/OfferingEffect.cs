@@ -14,10 +14,6 @@ namespace Core.Offerings.Components {
         protected abstract void Effect(DamageableBehaviour damageable);
         public abstract void UnsubscribeEffect();
 
-        protected void ApplyStatusOnTargets(DamageInfo info) {
-            foreach (var target in info.Targets) {
-                target.ApplyStatus(_status);  
-            }
-        }
+        protected void ApplyStatusOnTargets(DamageInfo info) => info.Target.ApplyStatus(_status);
     }
 }

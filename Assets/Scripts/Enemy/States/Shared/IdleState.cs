@@ -4,7 +4,7 @@ using Enemy.Base;
 using Enemy.States.Base;
 using UnityEngine;
 
-namespace Enemy.Types.Skeleton.States {
+namespace Enemy.States.Shared {
     public class IdleState : EnemyState {
         private readonly string _idleAnimationKey;
         private float _idleTime;

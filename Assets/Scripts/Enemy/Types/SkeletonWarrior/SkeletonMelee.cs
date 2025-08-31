@@ -1,13 +1,14 @@
 ﻿using Core.Music;
 using Enemy.Base;
 using Enemy.States.Base;
-using Enemy.Types.Skeleton.States;
+using Enemy.States.Shared;
+using Enemy.Types.SkeletonWarrior.States;
 using UnityEngine;
 
-namespace Enemy.Types.Skeleton {
+namespace Enemy.Types.SkeletonWarrior {
     public class SkeletonMelee : EnemyBase {
         private IdleState _idleState;
-        private ComboState _comboState;
+        private AttackState _attackState;
         private ChasePlayer _chaseState;
         
         [SerializeField] private string _idleAnimation;
@@ -32,11 +33,11 @@ namespace Enemy.Types.Skeleton {
         }
 
         protected void Start() {
-            _comboState = new ComboState(EnemyStateMachine, this,
+            _attackState = new AttackState(EnemyStateMachine, this,
                 new EnemyState[] { _idleState },
                 new[] { _windUp, _combo1, _combo2, _combo3, _fromCombo });
-            _chaseState = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { _comboState }, _walkAnimation);
-            _idleState.SetOutStates(new EnemyState[] { _comboState, _chaseState });
+            _chaseState = new ChasePlayer(EnemyStateMachine, this, new EnemyState[] { _attackState }, _walkAnimation);
+            _idleState.SetOutStates(new EnemyState[] { _attackState, _chaseState });
             
             var crotchet = Conductor.Instance.SongData.Crotchet;
             _animator.SetFloat(Combo1Speed, _combo1.length / crotchet);

@@ -121,12 +121,6 @@ namespace Player {
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
-        public int GetCalculatedDamage(int baseValue) {
-            var damage = (int)((baseValue + DamageIncrement) * DamageMultiplier);
-            if (damage <= 0) damage = 1;
-            return damage;
-        }
-
         public void OnMove(InputValue currentMoveDirection) =>
             _moveDirection = currentMoveDirection.Get<Vector2>();
 

@@ -5,7 +5,7 @@ using Enemy.States.Base;
 using Interactable.Damageable;
 using UnityEngine;
 
-namespace Enemy.Types.Skeleton.States {
+namespace Enemy.States.Shared {
     public class ChasePlayer : EnemyState {
         private readonly DamageableBehaviour _playerRef;
         private readonly string _walkAnimationKey;

@@ -10,7 +10,7 @@ using Player;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonWarrior.States {
-    public class ComboState : EnemyState {
+    public class AttackState : EnemyState {
         private readonly ActionSequence _comboSequence;
         private readonly LayerMask _playerMask;
 
@@ -22,7 +22,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
         private const float ExitAnimationBackMovement = 0.6601f;
         private const float AttackDistance = 1.5f;
         
-        public ComboState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
+        public AttackState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
             AnimationClip[] animations)
             : base(stateMachine, enemy, outStates) {
             _windUpAnimationKey = animations[0].name;
@@ -101,9 +101,8 @@ namespace Enemy.Types.SkeletonWarrior.States {
 
             if (!hit.transform.gameObject.TryGetComponent<PlayerController>(out var player)) return;
 
-            var damageInfo = new DamageInfo(Enemy, player, Enemy.CurrentDamage,
-                Enemy.Position, hit.point);
-            player.TakeDamage(damageInfo);
+            var info = DamageInfoBuilder.EnemyOnPlayer(Enemy);
+            player.TakeDamage(info);
         }
     }
 }

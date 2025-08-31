@@ -11,9 +11,8 @@ namespace GameEffects.Statuses {
         public override void OnStatusApply(DamageableBehaviour _) => _currentStack = 1;
 
         public override void EachBeatAction(DamageableBehaviour attachedTo) {
-            var damageInfo = new DamageInfo(null, new IDamageable[] { attachedTo },
-                _damagePerStack * _currentStack, Vector3.zero, attachedTo.Position);
-            attachedTo.TakeDamage(damageInfo);
+            var info = DamageInfoBuilder.SourceLess(attachedTo, _damagePerStack * _currentStack);
+            attachedTo.TakeDamage(info);
         }
 
         public override void OnRepeatedApply(DamageableBehaviour _) => _currentStack++;
