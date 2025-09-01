@@ -26,8 +26,9 @@ namespace Enemy.Types.SkeletonMage.States {
             _currentIdleTime += Time.deltaTime;
 
             if (_currentIdleTime >= _idleTime) {
-                if (Enemy.HasLineOfSightWithPlayer()) AttachedStateMachine.ChangeState(OutStates[0]); // Attack state
-                else AttachedStateMachine.ChangeState(OutStates[1]); // Teleport elsewhere
+                AttachedStateMachine.ChangeState(Enemy.HasLineOfSightWithPlayer()
+                    ? OutStates[0] // Teleport elsewhere
+                    : OutStates[1]); // Attack state
             }
         }
     }

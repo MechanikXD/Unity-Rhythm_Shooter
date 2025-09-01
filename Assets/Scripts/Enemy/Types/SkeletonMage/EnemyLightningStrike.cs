@@ -14,6 +14,7 @@ namespace Enemy.Types.SkeletonMage {
         public void Launch(EnemyBase owner) {
             _attackCollider.SetOwner(owner);
             var newParticle = Instantiate(_particle, transform.position, Quaternion.identity);
+            newParticle.transform.SetParent(transform, true);
             newParticle.Play();
             _attackCollider.ActivateCollider();
             

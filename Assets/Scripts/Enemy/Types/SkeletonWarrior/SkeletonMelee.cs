@@ -34,6 +34,8 @@ namespace Enemy.Types.SkeletonWarrior {
         }
 
         protected void Start() {
+            UpdatePlayerReference();
+            
             _stepBackState = new StepBack(EnemyStateMachine, this, null, _moveSpeed, WalkAnimationKey);
             
             _attackState = new AttackState(EnemyStateMachine, this,

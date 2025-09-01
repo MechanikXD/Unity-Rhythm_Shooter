@@ -1,7 +1,6 @@
 ﻿using Core.Game;
 using Enemy.AgentRotation;
 using Interactable.Damageable;
-using Player;
 using UnityEngine;
 using UnityEngine.AI;
 using StateMachine = Core.Behaviour.FiniteStateMachine.StateMachine;
@@ -27,6 +26,7 @@ namespace Enemy.Base {
         [SerializeField] private Vector3 _colliderSize;
         public Vector3 ColliderSize => _colliderSize;
         protected bool IsTarget;
+        [SerializeField] private LayerMask _obstacleLayerMask;
         public void SetIsTarget() => IsTarget = true;
 
         protected virtual void Update() => EnemyStateMachine.CurrentState.FrameUpdate();
@@ -39,9 +39,12 @@ namespace Enemy.Base {
 
         protected override void Awake() {
             base.Awake();
-            _playerTransform = GameManager.Instance.Player.transform;
             EnemyStateMachine = new StateMachine();
             Agent = GetComponent<NavMeshAgent>();
+        }
+
+        public void UpdatePlayerReference() {
+            _playerTransform = GameManager.Instance.Player.transform;
         }
 
         public bool AgentAtDestination() => Agent.pathStatus == NavMeshPathStatus.PathComplete;
@@ -49,15 +52,29 @@ namespace Enemy.Base {
         public bool NearPoint(Vector3 point, float proximity) =>
             Vector3.Distance(Position, point) < proximity;
         
+        
         public bool HasLineOfSightWithPlayer() {
             var playerPosition = PlayerTransform.position;
             var distance = Vector3.Distance(Position, playerPosition);
-            // RayCast from eye level
+    
             var eyeLevel = Position + Vector3.up * 1.5f;
             var targetEyeLevel = playerPosition + Vector3.up * 1.5f;
-            
-            return Physics.Raycast(eyeLevel, (targetEyeLevel - eyeLevel).normalized, out var hit,
-                distance) && hit.transform.gameObject.TryGetComponent<PlayerController>(out _);
+            var direction = (targetEyeLevel - eyeLevel).normalized;
+    
+            // Check if any obstacles are in the way
+            return !Physics.Raycast(eyeLevel, direction, distance, _obstacleLayerMask);
+        }
+        
+        public bool HasLineOfSightWithPlayer(Vector3 position) {
+            var playerPosition = PlayerTransform.position;
+            var distance = Vector3.Distance(position, playerPosition);
+    
+            var eyeLevel = position + Vector3.up * 1.5f;
+            var targetEyeLevel = playerPosition + Vector3.up * 1.5f;
+            var direction = (targetEyeLevel - eyeLevel).normalized;
+    
+            // Check if any obstacles are in the way
+            return !Physics.Raycast(eyeLevel, direction, distance, _obstacleLayerMask);
         }
     }
 }

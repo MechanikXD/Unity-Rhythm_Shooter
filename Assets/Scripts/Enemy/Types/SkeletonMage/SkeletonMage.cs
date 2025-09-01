@@ -11,7 +11,7 @@ namespace Enemy.Types.SkeletonMage {
 
         [SerializeField] private EnemyLightningStrike _enemyAttack;
         
-        private const string IdleAnimationKey = "Skele Idle";
+        private const string IdleAnimationKey = "Mage Idle";
         private const string DeathAnimationKey = "Skely Death";
 
         [SerializeField] private AnimationClip _teleportAnimationStartKey;
@@ -29,6 +29,8 @@ namespace Enemy.Types.SkeletonMage {
         }
 
         protected void Start() {
+            UpdatePlayerReference();
+            
             _teleportState = new TeleportState(EnemyStateMachine, this,
                 new EnemyState[] { _idleState }, _teleportAnimationStartKey,
                 _teleportAnimationEndKey);
