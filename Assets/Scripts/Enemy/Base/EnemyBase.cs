@@ -11,6 +11,8 @@ namespace Enemy.Base {
         protected StateMachine EnemyStateMachine;
         private Transform _playerTransform;
         public Transform PlayerTransform => _playerTransform;
+        public Vector3 PlayerDirection =>
+            (_playerTransform.position - transform.position).normalized;
         
         public NavMeshAgent Agent { private set; get; }
         [SerializeField] private AgentRotationController _rotationController;

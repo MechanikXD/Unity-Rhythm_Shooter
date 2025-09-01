@@ -13,9 +13,10 @@ namespace Enemy.Types.SkeletonArcher {
 
         private float _currentLiveTime;
         
-        public void Launch(EnemyBase owner) {
-            _owner = owner; 
-            _body.AddForce(transform.forward * _launchSpeed, ForceMode.Impulse);
+        public void Launch(EnemyBase owner, Vector3 direction) {
+            _owner = owner;
+            _body.useGravity = true;
+            _body.AddForce(direction * _launchSpeed, ForceMode.Impulse);
         }
 
         private void Awake() => Initialize();
@@ -29,6 +30,7 @@ namespace Enemy.Types.SkeletonArcher {
         
         private void Initialize() {
             _body = GetComponent<Rigidbody>();
+            _body.useGravity = false;
         }
         
         private void UpdateTimeToLive() {
@@ -37,7 +39,9 @@ namespace Enemy.Types.SkeletonArcher {
         }
 
         private void RotateInMotionDirection() {
-            transform.forward = _body.linearVelocity.normalized;
+            var motionDirection = _body.linearVelocity.normalized;
+            if (motionDirection != Vector3.zero)
+                transform.forward = _body.linearVelocity.normalized;
         }
 
         private void DamageIfPlayer(Collision other) {

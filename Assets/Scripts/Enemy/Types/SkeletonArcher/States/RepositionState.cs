@@ -1,42 +1,41 @@
-﻿using System.Collections;
-using Core.Behaviour.FiniteStateMachine;
+﻿using Core.Behaviour.FiniteStateMachine;
 using Enemy.Base;
 using Enemy.States.Base;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Enemy.Types.SkeletonMage.States {
-    public class TeleportState : EnemyState {
-        private readonly AnimationClip _animationEnter;
-        private readonly AnimationClip _animationExit;
+namespace Enemy.Types.SkeletonArcher.States {
+    public class RepositionState : EnemyState {
+        private readonly string _runAnimationKey;
+        private readonly float _moveSpeed; 
+        private Vector3 _targetPosition;
 
-        public TeleportState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            AnimationClip animationEnter, AnimationClip animationExit)
+        public RepositionState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
+            string runAnimationKey, float moveSpeed)
             : base(stateMachine, enemy, outStates) {
-            _animationEnter = animationEnter;
-            _animationExit = animationExit;
+            _moveSpeed = moveSpeed;
+            _runAnimationKey = runAnimationKey;
         }
-
+        
         public override void EnterState() {
-            var newPosition = FindRandomVisiblePosition(3f, 15f);
+            Enemy.Agent.speed = _moveSpeed;
+            Enemy.Rotation.SetDefaultMode();
+            
+            var newPosition = FindRandomVisiblePosition(5f, 20f);
             if (newPosition == Vector3.zero) {
                 AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
                 return;
             }
             
-            Enemy.PlayAnimation(_animationEnter.name);
+            Enemy.PlayAnimation(_runAnimationKey);
+            _targetPosition = newPosition;
+            Enemy.Agent.SetDestination(_targetPosition);
+        }
 
-            IEnumerator AfterAnimationFinished() {
-                yield return new WaitForSeconds(_animationEnter.length);
-                Enemy.Agent.Warp(newPosition);
-                Enemy.PlayAnimation(_animationExit.name);
-                Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
-                
-                yield return new WaitForSeconds(_animationExit.length);
-                AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
+        public override void FrameUpdate() {
+            if (Enemy.NearPoint(_targetPosition, 1f)) {
+                AttachedStateMachine.ChangeState(OutStates[0]); // IdleState
             }
-
-            Enemy.StartCoroutine(AfterAnimationFinished());
         }
 
         private Vector3 FindRandomVisiblePosition(float minDistance, float maxDistance, 
@@ -52,7 +51,8 @@ namespace Enemy.Types.SkeletonMage.States {
                     Vector3 testPosition = Enemy.PlayerTransform.position + direction * distance;
 
                     if (NavMesh.SamplePosition(testPosition, out var navHit, 3f, NavMesh.AllAreas)) {
-                        if (Enemy.HasLineOfSightWithPlayer(navHit.position))
+                        if (navHit.position != Enemy.Position &&
+                            Enemy.HasLineOfSightWithPlayer(navHit.position))
                             return navHit.position;
                     }
                 }
