@@ -9,12 +9,11 @@ namespace Enemy.Types.SkeletonMage {
 
         private void Awake() {
             _attackCollider.DeactivateCollider();
-            Launch(null, transform.position);
         }
 
-        public void Launch(EnemyBase owner, Vector3 targetPosition) {
+        public void Launch(EnemyBase owner) {
             _attackCollider.SetOwner(owner);
-            var newParticle = Instantiate(_particle, targetPosition, Quaternion.identity);
+            var newParticle = Instantiate(_particle, transform.position, Quaternion.identity);
             newParticle.Play();
             _attackCollider.ActivateCollider();
             

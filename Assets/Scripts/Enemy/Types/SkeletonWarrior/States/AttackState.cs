@@ -55,7 +55,9 @@ namespace Enemy.Types.SkeletonWarrior.States {
                 Enemy.PlayAnimation(animations[4].name);
                 _moveSpeed = ExitAnimationBackMovement / animations[4].length;
                 _destination -= Enemy.Forward * ExitAnimationBackMovement;
-                Enemy.StartCoroutine(ForceExitStateAfter(animations[4].length, 0));
+
+                var state = (int)(Random.value + 0.5f); // idle ot step back
+                Enemy.StartCoroutine(ForceExitStateAfter(animations[4].length, state));
             });
 
             _comboSequence = sequenceBuilder.ToSequence();
@@ -70,14 +72,8 @@ namespace Enemy.Types.SkeletonWarrior.States {
         public override void EnterState() {
             _destination = Enemy.Position;
             PlayOrRestartSequence();
-            Enemy.Agent.updateRotation = false;
+            Enemy.Rotation.SetLocalDirection(Enemy.Forward);
             Enemy.PlayAnimation(_windUpAnimationKey);
-        }
-
-        public override void ExitState() {
-            Enemy.Agent.updateRotation = true;
-            // Slight move forward to prevent rotation
-            Enemy.Agent.SetDestination(Enemy.Position + Enemy.Forward * 0.01f);
         }
 
         private void PlayOrRestartSequence() {

@@ -1,5 +1,4 @@
-﻿using System;
-using Core.Behaviour.FiniteStateMachine;
+﻿using Core.Behaviour.FiniteStateMachine;
 using Enemy.Base;
 
 namespace Enemy.States.Base {
@@ -10,6 +9,11 @@ namespace Enemy.States.Base {
         protected EnemyState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates) : base(stateMachine) {
             Enemy = enemy;
             OutStates = outStates;
+        }
+
+        protected EnemyState(StateMachine stateMachine, EnemyBase enemy, EnemyState outState) : base(stateMachine) {
+            Enemy = enemy;
+            OutStates = new EnemyState[] { outState };
         }
 
         public virtual void SetMoveSpeed(float value) {}
