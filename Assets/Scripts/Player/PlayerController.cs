@@ -103,9 +103,6 @@ namespace Player {
             DashKey = _playerInput.actions["Dash"];
         }
 
-        protected override void EnterParriedState() { }
-        protected override void UpdateMoveSpeedOnCharacter() { }
-
         public override void Die() {
             throw new System.NotImplementedException();
         }

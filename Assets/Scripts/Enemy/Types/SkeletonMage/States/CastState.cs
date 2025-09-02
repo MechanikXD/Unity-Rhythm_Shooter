@@ -1,11 +1,8 @@
-﻿using System.Collections;
-using Core.Behaviour.FiniteStateMachine;
-using Core.Game;
+﻿using Core.Game;
 using Core.Music;
 using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
 using Enemy.Base;
-using Enemy.States.Base;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonMage.States {
@@ -19,9 +16,9 @@ namespace Enemy.Types.SkeletonMage.States {
         private readonly ActionSequence _attackSequence;
         private readonly LayerMask _playerMask;
 
-        public CastState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            EnemyLightningStrike enemyAttack, string stateEnterKey, string stateLoopKey, AnimationClip stateExit)
-            : base(stateMachine, enemy, outStates) {
+        public CastState(EnemyBase enemy, EnemyLightningStrike enemyAttack,
+            string stateEnterKey, string stateLoopKey, AnimationClip stateExit)
+            : base(enemy) {
             _enemyAttack = enemyAttack;
             _player = GameManager.Instance.Player.transform;
 
@@ -42,17 +39,11 @@ namespace Enemy.Types.SkeletonMage.States {
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayAnimation(stateExit.name);
-                Enemy.StartCoroutine(ForceExitStateAfter(stateExit.length, 0));
+                Enemy.StartCoroutine(ForceExitStateAfter(stateExit.length, typeof(TeleportState)));
             });
 
             _attackSequence = sequenceBuilder.ToSequence();
         }
-        
-        private IEnumerator ForceExitStateAfter(float delay, int stateIndex) {
-            yield return new WaitForSeconds(delay);
-            AttachedStateMachine.ChangeState(OutStates[stateIndex]);
-        }
-
 
         public override void EnterState() {
             PlayOrRestartSequence();

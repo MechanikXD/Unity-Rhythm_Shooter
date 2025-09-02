@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using Core.Behaviour.FiniteStateMachine;
+﻿using System.Collections.Generic;
 using Core.Music;
 using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
 using Enemy.Base;
-using Enemy.States.Base;
 using Interactable.Damageable;
 using Player;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Enemy.Types.SkeletonWarrior.States {
     public class AttackState : EnemyState {
@@ -22,9 +21,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
         private const float ExitAnimationBackMovement = 0.6601f;
         private const float AttackDistance = 1.5f;
         
-        public AttackState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            AnimationClip[] animations)
-            : base(stateMachine, enemy, outStates) {
+        public AttackState(EnemyBase enemy, IReadOnlyList<AnimationClip> animations) : base(enemy) {
             _windUpAnimationKey = animations[0].name;
             var comboAnimation = new[] { animations[1], animations[2], animations[3] };
             
@@ -37,42 +34,37 @@ namespace Enemy.Types.SkeletonWarrior.States {
                 Enemy.PlayAnimation(comboAnimation[0].name);
                 _moveSpeed = _forwardMovement[0] / crotchet;
                 _destination += Enemy.Forward * _forwardMovement[0];
-                AttackForward();
+                AttackPlayer();
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayAnimation(comboAnimation[1].name);
                 _moveSpeed = _forwardMovement[1] / crotchet;
                 _destination += Enemy.Forward * _forwardMovement[1];
-                AttackForward();
+                AttackPlayer();
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayAnimation(comboAnimation[2].name);
                 _moveSpeed = _forwardMovement[2] / crotchet;
                 _destination += Enemy.Forward * _forwardMovement[2];
-                AttackForward();
+                AttackPlayer();
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayAnimation(animations[4].name);
                 _moveSpeed = ExitAnimationBackMovement / animations[4].length;
                 _destination -= Enemy.Forward * ExitAnimationBackMovement;
-
-                var state = (int)(Random.value + 0.5f); // idle ot step back
-                Enemy.StartCoroutine(ForceExitStateAfter(animations[4].length, state));
+                
+                // Random 50/50 between idle and retreat
+                var outState = Random.value <= 0.5f ? typeof(WarriorIdle) : typeof(Retreat);
+                Enemy.StartCoroutine(ForceExitStateAfter(animations[4].length, outState));
             });
 
             _comboSequence = sequenceBuilder.ToSequence();
         }
 
-        private IEnumerator ForceExitStateAfter(float delay, int stateIndex) {
-            yield return new WaitForSeconds(delay);
-            AttachedStateMachine.ChangeState(OutStates[stateIndex]);
-        }
-
-
         public override void EnterState() {
             _destination = Enemy.Position;
             PlayOrRestartSequence();
-            Enemy.Rotation.SetLocalDirection(Enemy.Forward);
+            Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
             Enemy.PlayAnimation(_windUpAnimationKey);
         }
 
@@ -82,16 +74,13 @@ namespace Enemy.Types.SkeletonWarrior.States {
         }
 
         public override void FrameUpdate() {
-            if (AtDestination()) return;
+            if (Enemy.NearPoint(_destination, 0.5f)) return;
 
             Enemy.transform.position = Vector3.MoveTowards(Enemy.Position, _destination,
                 _moveSpeed * Time.deltaTime);
         }
 
-        private bool AtDestination() => 
-            Vector3.Distance(Enemy.Position, _destination) < 0.5f;
-
-        private void AttackForward() {
+        private void AttackPlayer() {
             if (!Physics.Raycast(Enemy.Position, Vector3.forward, out var hit, AttackDistance,
                     _playerMask)) return;
 

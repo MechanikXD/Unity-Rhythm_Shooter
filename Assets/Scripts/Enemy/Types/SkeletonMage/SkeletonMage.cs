@@ -1,14 +1,9 @@
 ﻿using Enemy.Base;
-using Enemy.States.Base;
 using Enemy.Types.SkeletonMage.States;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonMage {
     public class SkeletonMage : EnemyBase {
-        private MageIdleState _idleState;
-        private TeleportState _teleportState;
-        private CastState _castState;
-
         [SerializeField] private EnemyLightningStrike _enemyAttack;
         
         private const string IdleAnimationKey = "Mage Idle";
@@ -20,31 +15,23 @@ namespace Enemy.Types.SkeletonMage {
         [SerializeField] private AnimationClip _attackStateEnter;
         [SerializeField] private AnimationClip _attackStateLoop;
         [SerializeField] private AnimationClip _attackStateExit;
-        
-        protected override void Awake() {
-            base.Awake();
-            
-            _idleState = new MageIdleState(EnemyStateMachine, this, null, 2, IdleAnimationKey);
-            EnemyStateMachine.Initialize(_idleState);
-        }
 
-        protected void Start() {
-            UpdatePlayerReference();
-            
-            _teleportState = new TeleportState(EnemyStateMachine, this,
-                new EnemyState[] { _idleState }, _teleportAnimationStartKey,
+        protected override EnemyState[] InitializeStates() {
+            var idleState = new MageIdleState(this, 2, IdleAnimationKey);
+            var teleportState = new TeleportState(this, _teleportAnimationStartKey,
                 _teleportAnimationEndKey);
+            var castState =
+                new CastState(this, _enemyAttack, _attackStateEnter.name, 
+                    _attackStateLoop.name, _attackStateExit);
 
-            _castState =
-                new CastState(EnemyStateMachine, this, new EnemyState[] { _teleportState },
-                    _enemyAttack, _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
-            
-            _idleState.SetOutStates(new EnemyState[] { _castState, _teleportState });
+            return new EnemyState[] {
+                idleState,
+                teleportState,
+                castState
+            };
         }
-        
-        protected override void EnterParriedState() { }
 
-        protected override void UpdateMoveSpeedOnCharacter() { }
+        protected override void UpdateAnimationSpeed() { }
 
         public override void Die() {
             _animator.CrossFade(DeathAnimationKey, _crossFade, -1, 0f);

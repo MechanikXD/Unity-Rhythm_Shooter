@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using Core.Behaviour.FiniteStateMachine;
 using Enemy.Base;
-using Enemy.States.Base;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,9 +8,8 @@ namespace Enemy.Types.SkeletonMage.States {
         private readonly AnimationClip _animationEnter;
         private readonly AnimationClip _animationExit;
 
-        public TeleportState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            AnimationClip animationEnter, AnimationClip animationExit)
-            : base(stateMachine, enemy, outStates) {
+        public TeleportState(EnemyBase enemy, AnimationClip animationEnter, 
+            AnimationClip animationExit) : base(enemy) {
             _animationEnter = animationEnter;
             _animationExit = animationExit;
         }
@@ -20,7 +17,7 @@ namespace Enemy.Types.SkeletonMage.States {
         public override void EnterState() {
             var newPosition = FindRandomVisiblePosition(3f, 15f);
             if (newPosition == Vector3.zero) {
-                AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
+                ChangeState<MageIdleState>();
                 return;
             }
             
@@ -33,7 +30,7 @@ namespace Enemy.Types.SkeletonMage.States {
                 Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
                 
                 yield return new WaitForSeconds(_animationExit.length);
-                AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
+                ChangeState<MageIdleState>();
             }
 
             Enemy.StartCoroutine(AfterAnimationFinished());

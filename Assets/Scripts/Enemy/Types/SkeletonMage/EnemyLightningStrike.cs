@@ -8,7 +8,7 @@ namespace Enemy.Types.SkeletonMage {
         [SerializeField] private EnemyAttackCollider _attackCollider;
 
         private void Awake() {
-            _attackCollider.DeactivateCollider();
+            _attackCollider.Disable();
         }
 
         public void Launch(EnemyBase owner) {
@@ -16,11 +16,11 @@ namespace Enemy.Types.SkeletonMage {
             var newParticle = Instantiate(_particle, transform.position, Quaternion.identity);
             newParticle.transform.SetParent(transform, true);
             newParticle.Play();
-            _attackCollider.ActivateCollider();
+            _attackCollider.Enable();
             
             Destroy(gameObject, _particle.main.duration);
         }
 
-        private void OnDestroy() => _attackCollider.DeactivateCollider();
+        private void OnDestroy() => _attackCollider.Disable();
     }
 }

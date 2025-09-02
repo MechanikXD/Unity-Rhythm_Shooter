@@ -1,4 +1,6 @@
-﻿using Core.Game;
+﻿using System;
+using System.Collections.Generic;
+using Core.Game;
 using Enemy.AgentRotation;
 using Interactable.Damageable;
 using UnityEngine;
@@ -13,6 +15,10 @@ namespace Enemy.Base {
         public Transform PlayerTransform => _playerTransform;
         public Vector3 PlayerDirection =>
             (_playerTransform.position - transform.position).normalized;
+        public StateMachine StateMachine => EnemyStateMachine;
+        private Dictionary<Type, EnemyState> _enemyStates;
+        public Dictionary<Type, EnemyState> States => _enemyStates;
+        public float PlayerDistance => Vector3.Distance(_playerTransform.position, transform.position);
         
         public NavMeshAgent Agent { private set; get; }
         [SerializeField] private AgentRotationController _rotationController;
@@ -41,19 +47,47 @@ namespace Enemy.Base {
 
         protected override void Awake() {
             base.Awake();
-            EnemyStateMachine = new StateMachine();
             Agent = GetComponent<NavMeshAgent>();
         }
 
-        public void UpdatePlayerReference() {
+        protected virtual void Start() {
+            UpdatePlayerReference();
+            UpdateAnimationSpeed();
+            InitializeStateMachine();
+        }
+
+        private void InitializeStateMachine() {
+            EnemyStateMachine = new StateMachine();
+            var states = InitializeStates();
+            LoadEnemyStates(states);
+            EnemyStateMachine.Initialize(states[0]);
+        }
+        /// <summary>
+        /// A workaround to prevent NullRef by forcing EnemyBase to fully initialize state machine.
+        /// NOTE: first state in the array must be starting state!
+        /// </summary>
+        /// <returns> Array of all possible enemy states, where first is initial state </returns>
+        protected abstract EnemyState[] InitializeStates();
+
+        private void LoadEnemyStates(IEnumerable<EnemyState> states) {
+            _enemyStates = new Dictionary<Type, EnemyState>();
+
+            foreach (var state in states) {
+                if (!_enemyStates.TryAdd(state.GetType(), state)) {
+                    Debug.LogWarning(
+                        $"Enemy {gameObject.name} have 2 or more states with the same type. Latest states will not be added!");
+                }
+            }
+        }
+
+        protected abstract void UpdateAnimationSpeed();
+
+        protected void UpdatePlayerReference() {
             _playerTransform = GameManager.Instance.Player.transform;
         }
 
-        public bool AgentAtDestination() => Agent.pathStatus == NavMeshPathStatus.PathComplete;
-
         public bool NearPoint(Vector3 point, float proximity) =>
             Vector3.Distance(Position, point) < proximity;
-        
         
         public bool HasLineOfSightWithPlayer() {
             var playerPosition = PlayerTransform.position;
@@ -77,6 +111,10 @@ namespace Enemy.Base {
     
             // Check if any obstacles are in the way
             return !Physics.Raycast(eyeLevel, direction, distance, _obstacleLayerMask);
+        }
+
+        public bool IsNearPlayer(float proximity) {
+            return Vector3.Distance(Position, PlayerTransform.position) < proximity;
         }
     }
 }

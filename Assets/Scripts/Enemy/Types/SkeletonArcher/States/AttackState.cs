@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using Core.Behaviour.FiniteStateMachine;
-using Core.Music.Sequence;
+﻿using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
 using Enemy.Base;
-using Enemy.States.Base;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonArcher.States {
@@ -15,9 +12,9 @@ namespace Enemy.Types.SkeletonArcher.States {
         private readonly ActionSequence _attackSequence;
         EnemyArrow _lastCreatedArrow;
 
-        public AttackState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            Transform arrowSpawnPoint, EnemyArrow arrow, string stateStartKey, string stateLoopKey,
-            AnimationClip stateExit) : base(stateMachine, enemy, outStates) {
+        public AttackState(EnemyBase enemy, Transform arrowSpawnPoint, EnemyArrow arrow, 
+            string stateStartKey, string stateLoopKey, AnimationClip stateExit) 
+            : base(enemy) {
             
             var exitAnimation = stateExit;
             _enterAnimationKey = stateStartKey;
@@ -42,15 +39,10 @@ namespace Enemy.Types.SkeletonArcher.States {
                 if (_lastCreatedArrow != null) _lastCreatedArrow.Launch(Enemy, lockPosition);
 
                 Enemy.PlayAnimation(exitAnimation.name);
-                Enemy.StartCoroutine(ForceExitStateAfter(exitAnimation.length, 0)); // Reposition state
-            });
+                Enemy.StartCoroutine(
+                    ForceExitStateAfter(exitAnimation.length, typeof(RepositionState)));            });
 
             _attackSequence = sequenceBuilder.ToSequence();
-        }
-        
-        private IEnumerator ForceExitStateAfter(float delay, int stateIndex) {
-            yield return new WaitForSeconds(delay);
-            AttachedStateMachine.ChangeState(OutStates[stateIndex]);
         }
 
         public override void EnterState() {

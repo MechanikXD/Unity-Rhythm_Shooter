@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Core.Behaviour.FiniteStateMachine {
     /// <summary>
@@ -27,7 +28,7 @@ namespace Core.Behaviour.FiniteStateMachine {
         /// Changes state of this state machine.
         /// </summary>
         /// <param name="newState"> new state in state machine </param>
-        public void ChangeState([NotNull] State newState) {
+        public void ChangeState(State newState) {
             _currentState.ExitState();
             _currentState = newState;
             _currentState.EnterState();

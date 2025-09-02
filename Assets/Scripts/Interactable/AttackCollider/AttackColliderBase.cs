@@ -9,9 +9,11 @@ namespace Interactable.AttackCollider {
 
         public void SetOwner(DamageableBehaviour owner) => _owner = owner;
 
-        public virtual void ActivateCollider() => _attackCollider.enabled = true;
+        public virtual void Enable() => _attackCollider.enabled = true;
 
-        public virtual void DeactivateCollider() => _attackCollider.enabled = false;
+        public abstract void Reset();
+
+        public virtual void Disable() => _attackCollider.enabled = false;
 
         protected abstract void ProcessAttack(Collision other);
 

@@ -1,6 +1,4 @@
-﻿using Core.Behaviour.FiniteStateMachine;
-using Enemy.Base;
-using Enemy.States.Base;
+﻿using Enemy.Base;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -10,9 +8,8 @@ namespace Enemy.Types.SkeletonArcher.States {
         private readonly float _moveSpeed; 
         private Vector3 _targetPosition;
 
-        public RepositionState(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            string runAnimationKey, float moveSpeed)
-            : base(stateMachine, enemy, outStates) {
+        public RepositionState(EnemyBase enemy, string runAnimationKey, float moveSpeed) 
+            : base(enemy) {
             _moveSpeed = moveSpeed;
             _runAnimationKey = runAnimationKey;
         }
@@ -23,7 +20,7 @@ namespace Enemy.Types.SkeletonArcher.States {
             
             var newPosition = FindRandomVisiblePosition(5f, 20f);
             if (newPosition == Vector3.zero) {
-                AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
+                ChangeState<ArcherIdleState>();
                 return;
             }
             
@@ -33,9 +30,8 @@ namespace Enemy.Types.SkeletonArcher.States {
         }
 
         public override void FrameUpdate() {
-            if (Enemy.NearPoint(_targetPosition, 1f)) {
-                AttachedStateMachine.ChangeState(OutStates[0]); // IdleState
-            }
+            if (Enemy.NearPoint(_targetPosition, 1f)) 
+                ChangeState<ArcherIdleState>();
         }
 
         private Vector3 FindRandomVisiblePosition(float minDistance, float maxDistance, 

@@ -6,10 +6,12 @@ namespace Interactable.AttackCollider {
     public class EnemyAttackCollider : AttackColliderBase {
         private bool _hasDamagedPlayer;
 
-        public override void ActivateCollider() {
-            base.ActivateCollider();
+        public override void Enable() {
+            base.Enable();
             _hasDamagedPlayer = false;
         }
+
+        public override void Reset() => _hasDamagedPlayer = false;
 
         protected override void ProcessAttack(Collision other) {
             if (_hasDamagedPlayer ||

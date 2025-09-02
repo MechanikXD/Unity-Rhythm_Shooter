@@ -82,11 +82,11 @@ namespace Interactable.Damageable {
             _currentsStagger -= value;
             if (_currentsStagger <= 0) {
                 _currentsStagger = 0;
-                EnterParriedState();
+                // EnterParriedState();
             }
         }
 
-        protected abstract void EnterParriedState();
+        // protected abstract void EnterParriedState();
 
         public virtual void TakeDamage(DamageInfo damageInfo) {
             if (!_canTakeDamage) return;
@@ -134,8 +134,6 @@ namespace Interactable.Damageable {
             
             MoveSpeedMultiplier = newValue;
         }
-
-        protected abstract void UpdateMoveSpeedOnCharacter();
 
         public void SetDamageMultiplier(float newValue) {
             if (newValue < 0) return;

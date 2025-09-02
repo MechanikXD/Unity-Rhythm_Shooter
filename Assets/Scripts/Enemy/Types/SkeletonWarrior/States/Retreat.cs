@@ -1,18 +1,14 @@
-﻿using Core.Behaviour.FiniteStateMachine;
-using Enemy.Base;
-using Enemy.States.Base;
+﻿using Enemy.Base;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Enemy.States.Shared {
-    public class StepBack : EnemyState {
+namespace Enemy.Types.SkeletonWarrior.States {
+    public class Retreat : EnemyState {
         private readonly float _moveSpeed;
         private readonly string _animationKey;
         private Vector3 _targetPosition;
         
-        public StepBack(StateMachine stateMachine, EnemyBase enemy, EnemyState[] outStates,
-            float moveSpeed, string animationKey)
-            : base(stateMachine, enemy, outStates) {
+        public Retreat(EnemyBase enemy, float moveSpeed, string animationKey) : base(enemy) {
             _moveSpeed = moveSpeed;
             _animationKey = animationKey;
         }
@@ -25,9 +21,8 @@ namespace Enemy.States.Shared {
         }
 
         public override void FrameUpdate() {
-            if (Enemy.NearPoint(_targetPosition, 0.5f)) {
-                AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
-            }
+            if (Enemy.NearPoint(_targetPosition, 0.5f)) 
+                ChangeState<WarriorIdle>();
         }
 
         private void FleeFromPlayer() {
@@ -38,9 +33,7 @@ namespace Enemy.States.Shared {
                 Enemy.Agent.SetDestination(fleeTarget);
                 _targetPosition = fleeTarget;
             }
-            else {
-                AttachedStateMachine.ChangeState(OutStates[0]); // Idle state
-            }
+            else ChangeState<WarriorIdle>();
         }
 
         private Vector3 FindFleePosition(Vector3 preferredDirection, int attempts=10) {
