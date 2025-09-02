@@ -242,15 +242,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.3194838
+      value: -6.209465
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.2263465
+      value: -0.25000012
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 12.739681
+      value: 0.8884178
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -883,18 +883,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _body: {fileID: 1859699982127553382}
   _moveSpeed: 3
-  _maxHealth: 200
+  _maxHealth: 150
   _defaultDamageReduction: 0.3
   _damage: 20
-  _staggerThreshold: 10
-  _rotationController: {fileID: 970944497264916329}
-  _animator: {fileID: 2490551247078045231}
-  _crossFade: 0.3
-  _colliderSize: {x: 1.25, y: 3.6, z: 0.8}
   _obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 81
+  _rotationController: {fileID: 970944497264916329}
+  _animator: {fileID: 2490551247078045231}
+  _crossFade: 0.3
   _attackCollider: {fileID: 5353909512608056217}
+  _normalIdleTime: 1.5
+  _shieldingTime: 3
+  _idleAnimationKey: Paladin Idle
+  _walkAnimationKey: Paladin Walk
+  _deathAnimationKey: Skely Death
   _blockStart: {fileID: 7400000, guid: cd7b3e180e12d4c4481267552709a1fa, type: 2}
-  _attackWindUp: {fileID: 7400000, guid: 43e4ad106ed75d44d99b4220e6e773d9, type: 2}
-  _attack: {fileID: 7400000, guid: c61c07a24b37a134b94aaa18392f2ec8, type: 2}
+  _blockLoopKey: Block Loop
+  _blockExitKey: Block Exit
+  _attackWindUpAnimation: {fileID: 7400000, guid: 43e4ad106ed75d44d99b4220e6e773d9, type: 2}
+  _attackAnimation: {fileID: 7400000, guid: c61c07a24b37a134b94aaa18392f2ec8, type: 2}
+  _slamWindUpSpeedKey: SlamWindUp
+  _slamAttackSpeedKey: SlamAttack

@@ -7009,7 +7009,6 @@ MonoBehaviour:
   _maxHealth: 100
   _defaultDamageReduction: 0
   _damage: 0
-  _staggerThreshold: 0
   _controller: {fileID: 1651369401}
   _attachedCamera: {fileID: 330585546}
   _playerInput: {fileID: 1651369400}

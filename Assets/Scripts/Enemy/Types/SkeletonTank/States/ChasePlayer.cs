@@ -2,7 +2,7 @@ using Enemy.Base;
 
 namespace Enemy.Types.SkeletonTank.States {
     public class ChasePlayer : EnemyState {
-        private const float DistCorrection = 2f;  // Due to enemy size, distance should be adjusted 
+        private const float DistCorrection = 1f;  // Due to enemy size, distance should be adjusted 
         private readonly string _walkAnimationKey;
 
         public ChasePlayer(EnemyBase enemy, string animationKey) : base(enemy) {

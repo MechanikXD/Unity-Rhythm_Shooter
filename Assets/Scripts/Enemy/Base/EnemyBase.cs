@@ -29,7 +29,7 @@ namespace Enemy.Base {
         public NavMeshAgent Agent { get; private set; }
         [SerializeField] private AgentRotationController _rotationController;
         public AgentRotationController Rotation => _rotationController;
-        public const float PlayerProximity = 1.5f;  // Distance to player when considered "close"
+        public const float PlayerProximity = 2.5f;  // Distance to player when considered "close"
         
         // ---------- Animator ----------
         [SerializeField] protected Animator _animator;

@@ -22,8 +22,8 @@ namespace Enemy.Types.SkeletonMage.States {
 
             if (_currentIdleTime < _idleTime) return;
             
-            if (Enemy.HasLineOfSightWithPlayer()) ChangeState<Teleport>();
-            else ChangeState<Cast>();
+            if (Enemy.HasLineOfSightWithPlayer()) ChangeState<Cast>();
+            else ChangeState<Teleport>();
         }
     }
 }

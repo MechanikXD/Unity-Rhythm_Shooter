@@ -163,6 +163,7 @@ namespace Interactable.Damageable {
             if (newValue < 0) newValue = 0;
             
             MoveSpeedMultiplier = newValue;
+            CurrentSpeed = _moveSpeed * newValue;
         }
 
         public void UpdateCurrentSpeed() {
