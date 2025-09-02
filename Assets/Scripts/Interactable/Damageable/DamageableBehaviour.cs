@@ -4,48 +4,49 @@ using UnityEngine;
 
 namespace Interactable.Damageable {
     public abstract class DamageableBehaviour : MonoBehaviour, IDamageable {
+        [Header("Damageable Base:")]
+        // ---------- General ----------
         [SerializeField] protected Rigidbody _body;
         public Vector3 Position => transform.position;
-        [SerializeField] protected float _moveSpeed;
-        protected float MoveSpeedMultiplier = 1f;
-        public float CurrentSpeed { get; protected set; }
         
+        // ---------- Movement ----------
+        [SerializeField] protected float _moveSpeed;
+        public float MoveSpeedMultiplier { get; private set; } = 1f;
+        public float CurrentSpeed { get; private set; }
+        
+        // ---------- Health & Damage Red. ----------
         [SerializeField] protected int _maxHealth;
         private int _currentMaxHealth;
         public float HealthMultiplier { get; private set; } = 1f;
         public int HealthIncrement { get; private set; }
-        public int CurrentHealth { get; protected set; }
+        public int CurrentHealth { get; private set; }
         public int MaxHealth => _currentMaxHealth;
         
         [SerializeField] protected float _defaultDamageReduction;
-        public float CurrentDamageReduction { get; protected set; }
+        public float CurrentDamageReduction { get; private set; }
         private bool _canTakeDamage;
         
+        // [SerializeField] protected int _staggerThreshold;
+        // private int _currentsStagger;
+        
+        // ---------- Damage & Statuses ----------
         [SerializeField] protected int _damage;
-        public int CurrentDamage { get; protected set; }
+        public int CurrentDamage { get; private set; }
         public float DamageMultiplier { get; private set; } = 1f;
         public int DamageIncrement { get; private set; }
         public Dictionary<StatusEffect, StatusBase> CurrentStatuses { get; private set; }
-        [SerializeField] protected int _staggerThreshold;
-        private int _currentsStagger;
 
         protected virtual void Awake() {
-            CurrentStatuses = new Dictionary<StatusEffect, StatusBase>();
-
-            _currentsStagger = _staggerThreshold;
-            CurrentHealth = _maxHealth;
-            CurrentDamage = _damage;
-            CurrentDamageReduction = _defaultDamageReduction;
-            CurrentSpeed = _moveSpeed;
-            _canTakeDamage = true;
-            
+            Initialize();
             UpdateCurrentDamage();
             UpdateMaxHealth();
         }
-
+        
         protected void OnDestroy() {
             ClearStatuses();
         }
+
+        #region Status Manipulations
 
         public virtual void ApplyStatus(StatusEffect status) {
             if (!HasStatus(status)) {
@@ -78,6 +79,10 @@ namespace Interactable.Damageable {
             CurrentStatuses.Clear();
         }
 
+        #endregion
+
+        // WIP; Will be implemented in future
+        /*
         public virtual void Parried(int value) {
             _currentsStagger -= value;
             if (_currentsStagger <= 0) {
@@ -86,7 +91,8 @@ namespace Interactable.Damageable {
             }
         }
 
-        // protected abstract void EnterParriedState();
+        protected abstract void EnterParriedState();
+        */
 
         public virtual void TakeDamage(DamageInfo damageInfo) {
             if (!_canTakeDamage) return;
@@ -108,6 +114,8 @@ namespace Interactable.Damageable {
 
         public void SetDamageReduction(float value) => CurrentDamageReduction = value;
 
+        #region Health Manipulations
+
         public void SetMaxHealth(int newValue, bool adjustCurrentHealth = true) {
             if (newValue <= 0) return;
 
@@ -121,35 +129,6 @@ namespace Interactable.Damageable {
                 var relativeHealth = oldMaxHealth != 0 ? CurrentHealth / oldMaxHealth : 1;
                 CurrentHealth = _currentMaxHealth * relativeHealth;
             }
-        }
-
-        public void SetMoveSpeed(float newValue) {
-            if (newValue < 0) newValue = 0;
-            
-            CurrentSpeed = newValue * MoveSpeedMultiplier;
-        }
-        
-        public void SetMoveSpeedMultiplier(float newValue) {
-            if (newValue < 0) newValue = 0;
-            
-            MoveSpeedMultiplier = newValue;
-        }
-
-        public void SetDamageMultiplier(float newValue) {
-            if (newValue < 0) return;
-            DamageMultiplier = newValue;
-            UpdateCurrentDamage();
-        }
-        
-        public void SetDamageIncrement(int newValue) {
-            if (newValue < 0) return;
-            DamageIncrement = newValue;
-            UpdateCurrentDamage();
-        }
-
-        public void UpdateCurrentDamage() {
-            CurrentDamage = (int)((_damage + DamageIncrement) * DamageMultiplier);
-            if (CurrentDamage <= 0) CurrentDamage = 1;
         }
         
         public void SetHealthMultiplier(float newValue) {
@@ -170,6 +149,60 @@ namespace Interactable.Damageable {
             SetMaxHealth(newValue);
         }
 
+        #endregion
+
+        #region Move Speed Manipulations
+
+        public void SetMoveSpeed(float newValue) {
+            if (newValue < 0) newValue = 0;
+            
+            CurrentSpeed = newValue * MoveSpeedMultiplier;
+        }
+        
+        public void SetMoveSpeedMultiplier(float newValue) {
+            if (newValue < 0) newValue = 0;
+            
+            MoveSpeedMultiplier = newValue;
+        }
+
+        public void UpdateCurrentSpeed() {
+            CurrentSpeed = _moveSpeed * MoveSpeedMultiplier;
+        }
+
+        #endregion
+
+        #region Damage Manipulations
+
+        public void SetDamageMultiplier(float newValue) {
+            if (newValue < 0) return;
+            DamageMultiplier = newValue;
+            UpdateCurrentDamage();
+        }
+        
+        public void SetDamageIncrement(int newValue) {
+            if (newValue < 0) return;
+            DamageIncrement = newValue;
+            UpdateCurrentDamage();
+        }
+
+        public void UpdateCurrentDamage() {
+            CurrentDamage = (int)((_damage + DamageIncrement) * DamageMultiplier);
+            if (CurrentDamage <= 0) CurrentDamage = 1;
+        }
+
+        #endregion
+
         public abstract void Die();
+        
+        private void Initialize() {
+            CurrentStatuses = new Dictionary<StatusEffect, StatusBase>();
+
+            // _currentsStagger = _staggerThreshold;
+            CurrentHealth = _maxHealth;
+            CurrentDamage = _damage;
+            CurrentDamageReduction = _defaultDamageReduction;
+            CurrentSpeed = _moveSpeed;
+            _canTakeDamage = true;
+        }
     }
 }

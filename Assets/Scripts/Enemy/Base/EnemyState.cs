@@ -1,18 +1,14 @@
 ﻿using System;
 using System.Collections;
 using Core.Behaviour.FiniteStateMachine;
-using Enemy.Base;
 using UnityEngine;
 
-namespace Enemy {
+namespace Enemy.Base {
     public abstract class EnemyState : State {
-        // TODO: Manipulate speed via multipliers, not direct sets
         protected readonly EnemyBase Enemy;
 
-        protected EnemyState(EnemyBase enemy) : base(enemy.StateMachine) {
-            Enemy = enemy;
-        }
-        
+        protected EnemyState(EnemyBase enemy) : base(enemy.StateMachine) => Enemy = enemy;
+
         protected IEnumerator ForceExitStateAfter(float delay, Type state) {
             yield return new WaitForSeconds(delay);
             AttachedStateMachine.ChangeState(Enemy.States[state]);

@@ -15,8 +15,8 @@ namespace Enemy.Types.SkeletonWarrior.States {
         }
 
         public override void FixedUpdate() {
-            if (Enemy.NearPoint(Enemy.PlayerTransform.position, EnemyBase.PlayerProximity)) {
-                AttachedStateMachine.ChangeState(Enemy.States[typeof(AttackState)]);
+            if (Enemy.IsNearPlayer(EnemyBase.PlayerProximity)) {
+                ChangeState<Attack>();
             }
             else {
                 Enemy.Agent.SetDestination(Enemy.PlayerTransform.position);

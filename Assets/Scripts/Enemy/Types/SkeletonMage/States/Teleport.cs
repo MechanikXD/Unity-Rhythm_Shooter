@@ -4,20 +4,22 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonMage.States {
-    public class TeleportState : EnemyState {
+    public class Teleport : EnemyState {
         private readonly AnimationClip _animationEnter;
         private readonly AnimationClip _animationExit;
+        private readonly Vector2 _positionBounds;
 
-        public TeleportState(EnemyBase enemy, AnimationClip animationEnter, 
+        public Teleport(EnemyBase enemy, Vector2 positionBounds, AnimationClip animationEnter, 
             AnimationClip animationExit) : base(enemy) {
             _animationEnter = animationEnter;
             _animationExit = animationExit;
+            _positionBounds = positionBounds;
         }
 
         public override void EnterState() {
-            var newPosition = FindRandomVisiblePosition(3f, 15f);
+            var newPosition = FindRandomVisiblePosition(_positionBounds.x, _positionBounds.y);
             if (newPosition == Vector3.zero) {
-                ChangeState<MageIdleState>();
+                ChangeState<Idle>();
                 return;
             }
             
@@ -30,12 +32,15 @@ namespace Enemy.Types.SkeletonMage.States {
                 Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
                 
                 yield return new WaitForSeconds(_animationExit.length);
-                ChangeState<MageIdleState>();
+                ChangeState<Idle>();
             }
 
             Enemy.StartCoroutine(AfterAnimationFinished());
         }
 
+        /// <summary>
+        /// Finds position at least minDist from player and at most maxDist away where player is visible
+        /// </summary>
         private Vector3 FindRandomVisiblePosition(float minDistance, float maxDistance, 
             int attempts = 16, int distanceSteps = 4) {
             

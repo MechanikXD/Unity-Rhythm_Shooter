@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Core.Level.Room.Enemy;
-using Enemy;
 using Enemy.Base;
 using Interactable.Damageable;
 using UnityEngine;
@@ -29,10 +28,7 @@ namespace Core.Level.Room {
         private int _currentEnemyCount;
         private Queue<EnemyBase> _enemyToSpawn;
         [SerializeField] private RoomEnterTrigger[] _roomEnterTriggers;
-        [SerializeField] private int _prefabId;
         private Dictionary<int, DamageableBehaviour> _activeEnemies;
-        public int PrefabId => _prefabId;   // Identifies this room, shared with other same rooms
-        public int RoomId { get; private set; } // Identifies this room in level
         public bool IsBossBattle => _isBossBattle;
         
         public List<Transform> ExitPositions => _exits;
@@ -117,8 +113,6 @@ namespace Core.Level.Room {
                 break;
             }
         }
-        /// <summary> Set id of this room (level based) </summary>
-        public void SetID(int newId) => RoomId = newId;
 
         private bool TrySpawnNextEnemy() {
             var nextEnemy = _enemyInfo.GetNextEnemy();
@@ -206,18 +200,18 @@ namespace Core.Level.Room {
 
             void SpawnNextEnemy(EnemyDefeatedInfo _) => TrySpawnNextEnemy();
             
-            EnemyEvents.EnemyDefeated += DecreaseEnemyCount;
-            EnemyEvents.TargetDefeated += _enemyInfo.TargetDefeated;
+            EnemyBase.EnemyDefeated += DecreaseEnemyCount;
+            EnemyBase.TargetDefeated += _enemyInfo.TargetDefeated;
             
-            if (_enemyInfo.IsBountyBased) EnemyEvents.NormalDefeated += SpawnNextEnemy;
-            else EnemyEvents.EnemyDefeated += SpawnNextEnemy;
+            if (_enemyInfo.IsBountyBased) EnemyBase.NormalDefeated += SpawnNextEnemy;
+            else EnemyBase.EnemyDefeated += SpawnNextEnemy;
             
             void Unsubscribe() {
-                EnemyEvents.EnemyDefeated -= DecreaseEnemyCount;
-                EnemyEvents.TargetDefeated -= _enemyInfo.TargetDefeated;
+                EnemyBase.EnemyDefeated -= DecreaseEnemyCount;
+                EnemyBase.TargetDefeated -= _enemyInfo.TargetDefeated;
                 
-                if (_enemyInfo.IsBountyBased) EnemyEvents.NormalDefeated -= SpawnNextEnemy;
-                else EnemyEvents.EnemyDefeated -= SpawnNextEnemy;
+                if (_enemyInfo.IsBountyBased) EnemyBase.NormalDefeated -= SpawnNextEnemy;
+                else EnemyBase.EnemyDefeated -= SpawnNextEnemy;
 
                 foreach (var blocker in _exitBlockers) Destroy(blocker);
 

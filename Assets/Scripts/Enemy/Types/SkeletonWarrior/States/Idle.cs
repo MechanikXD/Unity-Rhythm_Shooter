@@ -2,12 +2,12 @@
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonWarrior.States {
-    public class WarriorIdle : EnemyState {
+    public class Idle : EnemyState {
         private readonly string _idleAnimationKey;
         private readonly float _idleTime;
         private float _currentIdleTime;
 
-        public WarriorIdle(EnemyBase enemy, float idleTime, string idleAnimationKey) : base(enemy) {
+        public Idle(EnemyBase enemy, float idleTime, string idleAnimationKey) : base(enemy) {
             _idleTime = idleTime;
             _idleAnimationKey = idleAnimationKey;
         }
@@ -22,7 +22,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
 
             if (_currentIdleTime < _idleTime) return;
 
-            if (Enemy.IsNearPlayer(1.5f)) ChangeState<AttackState>();
+            if (Enemy.IsNearPlayer(EnemyBase.PlayerProximity)) ChangeState<Attack>();
             else ChangeState<ChasePlayer>();
         }
     }

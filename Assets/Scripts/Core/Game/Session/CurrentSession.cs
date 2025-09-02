@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Enemy;
+using Enemy.Base;
 using Player;
 using Player.Statistics.Score;
 
@@ -27,11 +27,11 @@ namespace Core.Game.Session {
                 if (value > _currentMaxCombo) _currentMaxCombo = value;
             }
 
-            EnemyEvents.EnemyDefeated += IncreaseEnemiesDefeatedCount;
+            EnemyBase.EnemyDefeated += IncreaseEnemiesDefeatedCount;
             PlayerEvents.ComboCountChanged += RecordMaxCombo;
 
             _unsubscribeFromEvents = () => {
-                EnemyEvents.EnemyDefeated -= IncreaseEnemiesDefeatedCount;
+                EnemyBase.EnemyDefeated -= IncreaseEnemiesDefeatedCount;
                 PlayerEvents.ComboCountChanged -= RecordMaxCombo;
             };
         }

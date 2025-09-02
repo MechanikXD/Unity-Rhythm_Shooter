@@ -2,12 +2,12 @@
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonTank.States {
-    public class TankIdle : EnemyState {
+    public class Idle : EnemyState {
         private readonly float _idleTime;
         private readonly string _animationKey;
         private float _currentIdleTime;
         
-        public TankIdle(EnemyBase enemy, float idleTime, string animationKey) : base(enemy) {
+        public Idle(EnemyBase enemy, float idleTime, string animationKey) : base(enemy) {
             _idleTime = idleTime;
             _animationKey = animationKey;
         }
@@ -22,8 +22,8 @@ namespace Enemy.Types.SkeletonTank.States {
             
             if (_currentIdleTime < _idleTime) return;
 
-            if (Enemy.IsNearPlayer(1.5f)) ChangeState<AttackState>();
-            else ChangeState<WalkTowardPlayer>();
+            if (Enemy.IsNearPlayer(EnemyBase.PlayerProximity)) ChangeState<Attack>();
+            else ChangeState<ChasePlayer>();
         }
     }
 }

@@ -3,14 +3,14 @@ using Enemy.Base;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonTank.States {
-    public class ShieldIdle : EnemyState {
+    public class Shielding : EnemyState {
         private readonly float _idleTime;
 
         private readonly AnimationClip _start;
         private readonly string _loopKey;
         private readonly string _exitKey;
         
-        public ShieldIdle(EnemyBase enemy, float idleTime, 
+        public Shielding(EnemyBase enemy, float idleTime, 
             AnimationClip start, string loopKey, string exit) : base(enemy) {
             _idleTime = idleTime;
             _start = start;
@@ -23,6 +23,10 @@ namespace Enemy.Types.SkeletonTank.States {
             Enemy.StartCoroutine(AnimationQueue());
         }
 
+        /// <summary>
+        /// Plays enter/exit animations as well as stays in loop animation in between.
+        /// Performs everything for state itself... 
+        /// </summary>>
         private IEnumerator AnimationQueue() {
             Enemy.PlayAnimation(_start.name);
             yield return new WaitForSeconds(_start.length);
@@ -37,10 +41,10 @@ namespace Enemy.Types.SkeletonTank.States {
             yield return new WaitForSeconds(_start.length);
             
             if (Enemy.IsNearPlayer(EnemyBase.PlayerProximity + 2f)) {
-                ChangeState<AttackState>();
+                ChangeState<Attack>();
             }
             else {
-                ChangeState<WalkTowardPlayer>();
+                ChangeState<ChasePlayer>();
             }
         }
     }

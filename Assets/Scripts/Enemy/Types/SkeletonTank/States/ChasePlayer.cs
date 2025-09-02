@@ -1,17 +1,16 @@
 using Enemy.Base;
 
 namespace Enemy.Types.SkeletonTank.States {
-    public class WalkTowardPlayer : EnemyState {
+    public class ChasePlayer : EnemyState {
+        private const float DistCorrection = 2f;  // Due to enemy size, distance should be adjusted 
         private readonly string _walkAnimationKey;
-        private readonly float _moveSpeed;
 
-        public WalkTowardPlayer(EnemyBase enemy, float moveSpeed, string animationKey) : base(enemy) {
+        public ChasePlayer(EnemyBase enemy, string animationKey) : base(enemy) {
             _walkAnimationKey = animationKey;
-            _moveSpeed = moveSpeed;
         }
         
         public override void EnterState() {
-            Enemy.Agent.speed = _moveSpeed;
+            Enemy.Agent.speed = Enemy.CurrentSpeed;
             Enemy.Rotation.SetDefaultMode();
             Enemy.PlayAnimation(_walkAnimationKey);
         }
@@ -21,9 +20,8 @@ namespace Enemy.Types.SkeletonTank.States {
         }
 
         public override void FixedUpdate() {
-            var distanceToPlayer = Enemy.PlayerDistance;
-            
-            if (distanceToPlayer < EnemyBase.PlayerProximity + 1f) ChangeState<AttackState>();
+            if (Enemy.DistanceToPlayer < EnemyBase.PlayerProximity + DistCorrection) 
+                ChangeState<Attack>();
             else Enemy.Agent.SetDestination(Enemy.PlayerTransform.position);
         }
     }

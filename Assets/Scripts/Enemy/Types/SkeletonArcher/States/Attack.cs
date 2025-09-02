@@ -4,7 +4,7 @@ using Enemy.Base;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonArcher.States {
-    public class AttackState : EnemyState {
+    public class Attack : EnemyState {
         private readonly Transform _arrowSpawnPoint;
         private readonly EnemyArrow _arrow;
         
@@ -12,9 +12,9 @@ namespace Enemy.Types.SkeletonArcher.States {
         private readonly ActionSequence _attackSequence;
         EnemyArrow _lastCreatedArrow;
 
-        public AttackState(EnemyBase enemy, Transform arrowSpawnPoint, EnemyArrow arrow, 
-            string stateStartKey, string stateLoopKey, AnimationClip stateExit) 
-            : base(enemy) {
+        public Attack(EnemyBase enemy, Transform arrowSpawnPoint, EnemyArrow arrow,
+            float arrayHeightCorrection, string stateStartKey, string stateLoopKey,
+            AnimationClip stateExit) : base(enemy) {
             
             var exitAnimation = stateExit;
             _enterAnimationKey = stateStartKey;
@@ -30,8 +30,8 @@ namespace Enemy.Types.SkeletonArcher.States {
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayAnimation(stateLoopKey);
-                lockPosition = Enemy.PlayerDirection;
-                lockPosition.y -= 0.2f;
+                lockPosition = Enemy.DirectionToPlayer;
+                lockPosition.y -= arrayHeightCorrection;
 
                 // TODO: Create attack indicator
             });
@@ -40,7 +40,7 @@ namespace Enemy.Types.SkeletonArcher.States {
 
                 Enemy.PlayAnimation(exitAnimation.name);
                 Enemy.StartCoroutine(
-                    ForceExitStateAfter(exitAnimation.length, typeof(RepositionState)));            });
+                    ForceExitStateAfter(exitAnimation.length, typeof(Reposition)));            });
 
             _attackSequence = sequenceBuilder.ToSequence();
         }

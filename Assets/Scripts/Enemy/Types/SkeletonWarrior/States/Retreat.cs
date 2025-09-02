@@ -4,27 +4,41 @@ using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonWarrior.States {
     public class Retreat : EnemyState {
-        private readonly float _moveSpeed;
+        private readonly float _moveSpeedMultiplier;
         private readonly string _animationKey;
         private Vector3 _targetPosition;
+        private readonly Vector2 _fleeBounds;
         
-        public Retreat(EnemyBase enemy, float moveSpeed, string animationKey) : base(enemy) {
-            _moveSpeed = moveSpeed;
+        public Retreat(EnemyBase enemy, Vector2 fleeBounds, float moveSpeedMultiplier, 
+            string animationKey) : base(enemy) {
+            _moveSpeedMultiplier = moveSpeedMultiplier;
             _animationKey = animationKey;
+            _fleeBounds = fleeBounds;
         }
 
         public override void EnterState() {
             Enemy.PlayAnimation(_animationKey);
+            
+            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier + _moveSpeedMultiplier);
+            
             Enemy.Rotation.SetObservationPoint(Enemy.PlayerTransform);
-            Enemy.Agent.speed = _moveSpeed;
+            Enemy.SetMoveSpeedMultiplier(_moveSpeedMultiplier);
             FleeFromPlayer();
         }
 
         public override void FrameUpdate() {
-            if (Enemy.NearPoint(_targetPosition, 0.5f)) 
-                ChangeState<WarriorIdle>();
+            if (Enemy.NearPoint(_targetPosition, 0.1f)) {
+                ChangeState<Idle>();
+            }
         }
 
+        public override void ExitState() {
+            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier - _moveSpeedMultiplier);
+        }
+
+        /// <summary>
+        /// Sets destination for agent after finding flee position
+        /// </summary>
         private void FleeFromPlayer() {
             Vector3 fleeDirection = (Enemy.Position - Enemy.PlayerTransform.position).normalized;
             Vector3 fleeTarget = FindFleePosition(fleeDirection);
@@ -33,11 +47,14 @@ namespace Enemy.Types.SkeletonWarrior.States {
                 Enemy.Agent.SetDestination(fleeTarget);
                 _targetPosition = fleeTarget;
             }
-            else ChangeState<WarriorIdle>();
+            else ChangeState<Idle>();
         }
 
+        /// <summary>
+        /// Build a "circle" around player where enemy will attempt to flee and pick first point.
+        /// </summary>
         private Vector3 FindFleePosition(Vector3 preferredDirection, int attempts=10) {
-            float GetFleeDistance() => Random.Range(2f, 6f);
+            float GetFleeDistance() => Random.Range(_fleeBounds.x, _fleeBounds.y);
 
             for (var i = 0; i < attempts; i++) {
                 // Create arc of potential flee points

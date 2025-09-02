@@ -2,27 +2,26 @@
 using Core.Music.Sequence.Components;
 using Enemy.Base;
 using Interactable.AttackCollider;
-using UnityEngine;
 
 namespace Enemy.Types.SkeletonTank.States {
-    public class AttackState : EnemyState {
+    public class Attack : EnemyState {
         private readonly ActionSequence _attackSequence;
         
-        public AttackState(EnemyBase enemy, AnimationClip windUp, AnimationClip attack,
+        public Attack(EnemyBase enemy, string windUpAnimKey, string attackAnimKey,
             EnemyAttackCollider collider) : base(enemy) {
 
             var sequenceBuilder = new ActionSequenceBuilder();
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
-                Enemy.PlayAnimation(windUp.name);
+                Enemy.PlayAnimation(windUpAnimKey);
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 collider.Enable();
-                Enemy.PlayAnimation(attack.name);
+                Enemy.PlayAnimation(attackAnimKey);
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 collider.Disable();
-                ChangeState<ShieldIdle>();
+                ChangeState<Shielding>();
             });
 
             _attackSequence = sequenceBuilder.ToSequence();

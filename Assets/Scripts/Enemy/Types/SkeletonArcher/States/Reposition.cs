@@ -3,24 +3,26 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonArcher.States {
-    public class RepositionState : EnemyState {
+    public class Reposition : EnemyState {
         private readonly string _runAnimationKey;
         private readonly float _moveSpeed; 
         private Vector3 _targetPosition;
+        private readonly Vector3 _repositionBounds;
 
-        public RepositionState(EnemyBase enemy, string runAnimationKey, float moveSpeed) 
-            : base(enemy) {
+        public Reposition(EnemyBase enemy, Vector2 repositionBounds,
+            string runAnimationKey, float moveSpeed) : base(enemy) {
             _moveSpeed = moveSpeed;
             _runAnimationKey = runAnimationKey;
+            _repositionBounds = repositionBounds;
         }
         
         public override void EnterState() {
             Enemy.Agent.speed = _moveSpeed;
             Enemy.Rotation.SetDefaultMode();
             
-            var newPosition = FindRandomVisiblePosition(5f, 20f);
+            var newPosition = FindRandomVisiblePosition(_repositionBounds.x, _repositionBounds.y);
             if (newPosition == Vector3.zero) {
-                ChangeState<ArcherIdleState>();
+                ChangeState<Idle>();
                 return;
             }
             
@@ -30,10 +32,13 @@ namespace Enemy.Types.SkeletonArcher.States {
         }
 
         public override void FrameUpdate() {
-            if (Enemy.NearPoint(_targetPosition, 1f)) 
-                ChangeState<ArcherIdleState>();
+            if (Enemy.NearPoint(_targetPosition, 0.1f)) 
+                ChangeState<Idle>();
         }
-
+        
+        /// <summary>
+        /// Finds position at least minDist from player and at most maxDist away where player is visible
+        /// </summary>
         private Vector3 FindRandomVisiblePosition(float minDistance, float maxDistance, 
             int attempts = 16, int distanceSteps = 4) {
             

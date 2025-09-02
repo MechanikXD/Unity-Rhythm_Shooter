@@ -4,11 +4,17 @@ using UnityEngine;
 
 namespace Enemy.Types.SkeletonMage {
     public class SkeletonMage : EnemyBase {
+        [Header("Enemy Specific:")]
         [SerializeField] private EnemyLightningStrike _enemyAttack;
+
+        [Header("Behaviour:")]
+        [SerializeField] private Vector2 _teleportBounds = new Vector2(5f, 10f);
+        [SerializeField] private int _attackCount = 3;
         
+        [Header("Animations:")]
         private const string IdleAnimationKey = "Mage Idle";
         private const string DeathAnimationKey = "Skely Death";
-
+        
         [SerializeField] private AnimationClip _teleportAnimationStartKey;
         [SerializeField] private AnimationClip _teleportAnimationEndKey;
 
@@ -17,12 +23,11 @@ namespace Enemy.Types.SkeletonMage {
         [SerializeField] private AnimationClip _attackStateExit;
 
         protected override EnemyState[] InitializeStates() {
-            var idleState = new MageIdleState(this, 2, IdleAnimationKey);
-            var teleportState = new TeleportState(this, _teleportAnimationStartKey,
-                _teleportAnimationEndKey);
-            var castState =
-                new CastState(this, _enemyAttack, _attackStateEnter.name, 
-                    _attackStateLoop.name, _attackStateExit);
+            var idleState = new Idle(this, 2, IdleAnimationKey);
+            var teleportState = new Teleport(this, _teleportBounds,
+                _teleportAnimationStartKey, _teleportAnimationEndKey);
+            var castState = new Cast(this, _attackCount, _enemyAttack, 
+                _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
 
             return new EnemyState[] {
                 idleState,
@@ -34,12 +39,8 @@ namespace Enemy.Types.SkeletonMage {
         protected override void UpdateAnimationSpeed() { }
 
         public override void Die() {
+            base.Die();
             _animator.CrossFade(DeathAnimationKey, _crossFade, -1, 0f);
-            var info = new EnemyDefeatedInfo(this.GetType(), GetInstanceID(), Position, IsTarget);
-            
-            EnemyEvents.OnEnemyDefeated(info);
-            if (IsTarget) EnemyEvents.OnTargetDefeated(info);
-            else EnemyEvents.OnNormalDefeated(info);
             
             Destroy(gameObject, DeathAnimationKey.Length);
         }

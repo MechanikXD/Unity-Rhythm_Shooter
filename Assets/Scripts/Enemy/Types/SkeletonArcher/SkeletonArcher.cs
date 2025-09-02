@@ -2,27 +2,38 @@
 using Enemy.Base;
 using Enemy.Types.SkeletonArcher.States;
 using UnityEngine;
-using AttackState = Enemy.Types.SkeletonArcher.States.AttackState;
 
 namespace Enemy.Types.SkeletonArcher {
     public class SkeletonArcher : EnemyBase {
+        [Header("Enemy Specific:")]
         [SerializeField] private Transform _arrowSpawnPoint;
         [SerializeField] private EnemyArrow _enemyAttack;
+
+        [Header("Behaviour:")]
+        [SerializeField] private float _idleTime = 1f;
+        [SerializeField] private float _arrowHeightCorrection = 0.2f;
+        [SerializeField] private Vector2 _repositionBounds = new Vector2(7f, 20f);
         
-        private const string IdleAnimationKey = "Archer Idle";
-        private const string RunAnimationKey = "Archer Run";
-        private const string DeathAnimationKey = "Skely Death";
+        [Header("Animations:")]
+        [SerializeField] private string _idleAnimationKey = "Archer Idle";
+        [SerializeField] private string _runAnimationKey = "Archer Run";
+        [SerializeField] private string _deathAnimationKey = "Skely Death";
 
         [SerializeField] private AnimationClip _attackStateEnter;
         [SerializeField] private AnimationClip _attackStateLoop;
         [SerializeField] private AnimationClip _attackStateExit;
-        private readonly static int AttackStartSpeed = Animator.StringToHash("AttackStartSpeed");
+
+        [Header("Animator Param Keys:")]
+        [SerializeField] private string _attackStartSpeedKey = "AttackStartSpeed";
+
+        private int _attackStartSpeed;
 
         protected override EnemyState[] InitializeStates() {
-            var idleState = new ArcherIdleState(this, 1, IdleAnimationKey);
-            var repositionState = new RepositionState(this, RunAnimationKey, 5f);
+            var idleState = new Idle(this, _idleTime, _idleAnimationKey);
+            var repositionState = new Reposition(this, _repositionBounds, _runAnimationKey, 5f);
             var attackState =
-                new AttackState(this, _arrowSpawnPoint, _enemyAttack, _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
+                new Attack(this, _arrowSpawnPoint, _enemyAttack, _arrowHeightCorrection, 
+                    _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
 
             return new EnemyState[] {
                 idleState,
@@ -32,19 +43,17 @@ namespace Enemy.Types.SkeletonArcher {
         }
 
         protected override void UpdateAnimationSpeed() {
-            _animator.SetFloat(AttackStartSpeed, 
+            _attackStartSpeed = Animator.StringToHash(_attackStartSpeedKey);
+            
+            _animator.SetFloat(_attackStartSpeed, 
                 _attackStateEnter.length / Conductor.Instance.SongData.Crotchet);
         }
 
         public override void Die() {
-            _animator.CrossFade(DeathAnimationKey, _crossFade, -1, 0f);
-            var info = new EnemyDefeatedInfo(this.GetType(), GetInstanceID(), Position, IsTarget);
+            base.Die();
+            _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);
             
-            EnemyEvents.OnEnemyDefeated(info);
-            if (IsTarget) EnemyEvents.OnTargetDefeated(info);
-            else EnemyEvents.OnNormalDefeated(info);
-            
-            Destroy(gameObject, DeathAnimationKey.Length);
+            Destroy(gameObject, _deathAnimationKey.Length);
         }
     }
 }
