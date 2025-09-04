@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Core.Behaviour.SingletonBehaviour;
 using Core.Music.Songs.Scriptable_Objects;
 using UI;
 using UnityEngine;
@@ -9,8 +10,7 @@ namespace Core.Music {
     /// Class that manages music interactions.
     /// <b>Initialize</b> method mush be called to start music playing.
     /// </summary>
-    public class Conductor : MonoBehaviour {
-        public static Conductor Instance;
+    public class Conductor : SingletonBase<Conductor> {
         private bool _isInitialized;
         private bool _interactedThisBeat;
         
@@ -69,8 +69,8 @@ namespace Core.Music {
             }
         }
 
-        private void Awake() {
-            ToSingleton();
+        protected override void Awake() {
+            base.Awake();
             Initialize();
         }
 
@@ -93,14 +93,6 @@ namespace Core.Music {
             UIManager.PauseStateExited += _songSource.UnPause;
         }
 
-        private void ToSingleton() {
-            if (Instance != null) {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-        }
         /// <summary> Set that interaction was performed in current beat </summary>
         public void SetInteractedThisBeat() => _interactedThisBeat = true;
         /// <summary>
