@@ -9,11 +9,16 @@ namespace Enemy.Types.SkeletonMage.States {
         private readonly AnimationClip _animationExit;
         private readonly Vector2 _positionBounds;
 
+        private readonly AudioClip[] _enterSound;
+        private readonly AudioClip[] _exitSound;
+
         public Teleport(EnemyBase enemy, Vector2 positionBounds, AnimationClip animationEnter, 
-            AnimationClip animationExit) : base(enemy) {
+            AnimationClip animationExit, AudioClip[] enterSound, AudioClip[] exitSound) : base(enemy) {
             _animationEnter = animationEnter;
             _animationExit = animationExit;
             _positionBounds = positionBounds;
+            _enterSound = enterSound;
+            _exitSound = exitSound;
         }
 
         public override void EnterState() {
@@ -23,12 +28,14 @@ namespace Enemy.Types.SkeletonMage.States {
                 return;
             }
             
+            Enemy.PlayRandomSound(_enterSound);
             Enemy.PlayAnimation(_animationEnter.name);
 
             IEnumerator AfterAnimationFinished() {
                 yield return new WaitForSeconds(_animationEnter.length);
                 Enemy.Agent.Warp(newPosition);
                 Enemy.PlayAnimation(_animationExit.name);
+                Enemy.PlayRandomSound(_exitSound);
                 Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
                 
                 yield return new WaitForSeconds(_animationExit.length);

@@ -14,7 +14,7 @@ namespace Enemy.Types.SkeletonArcher.States {
 
         public Attack(EnemyBase enemy, Transform arrowSpawnPoint, EnemyArrow arrow,
             float arrayHeightCorrection, string stateStartKey, string stateLoopKey,
-            AnimationClip stateExit) : base(enemy) {
+            AnimationClip stateExit, AudioClip[] bowLoad, AudioClip[] bowRelease) : base(enemy) {
             
             var exitAnimation = stateExit;
             _enterAnimationKey = stateStartKey;
@@ -26,6 +26,7 @@ namespace Enemy.Types.SkeletonArcher.States {
             var sequenceBuilder = new ActionSequenceBuilder();
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
+                Enemy.PlayRandomSound(bowLoad);
                 // Wait one beat
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
@@ -36,6 +37,7 @@ namespace Enemy.Types.SkeletonArcher.States {
                 // TODO: Create attack indicator
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
+                Enemy.PlayRandomSound(bowRelease);
                 if (_lastCreatedArrow != null) _lastCreatedArrow.Launch(Enemy, lockPosition);
 
                 Enemy.PlayAnimation(exitAnimation.name);

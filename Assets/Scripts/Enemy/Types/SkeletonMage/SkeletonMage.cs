@@ -21,11 +21,16 @@ namespace Enemy.Types.SkeletonMage {
         [SerializeField] private AnimationClip _attackStateEnter;
         [SerializeField] private AnimationClip _attackStateLoop;
         [SerializeField] private AnimationClip _attackStateExit;
+        
+        [Header("Sounds:")]
+        [SerializeField] private AudioClip[] _teleportEnterSounds;
+        [SerializeField] private AudioClip[] _teleportExitSounds;
 
         protected override EnemyState[] InitializeStates() {
             var idleState = new Idle(this, 2, IdleAnimationKey);
             var teleportState = new Teleport(this, _teleportBounds,
-                _teleportAnimationStartKey, _teleportAnimationEndKey);
+                _teleportAnimationStartKey, _teleportAnimationEndKey,
+                _teleportEnterSounds, _teleportExitSounds);
             var castState = new Cast(this, _attackCount, _enemyAttack, 
                 _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
 

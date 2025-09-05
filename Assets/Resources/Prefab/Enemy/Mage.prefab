@@ -356,6 +356,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mage
       objectReference: {fileID: 0}
+    - target: {fileID: 100004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: -0.95059055
@@ -370,15 +374,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.001486
+      value: 3.119128
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.24999988
+      value: -0.25
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.874308
+      value: 9.920479
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1047,6 +1051,12 @@ MonoBehaviour:
   _rotationController: {fileID: 4046061479639060733}
   _animator: {fileID: 4771395158576136083}
   _crossFade: 0.2
+  _walkSoundDelay: {x: 0, y: 0}
+  _audioPitchChange: {x: 0.9, y: 1.1}
+  _soundDistance: 10
+  _stepSounds: []
+  _hitSounds:
+  - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
   _enemyAttack: {fileID: 6454101166561272959, guid: 69680dd2e8c98254b81240e040c0dbd3, type: 3}
   _teleportBounds: {x: 5, y: 10}
   _attackCount: 3
@@ -1055,6 +1065,11 @@ MonoBehaviour:
   _attackStateEnter: {fileID: 7400000, guid: 8eb62df1a2c514b488c650b99c54b5c1, type: 2}
   _attackStateLoop: {fileID: 7400000, guid: 55cd501225bdcb14f929a5da22560a30, type: 2}
   _attackStateExit: {fileID: 7400000, guid: faa9a6b03ea69e1499b4a5c5a8371999, type: 2}
+  _teleportEnterSounds:
+  - {fileID: 8300000, guid: 5958f202df5d77748843d3fd6e65fc94, type: 3}
+  - {fileID: 8300000, guid: 0116ab75f5bb7ca4cac6d0e47a249d19, type: 3}
+  _teleportExitSounds:
+  - {fileID: 8300000, guid: df0b707ce6f7e154aafdee329ede604f, type: 3}
 --- !u!54 &7348909050404882762
 Rigidbody:
   m_ObjectHideFlags: 0

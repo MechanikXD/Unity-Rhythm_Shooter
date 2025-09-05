@@ -242,15 +242,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.209465
+      value: 3.1250062
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.25000012
+      value: -0.25
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.8884178
+      value: 10.475316
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -892,6 +892,14 @@ MonoBehaviour:
   _rotationController: {fileID: 970944497264916329}
   _animator: {fileID: 2490551247078045231}
   _crossFade: 0.3
+  _walkSoundDelay: {x: 0.1, y: 0.2}
+  _audioPitchChange: {x: 0.8, y: 1}
+  _soundDistance: 15
+  _stepSounds:
+  - {fileID: 8300000, guid: b3691ee92dda39b428e1eb0d025f0a7c, type: 3}
+  _hitSounds:
+  - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
+  - {fileID: 8300000, guid: 1a978b2abbeed1444825817828006187, type: 3}
   _attackCollider: {fileID: 5353909512608056217}
   _normalIdleTime: 1.5
   _shieldingTime: 3
@@ -905,3 +913,5 @@ MonoBehaviour:
   _attackAnimation: {fileID: 7400000, guid: c61c07a24b37a134b94aaa18392f2ec8, type: 2}
   _slamWindUpSpeedKey: SlamWindUp
   _slamAttackSpeedKey: SlamAttack
+  _swingSounds:
+  - {fileID: 8300000, guid: 91e1fc9f6c917694491949426a424f89, type: 3}

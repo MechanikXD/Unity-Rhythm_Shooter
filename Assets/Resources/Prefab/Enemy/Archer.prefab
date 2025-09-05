@@ -65,7 +65,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -2.71
+      value: 4.8384995
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.y
@@ -73,7 +73,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10.56
+      value: 9.866435
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalRotation.w
@@ -801,19 +801,35 @@ MonoBehaviour:
   _maxHealth: 100
   _defaultDamageReduction: 0
   _damage: 7
-  _staggerThreshold: 3
-  _rotationController: {fileID: 5129774005757875138}
-  _animator: {fileID: 5875178550079579078}
-  _crossFade: 0.2
-  _colliderSize: {x: 0.75, y: 1.8, z: 0.5}
   _obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 81
+  _rotationController: {fileID: 5129774005757875138}
+  _animator: {fileID: 5875178550079579078}
+  _crossFade: 0.2
+  _walkSoundDelay: {x: 0.05, y: 0.1}
+  _audioPitchChange: {x: 1, y: 1.2}
+  _soundDistance: 13
+  _stepSounds:
+  - {fileID: 8300000, guid: 024b75fac28903943aa156ebf6b89b45, type: 3}
+  _hitSounds:
+  - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
   _arrowSpawnPoint: {fileID: 1820805327317464205}
   _enemyAttack: {fileID: 6998686555477308159, guid: 45804eb2722b83845adbcf2d72da12dd, type: 3}
+  _idleTime: 1
+  _arrowHeightCorrection: 0.2
+  _repositionBounds: {x: 7, y: 20}
+  _idleAnimationKey: Archer Idle
+  _runAnimationKey: Archer Run
+  _deathAnimationKey: Skely Death
   _attackStateEnter: {fileID: 7400000, guid: 746580a35252aa74795c911b5b6827a1, type: 2}
   _attackStateLoop: {fileID: 7400000, guid: ec1f06529680ac9498da210629cd0ec6, type: 2}
   _attackStateExit: {fileID: 7400000, guid: acbca2ae2bff9d64ca216f7ff0532de3, type: 2}
+  _arrowLoadSounds:
+  - {fileID: 8300000, guid: f9853edd424bbbb4897178ddb2738506, type: 3}
+  _arrowReleaseSounds:
+  - {fileID: 8300000, guid: ba417c0568ecec445850d513da2e9ba2, type: 3}
+  _attackStartSpeedKey: AttackStartSpeed
 --- !u!1001 &8812819048942600190
 PrefabInstance:
   m_ObjectHideFlags: 0

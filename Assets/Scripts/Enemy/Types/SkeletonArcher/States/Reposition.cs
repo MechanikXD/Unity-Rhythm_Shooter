@@ -1,23 +1,22 @@
-﻿using Enemy.Base;
+﻿using Core.Music;
+using Enemy.Base;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonArcher.States {
     public class Reposition : EnemyState {
         private readonly string _runAnimationKey;
-        private readonly float _moveSpeed; 
         private Vector3 _targetPosition;
         private readonly Vector3 _repositionBounds;
 
         public Reposition(EnemyBase enemy, Vector2 repositionBounds,
-            string runAnimationKey, float moveSpeed) : base(enemy) {
-            _moveSpeed = moveSpeed;
+            string runAnimationKey) : base(enemy) {
             _runAnimationKey = runAnimationKey;
             _repositionBounds = repositionBounds;
         }
         
         public override void EnterState() {
-            Enemy.Agent.speed = _moveSpeed;
+            Enemy.Agent.speed = Enemy.CurrentSpeed;
             Enemy.Rotation.SetDefaultMode();
             
             var newPosition = FindRandomVisiblePosition(_repositionBounds.x, _repositionBounds.y);
@@ -29,13 +28,18 @@ namespace Enemy.Types.SkeletonArcher.States {
             Enemy.PlayAnimation(_runAnimationKey);
             _targetPosition = newPosition;
             Enemy.Agent.SetDestination(_targetPosition);
+            Conductor.NextBeat += Enemy.PlayWalkSound;
         }
 
         public override void FrameUpdate() {
             if (Enemy.NearPoint(_targetPosition, 0.1f)) 
                 ChangeState<Idle>();
         }
-        
+
+        public override void ExitState() {
+            Conductor.NextBeat -= Enemy.PlayWalkSound;
+        }
+
         /// <summary>
         /// Finds position at least minDist from player and at most maxDist away where player is visible
         /// </summary>

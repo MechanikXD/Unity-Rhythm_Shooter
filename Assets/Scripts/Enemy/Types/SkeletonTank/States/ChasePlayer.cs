@@ -1,3 +1,4 @@
+using Core.Music;
 using Enemy.Base;
 
 namespace Enemy.Types.SkeletonTank.States {
@@ -13,10 +14,12 @@ namespace Enemy.Types.SkeletonTank.States {
             Enemy.Agent.speed = Enemy.CurrentSpeed;
             Enemy.Rotation.SetDefaultMode();
             Enemy.PlayAnimation(_walkAnimationKey);
+            Conductor.NextBeat += Enemy.PlayWalkSound;
         }
 
         public override void ExitState() {
             Enemy.Agent.SetDestination(Enemy.Position);
+            Conductor.NextBeat -= Enemy.PlayWalkSound;
         }
 
         public override void FixedUpdate() {

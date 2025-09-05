@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Core.Game;
 using Core.Game.Audio;
@@ -49,6 +50,9 @@ namespace Enemy.Base {
         [SerializeField] protected Vector2 _walkSoundDelay;
         [SerializeField] protected Vector2 _audioPitchChange;
         [SerializeField] protected float _soundDistance;
+        
+        [SerializeField] private AudioClip[] _stepSounds;
+        [SerializeField] private AudioClip[] _hitSounds;
 
         public Vector2 WalkSoundDelay => _walkSoundDelay;
         
@@ -85,11 +89,26 @@ namespace Enemy.Base {
             if (IsTarget) TargetDefeated?.Invoke(info);
             else NormalDefeated?.Invoke(info);
         }
+        
+        public override void TakeDamage(DamageInfo damageInfo) {
+            base.TakeDamage(damageInfo);
+            PlayRandomSound(_hitSounds);
+        }
 
         public void PlayRandomSound(AudioClip[] sounds) {
             var randomSound = sounds[Random.Range(0, sounds.Length)];
             var randomPitch = Random.Range(_audioPitchChange.x, _audioPitchChange.y);
             SoundManager.Instance.PlaySound(randomSound, Position, _soundDistance, randomPitch);
+        }
+        
+        public void PlayWalkSound() {
+            var randomDelay = Random.Range(WalkSoundDelay.x, WalkSoundDelay.y);
+            StartCoroutine(PlayWalkSoundDelayed(randomDelay));
+        }
+
+        private IEnumerator PlayWalkSoundDelayed(float delay) {
+            yield return new WaitForSeconds(delay);
+            PlayRandomSound(_stepSounds);
         }
 
         #region AI / Navigation

@@ -22,6 +22,10 @@ namespace Enemy.Types.SkeletonArcher {
         [SerializeField] private AnimationClip _attackStateEnter;
         [SerializeField] private AnimationClip _attackStateLoop;
         [SerializeField] private AnimationClip _attackStateExit;
+        
+        [Header("Sounds:")]
+        [SerializeField] private AudioClip[] _arrowLoadSounds;
+        [SerializeField] private AudioClip[] _arrowReleaseSounds;
 
         [Header("Animator Param Keys:")]
         [SerializeField] private string _attackStartSpeedKey = "AttackStartSpeed";
@@ -30,10 +34,11 @@ namespace Enemy.Types.SkeletonArcher {
 
         protected override EnemyState[] InitializeStates() {
             var idleState = new Idle(this, _idleTime, _idleAnimationKey);
-            var repositionState = new Reposition(this, _repositionBounds, _runAnimationKey, 5f);
+            var repositionState = new Reposition(this, _repositionBounds, _runAnimationKey);
             var attackState =
                 new Attack(this, _arrowSpawnPoint, _enemyAttack, _arrowHeightCorrection, 
-                    _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
+                    _attackStateEnter.name, _attackStateLoop.name, _attackStateExit, 
+                    _arrowLoadSounds, _arrowReleaseSounds);
 
             return new EnemyState[] {
                 idleState,
@@ -48,7 +53,7 @@ namespace Enemy.Types.SkeletonArcher {
             _animator.SetFloat(_attackStartSpeed, 
                 _attackStateEnter.length / Conductor.Instance.SongData.Crotchet);
         }
-
+        
         public override void Die() {
             base.Die();
             _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);

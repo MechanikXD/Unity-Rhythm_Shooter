@@ -2,13 +2,14 @@
 using Core.Music.Sequence.Components;
 using Enemy.Base;
 using Interactable.AttackCollider;
+using UnityEngine;
 
 namespace Enemy.Types.SkeletonTank.States {
     public class Attack : EnemyState {
         private readonly ActionSequence _attackSequence;
         
         public Attack(EnemyBase enemy, string windUpAnimKey, string attackAnimKey,
-            EnemyAttackCollider collider) : base(enemy) {
+            EnemyAttackCollider collider, AudioClip[] swings) : base(enemy) {
 
             var sequenceBuilder = new ActionSequenceBuilder();
             
@@ -17,6 +18,7 @@ namespace Enemy.Types.SkeletonTank.States {
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 collider.Enable();
+                Enemy.PlayRandomSound(swings);
                 Enemy.PlayAnimation(attackAnimKey);
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Core.Music;
+﻿using Core.Music;
 using Enemy.Base;
 using UnityEngine;
 using UnityEngine.AI;
@@ -10,11 +9,9 @@ namespace Enemy.Types.SkeletonWarrior.States {
         private readonly string _animationKey;
         private Vector3 _targetPosition;
         private readonly Vector2 _fleeBounds;
-        private readonly AudioClip[] _stepSounds;
         
         public Retreat(EnemyBase enemy, Vector2 fleeBounds, float moveSpeedMultiplier, 
-            string animationKey, AudioClip[] stepSounds) : base(enemy) {
-            _stepSounds = stepSounds;
+            string animationKey) : base(enemy) {
             _moveSpeedMultiplier = moveSpeedMultiplier;
             _animationKey = animationKey;
             _fleeBounds = fleeBounds;
@@ -22,23 +19,13 @@ namespace Enemy.Types.SkeletonWarrior.States {
 
         public override void EnterState() {
             Enemy.PlayAnimation(_animationKey);
-            
+
             Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier + _moveSpeedMultiplier);
-            
+
             Enemy.Rotation.SetObservationPoint(Enemy.PlayerTransform);
             Enemy.SetMoveSpeedMultiplier(_moveSpeedMultiplier);
             FleeFromPlayer();
-            Conductor.NextBeat += PlayWalkSound;
-        }
-
-        private void PlayWalkSound() {
-            var randomDelay = Random.Range(Enemy.WalkSoundDelay.x, Enemy.WalkSoundDelay.y);
-            Enemy.StartCoroutine(PlayWalkSoundDelayed(randomDelay));
-        }
-
-        private IEnumerator PlayWalkSoundDelayed(float delay) {
-            yield return new WaitForSeconds(delay);
-            Enemy.PlayRandomSound(_stepSounds);
+            Conductor.NextBeat += Enemy.PlayWalkSound;
         }
 
         public override void FrameUpdate() {
@@ -49,7 +36,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
 
         public override void ExitState() {
             Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier - _moveSpeedMultiplier);
-            Conductor.NextBeat -= PlayWalkSound;
+            Conductor.NextBeat -= Enemy.PlayWalkSound;
         }
 
         /// <summary>
