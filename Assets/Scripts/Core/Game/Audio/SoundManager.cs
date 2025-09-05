@@ -45,12 +45,13 @@ namespace Core.Game.Audio {
 
         public void StopMusic() => _musicSource.Stop();
 
-        public void PlaySound(AudioClip clip, Vector3 position, float reach) {
+        public void PlaySound(AudioClip clip, Vector3 position, float reach, float pitch=1f) {
             if (_localSourcePool.Peek().isPlaying) {
                 var newSource = Instantiate(_localSource, transform);
                 newSource.clip = clip;
                 newSource.transform.position = position;
                 newSource.maxDistance = reach;
+                newSource.pitch = pitch;
                 
                 newSource.Play();
                 _detachedSources.Add(newSource);
@@ -63,15 +64,17 @@ namespace Core.Game.Audio {
             source.clip = clip;
             source.transform.position = position;
             source.maxDistance = reach;
+            source.pitch = pitch;
             
             source.Play();
             _localSourcePool.Enqueue(source);
         }
 
-        public void PlayGlobal(AudioClip clip) {
+        public void PlayGlobal(AudioClip clip, float pitch=1f) {
             if (_globalSourcePool.Peek().isPlaying) {
                 var newSource = Instantiate(_globalAudioSource, transform);
                 newSource.clip = clip;
+                newSource.pitch = pitch;
                 
                 newSource.Play();
                 _detachedSources.Add(newSource);
@@ -82,36 +85,40 @@ namespace Core.Game.Audio {
             var source = _localSourcePool.Dequeue();
 
             source.clip = clip;
+            source.pitch = pitch;
             
             source.Play();
             _localSourcePool.Enqueue(source);
         }
 
-        public void PlaySoundAt(AudioClip clip, Transform point, float reach) {
+        public void PlaySoundAt(AudioClip clip, Transform point, float reach, float pitch=1f) {
             var newSource = Instantiate(_localSource, point);
             newSource.clip = clip;
             newSource.maxDistance = reach;
             newSource.transform.position = Vector3.zero;
+            newSource.pitch = pitch;
             
             newSource.Play();
             StartCoroutine(DestroyDetachedSourceAfterFinish(newSource));
         }
 
-        public AudioSource PlayLoop(AudioClip clip, Vector3 position, float reach) {
+        public AudioSource PlayLoop(AudioClip clip, Vector3 position, float reach, float pitch=1f) {
             var newSource = Instantiate(_loopAudioSource, transform);
             newSource.clip = clip;
             newSource.transform.position = position;
             newSource.maxDistance = reach;
+            newSource.pitch = pitch;
                 
             newSource.Play();
             return newSource;
         }
 
-        public AudioSource PlayLoopAt(Transform point, AudioClip clip, float reach) {
+        public AudioSource PlayLoopAt(Transform point, AudioClip clip, float reach, float pitch=1f) {
             var newSource = Instantiate(_loopAudioSource, point);
             newSource.clip = clip;
             newSource.transform.position = Vector3.zero;
             newSource.maxDistance = reach;
+            newSource.pitch = pitch;
                 
             newSource.Play();
             return newSource;

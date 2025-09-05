@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Core.Game;
+using Core.Game.Audio;
 using Enemy.AgentRotation;
 using Interactable.Damageable;
 using UnityEngine;
 using UnityEngine.AI;
+using Random = UnityEngine.Random;
 using StateMachine = Core.Behaviour.FiniteStateMachine.StateMachine;
 
 namespace Enemy.Base {
@@ -43,6 +45,13 @@ namespace Enemy.Base {
         public float DistanceToPlayer => 
             Vector3.Distance(PlayerTransform.position, transform.position);
         
+        // ---------- Audio ----------
+        [SerializeField] protected Vector2 _walkSoundDelay;
+        [SerializeField] protected Vector2 _audioPitchChange;
+        [SerializeField] protected float _soundDistance;
+
+        public Vector2 WalkSoundDelay => _walkSoundDelay;
+        
         public static event Action<EnemyDefeatedInfo> EnemyDefeated;
         public static event Action<EnemyDefeatedInfo> TargetDefeated;
         public static event Action<EnemyDefeatedInfo> NormalDefeated;
@@ -75,6 +84,12 @@ namespace Enemy.Base {
             EnemyDefeated?.Invoke(info);
             if (IsTarget) TargetDefeated?.Invoke(info);
             else NormalDefeated?.Invoke(info);
+        }
+
+        public void PlayRandomSound(AudioClip[] sounds) {
+            var randomSound = sounds[Random.Range(0, sounds.Length)];
+            var randomPitch = Random.Range(_audioPitchChange.x, _audioPitchChange.y);
+            SoundManager.Instance.PlaySound(randomSound, Position, _soundDistance, randomPitch);
         }
 
         #region AI / Navigation

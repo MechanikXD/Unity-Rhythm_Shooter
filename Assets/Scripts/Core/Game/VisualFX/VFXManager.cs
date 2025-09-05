@@ -27,6 +27,38 @@ namespace Core.Game.VisualFX {
         }
 
         /// <summary>
+        /// Destroys all particles that were previously initialized.
+        /// </summary>
+        /// <param name="particle"> Type of particles to destroy </param>
+        public void ClearParticles(ParticleSystem particle) {
+            if (!_registeredParticles.TryGetValue(particle, out var queue)) {
+                return;
+            }
+
+            foreach (var value in queue) {
+                Destroy(value.gameObject);
+            }
+                
+            queue.Clear();
+            _registeredParticles.Remove(particle);
+        }
+
+        /// <summary>
+        /// Destroys all particles created with this object.
+        /// </summary>
+        public void ClearAllParticles() {
+            foreach (var queue in _registeredParticles.Values) {
+                foreach (var value in queue) {
+                    Destroy(value.gameObject);
+                }
+                
+                queue.Clear();
+            }
+            
+            _registeredParticles.Clear();
+        }
+
+        /// <summary>
         /// Plays given particles. If Particles were registered later, they will be pulled from object pool;
         /// Otherwise new instance will be created.
         /// </summary>

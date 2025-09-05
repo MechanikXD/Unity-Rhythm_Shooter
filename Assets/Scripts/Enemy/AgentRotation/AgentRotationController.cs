@@ -16,7 +16,13 @@ namespace Enemy.AgentRotation {
             _rotationUpdater = () => { };
         }
 
-        public void LookAt(Vector3 point) => transform.LookAt(point);
+        public void LookAt(Vector3 point) {
+            _agent.updateRotation = false;
+            
+            transform.LookAt(point);
+
+            _rotationUpdater = () => { };
+        } 
 
         public void SetObservationPoint(Transform point, float angularSpeed=45) {
             _agent.updateRotation = false;

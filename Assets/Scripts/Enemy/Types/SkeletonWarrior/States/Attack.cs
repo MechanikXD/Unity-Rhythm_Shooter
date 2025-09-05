@@ -12,10 +12,12 @@ namespace Enemy.Types.SkeletonWarrior.States {
         private readonly EnemyAttackCollider _attackCollider;
         private readonly string _windUpAnimationKey;
         private Vector3 _destination;
+        private readonly AudioClip[] _swings;
         
         public Attack(EnemyBase enemy, IReadOnlyList<AnimationClip> animations, 
-            EnemyAttackCollider attackCollider, IReadOnlyList<float> forwardMovement) 
-            : base(enemy) {
+            EnemyAttackCollider attackCollider, IReadOnlyList<float> forwardMovement,
+            AudioClip[] attackSounds) : base(enemy) {
+            _swings = attackSounds;
             _windUpAnimationKey = animations[0].name;
             _attackCollider = attackCollider;
             var attackAnimations = new[] { animations[1], animations[2], animations[3] };
@@ -66,6 +68,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
 
         private void AttackPlayer(string animationKey, float forwardMovement) {
             Enemy.PlayAnimation(animationKey);
+            Enemy.PlayRandomSound(_swings);
             _destination += Enemy.Forward * forwardMovement;
             _attackCollider.Reset();
         }

@@ -2,6 +2,7 @@
 using Enemy.Base;
 using Enemy.Types.SkeletonWarrior.States;
 using Interactable.AttackCollider;
+using Interactable.Damageable;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonWarrior {
@@ -33,11 +34,16 @@ namespace Enemy.Types.SkeletonWarrior {
         private int _attack2SpeedHash;
         private int _attack3SpeedHash;
 
+        [Header("Sounds:")]
+        [SerializeField] private AudioClip[] _stepSounds;
+        [SerializeField] private AudioClip[] _swingSounds;
+        [SerializeField] private AudioClip[] _hitSounds;
+
         protected override EnemyState[] InitializeStates() {
             var idleState = new Idle(this, _idleTime, _idleAnimationKey);
-            var retreat = new Retreat(this, _fleeBounds, _retreatSpeedMultiplier, _walkAnimationKey);
-            var attackState = new Attack(this, _attackPattern, _attackCollider, _forwardMovementDuringAttack);
-            var chaseState = new ChasePlayer(this, _walkAnimationKey);
+            var retreat = new Retreat(this, _fleeBounds, _retreatSpeedMultiplier, _walkAnimationKey, _stepSounds);
+            var attackState = new Attack(this, _attackPattern, _attackCollider, _forwardMovementDuringAttack, _swingSounds);
+            var chaseState = new ChasePlayer(this, _walkAnimationKey, _stepSounds);
 
             return new EnemyState[] {
                 idleState,
@@ -59,6 +65,11 @@ namespace Enemy.Types.SkeletonWarrior {
             _animator.SetFloat(_attack1SpeedHash, _attackPattern[1].length / crotchet);
             _animator.SetFloat(_attack2SpeedHash, _attackPattern[2].length / crotchet);
             _animator.SetFloat(_attack3SpeedHash, _attackPattern[3].length / crotchet);
+        }
+
+        public override void TakeDamage(DamageInfo damageInfo) {
+            base.TakeDamage(damageInfo);
+            PlayRandomSound(_hitSounds);
         }
 
         public override void Die() {
