@@ -13,7 +13,7 @@ namespace Interactable.AttackCollider {
 
         public override void Reset() => _hasDamagedPlayer = false;
 
-        protected override void ProcessAttack(Collision other) {
+        protected override void ProcessAttack(Collider other) {
             if (_hasDamagedPlayer ||
                 !other.gameObject.TryGetComponent<PlayerController>(out var player)) {
                 return;

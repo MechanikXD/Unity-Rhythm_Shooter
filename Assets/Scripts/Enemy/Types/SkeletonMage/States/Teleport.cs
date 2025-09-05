@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Core.Game.VisualFX;
 using Enemy.Base;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,9 +12,12 @@ namespace Enemy.Types.SkeletonMage.States {
 
         private readonly AudioClip[] _enterSound;
         private readonly AudioClip[] _exitSound;
+        private readonly ParticleSystem _particle;
 
         public Teleport(EnemyBase enemy, Vector2 positionBounds, AnimationClip animationEnter, 
-            AnimationClip animationExit, AudioClip[] enterSound, AudioClip[] exitSound) : base(enemy) {
+            AnimationClip animationExit, AudioClip[] enterSound, AudioClip[] exitSound, ParticleSystem particle) :
+            base(enemy) {
+            _particle = particle;
             _animationEnter = animationEnter;
             _animationExit = animationExit;
             _positionBounds = positionBounds;
@@ -28,12 +32,14 @@ namespace Enemy.Types.SkeletonMage.States {
                 return;
             }
             
+            VFXManager.Instance.PlayParticles(_particle, Enemy.Position);
             Enemy.PlayRandomSound(_enterSound);
             Enemy.PlayAnimation(_animationEnter.name);
 
             IEnumerator AfterAnimationFinished() {
                 yield return new WaitForSeconds(_animationEnter.length);
                 Enemy.Agent.Warp(newPosition);
+                VFXManager.Instance.PlayParticles(_particle, Enemy.Position);
                 Enemy.PlayAnimation(_animationExit.name);
                 Enemy.PlayRandomSound(_exitSound);
                 Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);

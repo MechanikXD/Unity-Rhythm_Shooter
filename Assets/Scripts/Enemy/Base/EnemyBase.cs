@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Game;
 using Core.Game.Audio;
-using Enemy.AgentRotation;
+using Enemy.Tools;
 using Interactable.Damageable;
 using UnityEngine;
 using UnityEngine.AI;
@@ -98,7 +98,7 @@ namespace Enemy.Base {
         public void PlayRandomSound(AudioClip[] sounds) {
             var randomSound = sounds[Random.Range(0, sounds.Length)];
             var randomPitch = Random.Range(_audioPitchChange.x, _audioPitchChange.y);
-            SoundManager.Instance.PlaySound(randomSound, Position, _soundDistance, randomPitch);
+            AudioManager.Instance.PlaySound(randomSound, Position, _soundDistance, randomPitch);
         }
         
         public void PlayWalkSound() {

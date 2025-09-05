@@ -374,15 +374,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.119128
+      value: 3.5050802
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.25
+      value: -0.24999976
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.920479
+      value: 9.405293
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1070,6 +1070,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0116ab75f5bb7ca4cac6d0e47a249d19, type: 3}
   _teleportExitSounds:
   - {fileID: 8300000, guid: df0b707ce6f7e154aafdee329ede604f, type: 3}
+  _teleportParticle: {fileID: 797784518864179116, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
 --- !u!54 &7348909050404882762
 Rigidbody:
   m_ObjectHideFlags: 0

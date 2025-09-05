@@ -4,7 +4,7 @@ using Core.Behaviour.SingletonBehaviour;
 using UnityEngine;
 
 namespace Core.Game.Audio {
-    public class SoundManager : SingletonBase<SoundManager> {
+    public class AudioManager : SingletonBase<AudioManager> {
         private HashSet<AudioSource> _detachedSources;
         [SerializeField] private AudioSource _loopAudioSource;
         [SerializeField] private AudioSource _musicSource;

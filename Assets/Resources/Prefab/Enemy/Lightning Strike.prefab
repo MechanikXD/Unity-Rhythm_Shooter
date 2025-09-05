@@ -45,7 +45,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b37ecc4bbb8547dd906c346cdb228f57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _magicCircle: {fileID: 797784518864179116, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
+  _prepareSound: {fileID: 8300000, guid: 1cf9988293b4bcc438b1df9048d39284, type: 3}
+  _prepareSoundReach: 5
   _particle: {fileID: 720325515038598322, guid: 709b0bd6b0b625249a98409dd7a87343, type: 3}
+  _attackSound: {fileID: 8300000, guid: c19ca0d000137a74d956708d17e6e86e, type: 3}
+  _attackSoundReach: 7.5
   _attackCollider: {fileID: 4131529001127773863}
 --- !u!1 &4680859853765885278
 GameObject:

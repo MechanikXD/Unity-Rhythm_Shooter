@@ -15,8 +15,8 @@ namespace Interactable.AttackCollider {
 
         public virtual void Disable() => _attackCollider.enabled = false;
 
-        protected abstract void ProcessAttack(Collision other);
+        protected abstract void ProcessAttack(Collider other);
 
-        public void OnCollisionEnter(Collision other) => ProcessAttack(other);
+        public void OnTriggerEnter(Collider other) => ProcessAttack(other);
     }
 }

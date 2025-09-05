@@ -49,9 +49,12 @@ namespace Enemy.Types.SkeletonMage.States {
         
         private void AttackPlayer() {
             // TODO: Create Indicator
+
+            var playerPos = Enemy.PlayerTransform.position;
+            playerPos.y -= 0.9f;
             
             var newAttack =
-                Object.Instantiate(_enemyAttack, Enemy.PlayerTransform.position, Quaternion.identity);
+                Object.Instantiate(_enemyAttack,  playerPos, Quaternion.identity);
             Conductor.Instance.AddOnNextBeat(() => newAttack.Launch(Enemy));
         }
     }

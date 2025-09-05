@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Enemy.AgentRotation {
+namespace Enemy.Tools {
     public class AgentRotationController : MonoBehaviour {
         [SerializeField] private NavMeshAgent _agent;
 

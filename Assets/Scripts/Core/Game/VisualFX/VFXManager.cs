@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using Core.Behaviour.SingletonBehaviour;
 using UnityEngine;
 
@@ -17,10 +18,14 @@ namespace Core.Game.VisualFX {
         /// <param name="particle"> Particles to be cached </param>
         /// <param name="poolCount"> Amount of particles that will be stored at object pool </param>
         public void RegisterParticles(ParticleSystem particle, int poolCount) {
+            if (_registeredParticles.ContainsKey(particle)) return;
+            
             var newQueue = new Queue<ParticleSystem>(poolCount);
             
             for (var i = 0; i < poolCount; i++) {
-                newQueue.Enqueue(Instantiate(particle, transform));    
+                var newInstance = Instantiate(particle, transform);
+                newInstance.gameObject.SetActive(false);
+                newQueue.Enqueue(newInstance);    
             }
             
             _registeredParticles.Add(particle, newQueue);
@@ -70,11 +75,14 @@ namespace Core.Game.VisualFX {
                 // If there are inactive particles that can be used
                 if (!queue.Peek().isPlaying) {
                     var newParticles = queue.Dequeue();
-
+                    newParticles.gameObject.SetActive(true);
+                    
                     newParticles.transform.position = position;
                     newParticles.Play();
+                    StartCoroutine(DisableAfterPlay(newParticles));
 
                     queue.Enqueue(newParticles);
+                    return;
                 }
             }
             // Else: create new instance of particles
@@ -83,6 +91,35 @@ namespace Core.Game.VisualFX {
             
             newInstance.Play();
             Destroy(newInstance.gameObject, particle.main.duration);
+        }
+        public ParticleSystem GetParticles(ParticleSystem particle, Vector3 position, bool destroyAfterPlay=true) {
+            // Check for registered particles
+            if (_registeredParticles.TryGetValue(particle, out var queue)) {
+                // If there are inactive particles that can be used
+                if (!queue.Peek().isPlaying) {
+                    var newParticles = queue.Dequeue();
+                    newParticles.gameObject.SetActive(true);
+                    
+                    newParticles.transform.position = position;
+                    newParticles.Play();
+                    StartCoroutine(DisableAfterPlay(newParticles));
+
+                    queue.Enqueue(newParticles);
+                    return newParticles;
+                }
+            }
+            // Else: create new instance of particles
+            var newInstance = Instantiate(particle, transform);
+            newInstance.transform.position = position;
+            
+            newInstance.Play();
+            if (destroyAfterPlay) Destroy(newInstance.gameObject, particle.main.duration);
+            return newInstance;
+        }
+
+        private IEnumerator DisableAfterPlay(ParticleSystem particle) {
+            yield return new WaitForSeconds(particle.main.duration);
+            particle.gameObject.SetActive(false);
         }
         
         private void Initialize() {

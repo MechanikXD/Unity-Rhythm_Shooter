@@ -1,4 +1,5 @@
-﻿using Enemy.Base;
+﻿using Core.Game.VisualFX;
+using Enemy.Base;
 using Enemy.Types.SkeletonMage.States;
 using UnityEngine;
 
@@ -25,15 +26,23 @@ namespace Enemy.Types.SkeletonMage {
         [Header("Sounds:")]
         [SerializeField] private AudioClip[] _teleportEnterSounds;
         [SerializeField] private AudioClip[] _teleportExitSounds;
+        
+        [Header("Particle")]
+        [SerializeField] private ParticleSystem _teleportParticle;
 
         protected override EnemyState[] InitializeStates() {
             var idleState = new Idle(this, 2, IdleAnimationKey);
             var teleportState = new Teleport(this, _teleportBounds,
                 _teleportAnimationStartKey, _teleportAnimationEndKey,
-                _teleportEnterSounds, _teleportExitSounds);
+                _teleportEnterSounds, _teleportExitSounds, _teleportParticle);
             var castState = new Cast(this, _attackCount, _enemyAttack, 
                 _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
 
+            foreach (var particle in _enemyAttack.Particles) {
+                VFXManager.Instance.RegisterParticles(particle, 4);    
+            }
+            VFXManager.Instance.RegisterParticles(_teleportParticle, 4);
+            
             return new EnemyState[] {
                 idleState,
                 teleportState,
