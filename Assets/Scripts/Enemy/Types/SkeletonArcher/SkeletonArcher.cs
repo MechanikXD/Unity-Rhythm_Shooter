@@ -1,4 +1,5 @@
-﻿using Core.Music;
+﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Music;
 using Enemy.Base;
 using Enemy.Types.SkeletonArcher.States;
 using UnityEngine;
@@ -9,10 +10,17 @@ namespace Enemy.Types.SkeletonArcher {
         [SerializeField] private Transform _arrowSpawnPoint;
         [SerializeField] private EnemyArrow _enemyAttack;
 
+        public Transform ArrowSpawnPoint => _arrowSpawnPoint;
+        public EnemyArrow ArrowPrefab => _enemyAttack;
+
         [Header("Behaviour:")]
         [SerializeField] private float _idleTime = 1f;
         [SerializeField] private float _arrowHeightCorrection = 0.2f;
         [SerializeField] private Vector2 _repositionBounds = new Vector2(7f, 20f);
+
+        public float IdleTime => _idleTime;
+        public float ArrowHeightCorrection => _arrowHeightCorrection;
+        public Vector2 RepositionBounds => _repositionBounds;
         
         [Header("Animations:")]
         [SerializeField] private string _idleAnimationKey = "Archer Idle";
@@ -23,24 +31,32 @@ namespace Enemy.Types.SkeletonArcher {
         [SerializeField] private AnimationClip _attackStateLoop;
         [SerializeField] private AnimationClip _attackStateExit;
         
+        public string IdleAnimationKey => _idleAnimationKey;
+        public string RunAnimationKey => _runAnimationKey;
+        public string DeathAnimationKey => _deathAnimationKey;
+        public AnimationClip AttackStateEnter => _attackStateEnter;
+        public AnimationClip AttackStateLoop => _attackStateLoop;
+        public AnimationClip AttackStateExit => _attackStateExit;
+        
         [Header("Sounds:")]
         [SerializeField] private AudioClip[] _arrowLoadSounds;
         [SerializeField] private AudioClip[] _arrowReleaseSounds;
+
+        public AudioClip[] ArrowLoadSounds => _arrowLoadSounds;
+        public AudioClip[] ArrowReleaseSounds => _arrowReleaseSounds;
 
         [Header("Animator Param Keys:")]
         [SerializeField] private string _attackStartSpeedKey = "AttackStartSpeed";
 
         private int _attackStartSpeed;
 
-        protected override EnemyState[] InitializeStates() {
-            var idleState = new Idle(this, _idleTime, _idleAnimationKey);
-            var repositionState = new Reposition(this, _repositionBounds, _runAnimationKey);
+        protected override State[] InitializeStates() {
+            var idleState = new Idle(this);
+            var repositionState = new Reposition(this);
             var attackState =
-                new Attack(this, _arrowSpawnPoint, _enemyAttack, _arrowHeightCorrection, 
-                    _attackStateEnter.name, _attackStateLoop.name, _attackStateExit, 
-                    _arrowLoadSounds, _arrowReleaseSounds);
+                new Attack(this);
 
-            return new EnemyState[] {
+            return new State[] {
                 idleState,
                 repositionState,
                 attackState

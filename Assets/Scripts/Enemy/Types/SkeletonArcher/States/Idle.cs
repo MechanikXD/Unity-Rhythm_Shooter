@@ -2,25 +2,20 @@
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonArcher.States {
-    public class Idle : EnemyState {
-        private readonly string _idleAnimationKey;
-        private readonly float _idleTime;
+    public class Idle : EnemyState<SkeletonArcher> {
         private float _currentIdleTime;
 
-        public Idle(EnemyBase enemy, float idleTime, string idleAnimationKey) : base(enemy) {
-            _idleTime = idleTime;
-            _idleAnimationKey = idleAnimationKey;
-        }
+        public Idle(SkeletonArcher enemy) : base(enemy) { }
         
         public override void EnterState() {
             _currentIdleTime = 0f;
-            Enemy.PlayAnimation(_idleAnimationKey);
+            Enemy.PlayAnimation(Enemy.IdleAnimationKey);
         }
 
         public override void FrameUpdate() {
             _currentIdleTime += Time.deltaTime;
 
-            if (_currentIdleTime < _idleTime) return;
+            if (_currentIdleTime < Enemy.IdleTime) return;
             
             if (Enemy.HasLineOfSightWithPlayer()) ChangeState<Attack>();
             else ChangeState<Reposition>();

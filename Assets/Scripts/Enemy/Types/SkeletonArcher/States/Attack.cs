@@ -4,40 +4,28 @@ using Enemy.Base;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonArcher.States {
-    public class Attack : EnemyState {
-        private readonly Transform _arrowSpawnPoint;
-        private readonly EnemyArrow _arrow;
-        
-        private readonly string _enterAnimationKey;
+    public class Attack : EnemyState<SkeletonArcher> {
         private readonly ActionSequence _attackSequence;
-        EnemyArrow _lastCreatedArrow;
+        private EnemyArrow _lastCreatedArrow;
 
-        public Attack(EnemyBase enemy, Transform arrowSpawnPoint, EnemyArrow arrow,
-            float arrayHeightCorrection, string stateStartKey, string stateLoopKey,
-            AnimationClip stateExit, AudioClip[] bowLoad, AudioClip[] bowRelease) : base(enemy) {
-            
-            var exitAnimation = stateExit;
-            _enterAnimationKey = stateStartKey;
-            _arrowSpawnPoint = arrowSpawnPoint;
-            _arrow = arrow;
-            
-            Vector3 lockPosition = Vector3.zero;
-
+        public Attack(SkeletonArcher enemy) : base(enemy) {
+            var exitAnimation = Enemy.AttackStateExit;
+            var lockPosition = Vector3.zero;
             var sequenceBuilder = new ActionSequenceBuilder();
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
-                Enemy.PlayRandomSound(bowLoad);
+                Enemy.PlayRandomSound(Enemy.ArrowLoadSounds);
                 // Wait one beat
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
-                Enemy.PlayAnimation(stateLoopKey);
+                Enemy.PlayAnimation(Enemy.AttackStateLoop.name);
                 lockPosition = Enemy.DirectionToPlayer;
-                lockPosition.y -= arrayHeightCorrection;
+                lockPosition.y -= Enemy.ArrowHeightCorrection;
 
                 // TODO: Create attack indicator
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
-                Enemy.PlayRandomSound(bowRelease);
+                Enemy.PlayRandomSound(Enemy.ArrowReleaseSounds);
                 if (_lastCreatedArrow != null) _lastCreatedArrow.Launch(Enemy, lockPosition);
 
                 Enemy.PlayAnimation(exitAnimation.name);
@@ -50,9 +38,9 @@ namespace Enemy.Types.SkeletonArcher.States {
         public override void EnterState() {
             PlayOrRestartSequence();
             Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
-            Enemy.PlayAnimation(_enterAnimationKey);
+            Enemy.PlayAnimation(Enemy.AttackStateEnter.name);
             
-            _lastCreatedArrow = Object.Instantiate(_arrow, _arrowSpawnPoint);
+            _lastCreatedArrow = Object.Instantiate(Enemy.ArrowPrefab, Enemy.ArrowSpawnPoint);
         }
 
         private void PlayOrRestartSequence() {

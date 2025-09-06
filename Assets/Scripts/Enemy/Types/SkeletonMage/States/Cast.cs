@@ -5,32 +5,26 @@ using Enemy.Base;
 using UnityEngine;
 
 namespace Enemy.Types.SkeletonMage.States {
-    public class Cast : EnemyState {
-        private readonly EnemyLightningStrike _enemyAttack;
-        private readonly string _enterAnimationKey;
+    public class Cast : EnemyState<SkeletonMage> {
         private readonly ActionSequence _attackSequence;
 
-        public Cast(EnemyBase enemy, int attackCount, EnemyLightningStrike enemyAttack,
-            string stateEnterKey, string stateLoopKey, AnimationClip stateExit) : base(enemy) {
-            _enemyAttack = enemyAttack;
-            _enterAnimationKey = stateEnterKey;
-
+        public Cast(SkeletonMage enemy) : base(enemy) {
             var sequenceBuilder = new ActionSequenceBuilder();
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
-                Enemy.PlayAnimation(stateLoopKey);
+                Enemy.PlayAnimation(Enemy.AttackStateLoop.name);
                 AttackPlayer();
             });
 
-            for (var i = 0; i < attackCount - 1; i++) {
+            for (var i = 0; i < Enemy.AttackCount - 1; i++) {
                 sequenceBuilder.Append(Trigger.NextBeat, _ => {
                     AttackPlayer();
                 });
             }
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
-                Enemy.PlayAnimation(stateExit.name);
-                Enemy.StartCoroutine(ForceExitStateAfter(stateExit.length, typeof(Teleport)));
+                Enemy.PlayAnimation(Enemy.AttackStateExit.name);
+                Enemy.StartCoroutine(ForceExitStateAfter(Enemy.AttackStateExit.length, typeof(Teleport)));
             });
 
             _attackSequence = sequenceBuilder.ToSequence();
@@ -39,7 +33,7 @@ namespace Enemy.Types.SkeletonMage.States {
         public override void EnterState() {
             PlayOrRestartSequence();
             Enemy.Rotation.SetLocalDirection(Enemy.Forward);
-            Enemy.PlayAnimation(_enterAnimationKey);
+            Enemy.PlayAnimation(Enemy.AttackStateEnter.name);
         }
 
         private void PlayOrRestartSequence() {
@@ -54,7 +48,7 @@ namespace Enemy.Types.SkeletonMage.States {
             playerPos.y -= 0.9f;
             
             var newAttack =
-                Object.Instantiate(_enemyAttack,  playerPos, Quaternion.identity);
+                Object.Instantiate(Enemy.LightningStrike,  playerPos, Quaternion.identity);
             Conductor.Instance.AddOnNextBeat(() => newAttack.Launch(Enemy));
         }
     }

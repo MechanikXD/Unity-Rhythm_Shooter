@@ -2,17 +2,13 @@
 using Enemy.Base;
 
 namespace Enemy.Types.SkeletonWarrior.States {
-    public class ChasePlayer : EnemyState {
-        private readonly string _walkAnimationKey;
-
-        public ChasePlayer(EnemyBase enemy, string walkAnimationKey) : base(enemy) {
-            _walkAnimationKey = walkAnimationKey;
-        }
+    public class ChasePlayer : EnemyState<SkeletonWarrior> {
+        public ChasePlayer(SkeletonWarrior enemy) : base(enemy) { }
 
         public override void EnterState() {
             Enemy.Agent.speed = Enemy.CurrentSpeed;
             Enemy.Rotation.SetDefaultMode();
-            Enemy.PlayAnimation(_walkAnimationKey);
+            Enemy.PlayAnimation(Enemy.WalkAnimationKey);
             Conductor.NextBeat += Enemy.PlayWalkSound;
         }
 

@@ -4,26 +4,15 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonWarrior.States {
-    public class Retreat : EnemyState {
-        private readonly float _moveSpeedMultiplier;
-        private readonly string _animationKey;
+    public class Retreat : EnemyState<SkeletonWarrior> {
         private Vector3 _targetPosition;
-        private readonly Vector2 _fleeBounds;
         
-        public Retreat(EnemyBase enemy, Vector2 fleeBounds, float moveSpeedMultiplier, 
-            string animationKey) : base(enemy) {
-            _moveSpeedMultiplier = moveSpeedMultiplier;
-            _animationKey = animationKey;
-            _fleeBounds = fleeBounds;
-        }
+        public Retreat(SkeletonWarrior enemy) : base(enemy) { }
 
         public override void EnterState() {
-            Enemy.PlayAnimation(_animationKey);
-
-            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier + _moveSpeedMultiplier);
-
+            Enemy.PlayAnimation(Enemy.WalkAnimationKey);
+            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier + Enemy.MoveSpeedMultiplier);
             Enemy.Rotation.SetObservationPoint(Enemy.PlayerTransform);
-            Enemy.SetMoveSpeedMultiplier(_moveSpeedMultiplier);
             FleeFromPlayer();
             Conductor.NextBeat += Enemy.PlayWalkSound;
         }
@@ -35,7 +24,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
         }
 
         public override void ExitState() {
-            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier - _moveSpeedMultiplier);
+            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier - Enemy.MoveSpeedMultiplier);
             Conductor.NextBeat -= Enemy.PlayWalkSound;
         }
 
@@ -57,7 +46,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
         /// Build a "circle" around player where enemy will attempt to flee and pick first point.
         /// </summary>
         private Vector3 FindFleePosition(Vector3 preferredDirection, int attempts=10) {
-            float GetFleeDistance() => Random.Range(_fleeBounds.x, _fleeBounds.y);
+            float GetFleeDistance() => Random.Range(Enemy.FleeBounds.x, Enemy.FleeBounds.y);
 
             for (var i = 0; i < attempts; i++) {
                 // Create arc of potential flee points

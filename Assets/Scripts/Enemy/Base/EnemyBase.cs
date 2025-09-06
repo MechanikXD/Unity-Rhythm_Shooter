@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Behaviour.FiniteStateMachine;
 using Core.Game;
 using Core.Game.Audio;
 using Enemy.Tools;
@@ -25,8 +26,8 @@ namespace Enemy.Base {
         // ---------- State Machine ----------
         private StateMachine _enemyStateMachine;
         public StateMachine StateMachine => _enemyStateMachine;
-        private Dictionary<Type, EnemyState> _enemyStates;
-        public Dictionary<Type, EnemyState> States => _enemyStates;
+        private Dictionary<Type, State> _enemyStates;
+        public Dictionary<Type, State> States => _enemyStates;
         
         // ---------- NavMesh ----------
         public NavMeshAgent Agent { get; private set; }
@@ -68,6 +69,8 @@ namespace Enemy.Base {
 
         public void PlayAnimation(string animationName) => 
             Animator.CrossFade(animationName, _crossFade, -1, 0f);
+        public void PlayAnimation(AnimationClip anim) => 
+            Animator.CrossFade(anim.name, _crossFade, -1, 0f);
 
         protected override void Awake() {
             base.Awake();
@@ -165,10 +168,10 @@ namespace Enemy.Base {
         /// NOTE: first state in the array must be starting state!
         /// </summary>
         /// <returns> Array of all possible enemy states, where first is initial state </returns>
-        protected abstract EnemyState[] InitializeStates();
+        protected abstract State[] InitializeStates();
 
-        private void LoadEnemyStates(IEnumerable<EnemyState> states) {
-            _enemyStates = new Dictionary<Type, EnemyState>();
+        private void LoadEnemyStates(IEnumerable<State> states) {
+            _enemyStates = new Dictionary<Type, State>();
 
             foreach (var state in states) {
                 if (!_enemyStates.TryAdd(state.GetType(), state)) {

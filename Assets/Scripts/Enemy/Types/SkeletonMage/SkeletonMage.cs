@@ -1,4 +1,5 @@
-﻿using Core.Game.VisualFX;
+﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Game.VisualFX;
 using Enemy.Base;
 using Enemy.Types.SkeletonMage.States;
 using UnityEngine;
@@ -8,42 +9,59 @@ namespace Enemy.Types.SkeletonMage {
         [Header("Enemy Specific:")]
         [SerializeField] private EnemyLightningStrike _enemyAttack;
 
+        public EnemyLightningStrike LightningStrike => _enemyAttack;
+
         [Header("Behaviour:")]
+        [SerializeField] private float _idleTime = 3f;
         [SerializeField] private Vector2 _teleportBounds = new Vector2(5f, 10f);
         [SerializeField] private int _attackCount = 3;
+
+        public float IdleTime => _idleTime;
+        public Vector2 TeleportBounds => _teleportBounds;
+        public int AttackCount => _attackCount;
         
         [Header("Animations:")]
-        private const string IdleAnimationKey = "Mage Idle";
-        private const string DeathAnimationKey = "Skely Death";
+        [SerializeField] private string _idleAnimationKey = "Mage Idle";
+        [SerializeField] private string _deathAnimationKey = "Skely Death";
         
-        [SerializeField] private AnimationClip _teleportAnimationStartKey;
-        [SerializeField] private AnimationClip _teleportAnimationEndKey;
+        [SerializeField] private AnimationClip _teleportAnimationStart;
+        [SerializeField] private AnimationClip _teleportAnimationEnd;
 
         [SerializeField] private AnimationClip _attackStateEnter;
         [SerializeField] private AnimationClip _attackStateLoop;
         [SerializeField] private AnimationClip _attackStateExit;
         
+        public string IdleAnimationKey => _idleAnimationKey;
+        public string DeathAnimationKey => _deathAnimationKey;
+        public AnimationClip TeleportAnimationStart => _teleportAnimationStart;
+        public AnimationClip TeleportAnimationEnd => _teleportAnimationEnd;
+        public AnimationClip AttackStateEnter => _attackStateEnter;
+        public AnimationClip AttackStateLoop => _attackStateLoop;
+        public AnimationClip AttackStateExit => _attackStateExit;
+        
         [Header("Sounds:")]
         [SerializeField] private AudioClip[] _teleportEnterSounds;
         [SerializeField] private AudioClip[] _teleportExitSounds;
         
+        public AudioClip[] TeleportEnterSounds => _teleportEnterSounds;
+        public AudioClip[] TeleportExitSounds => _teleportExitSounds;
+        
         [Header("Particle")]
         [SerializeField] private ParticleSystem _teleportParticle;
 
-        protected override EnemyState[] InitializeStates() {
-            var idleState = new Idle(this, 2, IdleAnimationKey);
-            var teleportState = new Teleport(this, _teleportBounds,
-                _teleportAnimationStartKey, _teleportAnimationEndKey,
-                _teleportEnterSounds, _teleportExitSounds, _teleportParticle);
-            var castState = new Cast(this, _attackCount, _enemyAttack, 
-                _attackStateEnter.name, _attackStateLoop.name, _attackStateExit);
+        public ParticleSystem TeleportParticle => _teleportParticle;
+
+        protected override State[] InitializeStates() {
+            var idleState = new Idle(this);
+            var teleportState = new Teleport(this);
+            var castState = new Cast(this);
 
             foreach (var particle in _enemyAttack.Particles) {
                 VFXManager.Instance.RegisterParticles(particle, 4);    
             }
             VFXManager.Instance.RegisterParticles(_teleportParticle, 4);
             
-            return new EnemyState[] {
+            return new State[] {
                 idleState,
                 teleportState,
                 castState
@@ -54,9 +72,9 @@ namespace Enemy.Types.SkeletonMage {
 
         public override void Die() {
             base.Die();
-            _animator.CrossFade(DeathAnimationKey, _crossFade, -1, 0f);
+            _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);
             
-            Destroy(gameObject, DeathAnimationKey.Length);
+            Destroy(gameObject, _deathAnimationKey.Length);
         }
     }
 }

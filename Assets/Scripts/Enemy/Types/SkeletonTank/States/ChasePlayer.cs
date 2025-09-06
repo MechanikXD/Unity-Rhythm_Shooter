@@ -2,18 +2,15 @@ using Core.Music;
 using Enemy.Base;
 
 namespace Enemy.Types.SkeletonTank.States {
-    public class ChasePlayer : EnemyState {
+    public class ChasePlayer : EnemyState<SkeletonTank> {
         private const float DistCorrection = 1f;  // Due to enemy size, distance should be adjusted 
-        private readonly string _walkAnimationKey;
 
-        public ChasePlayer(EnemyBase enemy, string animationKey) : base(enemy) {
-            _walkAnimationKey = animationKey;
-        }
+        public ChasePlayer(SkeletonTank enemy) : base(enemy) { }
         
         public override void EnterState() {
             Enemy.Agent.speed = Enemy.CurrentSpeed;
             Enemy.Rotation.SetDefaultMode();
-            Enemy.PlayAnimation(_walkAnimationKey);
+            Enemy.PlayAnimation(Enemy.WalkAnimationKey);
             Conductor.NextBeat += Enemy.PlayWalkSound;
         }
 

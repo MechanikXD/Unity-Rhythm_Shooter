@@ -4,28 +4,22 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonArcher.States {
-    public class Reposition : EnemyState {
-        private readonly string _runAnimationKey;
+    public class Reposition : EnemyState<SkeletonArcher> {
         private Vector3 _targetPosition;
-        private readonly Vector3 _repositionBounds;
 
-        public Reposition(EnemyBase enemy, Vector2 repositionBounds,
-            string runAnimationKey) : base(enemy) {
-            _runAnimationKey = runAnimationKey;
-            _repositionBounds = repositionBounds;
-        }
+        public Reposition(SkeletonArcher enemy) : base(enemy) { }
         
         public override void EnterState() {
             Enemy.Agent.speed = Enemy.CurrentSpeed;
             Enemy.Rotation.SetDefaultMode();
             
-            var newPosition = FindRandomVisiblePosition(_repositionBounds.x, _repositionBounds.y);
+            var newPosition = FindRandomVisiblePosition(Enemy.RepositionBounds.x, Enemy.RepositionBounds.y);
             if (newPosition == Vector3.zero) {
                 ChangeState<Idle>();
                 return;
             }
             
-            Enemy.PlayAnimation(_runAnimationKey);
+            Enemy.PlayAnimation(Enemy.RunAnimationKey);
             _targetPosition = newPosition;
             Enemy.Agent.SetDestination(_targetPosition);
             Conductor.NextBeat += Enemy.PlayWalkSound;

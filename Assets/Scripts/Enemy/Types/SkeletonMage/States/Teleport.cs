@@ -5,46 +5,29 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Enemy.Types.SkeletonMage.States {
-    public class Teleport : EnemyState {
-        private readonly AnimationClip _animationEnter;
-        private readonly AnimationClip _animationExit;
-        private readonly Vector2 _positionBounds;
-
-        private readonly AudioClip[] _enterSound;
-        private readonly AudioClip[] _exitSound;
-        private readonly ParticleSystem _particle;
-
-        public Teleport(EnemyBase enemy, Vector2 positionBounds, AnimationClip animationEnter, 
-            AnimationClip animationExit, AudioClip[] enterSound, AudioClip[] exitSound, ParticleSystem particle) :
-            base(enemy) {
-            _particle = particle;
-            _animationEnter = animationEnter;
-            _animationExit = animationExit;
-            _positionBounds = positionBounds;
-            _enterSound = enterSound;
-            _exitSound = exitSound;
-        }
+    public class Teleport : EnemyState<SkeletonMage> {
+        public Teleport(SkeletonMage enemy) : base(enemy) { }
 
         public override void EnterState() {
-            var newPosition = FindRandomVisiblePosition(_positionBounds.x, _positionBounds.y);
+            var newPosition = FindRandomVisiblePosition(Enemy.TeleportBounds.x, Enemy.TeleportBounds.y);
             if (newPosition == Vector3.zero) {
                 ChangeState<Idle>();
                 return;
             }
             
-            VFXManager.Instance.PlayParticles(_particle, Enemy.Position);
-            Enemy.PlayRandomSound(_enterSound);
-            Enemy.PlayAnimation(_animationEnter.name);
+            VFXManager.Instance.PlayParticles(Enemy.TeleportParticle, Enemy.Position);
+            Enemy.PlayRandomSound(Enemy.TeleportEnterSounds);
+            Enemy.PlayAnimation(Enemy.TeleportAnimationStart.name);
 
             IEnumerator AfterAnimationFinished() {
-                yield return new WaitForSeconds(_animationEnter.length);
+                yield return new WaitForSeconds(Enemy.TeleportAnimationStart.length);
                 Enemy.Agent.Warp(newPosition);
-                VFXManager.Instance.PlayParticles(_particle, Enemy.Position);
-                Enemy.PlayAnimation(_animationExit.name);
-                Enemy.PlayRandomSound(_exitSound);
+                VFXManager.Instance.PlayParticles(Enemy.TeleportParticle, Enemy.Position);
+                Enemy.PlayAnimation(Enemy.TeleportAnimationEnd.name);
+                Enemy.PlayRandomSound(Enemy.TeleportExitSounds);
                 Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
                 
-                yield return new WaitForSeconds(_animationExit.length);
+                yield return new WaitForSeconds(Enemy.TeleportAnimationEnd.length);
                 ChangeState<Idle>();
             }
 

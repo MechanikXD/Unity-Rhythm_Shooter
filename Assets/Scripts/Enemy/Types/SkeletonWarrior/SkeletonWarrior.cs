@@ -1,4 +1,5 @@
-﻿using Core.Music;
+﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Music;
 using Enemy.Base;
 using Enemy.Types.SkeletonWarrior.States;
 using Interactable.AttackCollider;
@@ -10,6 +11,9 @@ namespace Enemy.Types.SkeletonWarrior {
         // First is windup, last is exit animation. the rest are actual attacks
         [SerializeField] private AnimationClip[] _attackPattern;
         [SerializeField] private EnemyAttackCollider _attackCollider;
+        
+        public AnimationClip[] AttackAnimations => _attackPattern;
+        public EnemyAttackCollider AttackCollider => _attackCollider;
 
         [Header("Behaviour")]
         [SerializeField] private float _idleTime;
@@ -18,12 +22,21 @@ namespace Enemy.Types.SkeletonWarrior {
             { 1.224f, 1.888f, 0.4048f, -0.6601f };
         [SerializeField] private Vector2 _fleeBounds = new Vector2(3f, 5f);
         
-        // ReSharper disable StringLiteralTypo
+        public float IdleTime=>_idleTime;
+        public float RetreatSpeedMultiplier=>_retreatSpeedMultiplier;
+        public float[] ForwardMovementDuringAttack =>_forwardMovementDuringAttack;
+        public Vector2 FleeBounds =>_fleeBounds;
+        
         [Header("Animation Keys:")]
+        // ReSharper disable StringLiteralTypo
         [SerializeField] private string _idleAnimationKey = "Skele Idle";
         [SerializeField] private string _walkAnimationKey = "Skele Walk";
         [SerializeField] private string _deathAnimationKey = "Skely Death";
         // ReSharper restore StringLiteralTypo
+        
+        public string IdleAnimationKey => _idleAnimationKey;
+        public string WalkAnimationKey => _walkAnimationKey;
+        public string DeathAnimationKey =>_deathAnimationKey;
 
         [Header("Animator param keys:")]
         [SerializeField] private string _firstAttackSpeedKey = "Combo1Speed";
@@ -35,14 +48,16 @@ namespace Enemy.Types.SkeletonWarrior {
 
         [Header("Sounds:")]
         [SerializeField] private AudioClip[] _swingSounds;
+        
+        public AudioClip[] SwingSounds => _swingSounds;
 
-        protected override EnemyState[] InitializeStates() {
-            var idleState = new Idle(this, _idleTime, _idleAnimationKey);
-            var retreat = new Retreat(this, _fleeBounds, _retreatSpeedMultiplier, _walkAnimationKey);
-            var attackState = new Attack(this, _attackPattern, _attackCollider, _forwardMovementDuringAttack, _swingSounds);
-            var chaseState = new ChasePlayer(this, _walkAnimationKey);
+        protected override State[] InitializeStates() {
+            var idleState = new Idle(this);
+            var retreat = new Retreat(this);
+            var attackState = new Attack(this);
+            var chaseState = new ChasePlayer(this);
 
-            return new EnemyState[] {
+            return new State[] {
                 idleState,
                 retreat,
                 attackState,

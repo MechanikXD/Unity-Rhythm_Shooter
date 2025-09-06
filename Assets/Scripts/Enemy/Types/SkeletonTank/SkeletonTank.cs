@@ -1,4 +1,5 @@
-﻿using Core.Music;
+﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Music;
 using Enemy.Base;
 using Enemy.Types.SkeletonTank.States;
 using Interactable.AttackCollider;
@@ -8,15 +9,18 @@ namespace Enemy.Types.SkeletonTank {
     public class SkeletonTank : EnemyBase {
         [Header("Enemy Specific:")]
         [SerializeField] private EnemyAttackCollider _attackCollider;
+        
+        public EnemyAttackCollider AttackCollider => _attackCollider;
 
         [Header("Behaviour:")]
         [SerializeField] private float _normalIdleTime = 1.5f;
-
         [SerializeField] private float _shieldingTime = 3f;
+        
+        public float NormalIdleTime => _normalIdleTime;
+        public float ShieldingTime => _shieldingTime;
 
         [Header("Animations:")]
         [SerializeField] private string _idleAnimationKey = "Paladin Idle";
-
         [SerializeField] private string _walkAnimationKey = "Paladin Walk";
         [SerializeField] private string _deathAnimationKey = "Skely Death";
 
@@ -26,26 +30,34 @@ namespace Enemy.Types.SkeletonTank {
 
         [SerializeField] private AnimationClip _attackWindUpAnimation;
         [SerializeField] private AnimationClip _attackAnimation;
+        
+        public string IdleAnimationKey => _idleAnimationKey;
+        public string WalkAnimationKey => _walkAnimationKey;
+        public string DeathAnimationKey => _deathAnimationKey;
+        public AnimationClip BlockStart => _blockStart;
+        public string BlockLoopKey => _blockLoopKey;
+        public string BlockExitKey => _blockExitKey;
+        public AnimationClip AttackWindUpAnimation => _attackWindUpAnimation;
+        public AnimationClip AttackAnimation => _attackAnimation;
 
         [Header("Animator Param Keys:")]
         [SerializeField] private string _slamWindUpSpeedKey = "SlamWindUp";
-
         [SerializeField] private string _slamAttackSpeedKey = "SlamAttack";
         private int _slamWindUp;
         private int _slamAttack;
 
         [Header("Sounds:")]
         [SerializeField] private AudioClip[] _swingSounds;
+        
+        public AudioClip[] SwingSounds => _swingSounds;
 
-        protected override EnemyState[] InitializeStates() {
-            var idleState = new Idle(this, _normalIdleTime, _idleAnimationKey);
-            var shieldIdle = new Shielding(this, _shieldingTime, _blockStart, _blockLoopKey,
-                _blockExitKey);
-            var attackState = new Attack(this, _attackWindUpAnimation.name, _attackAnimation.name,
-                _attackCollider, _swingSounds);
-            var walkToPlayer = new ChasePlayer(this, _walkAnimationKey);
+        protected override State[] InitializeStates() {
+            var idleState = new Idle(this);
+            var shieldIdle = new Shielding(this);
+            var attackState = new Attack(this);
+            var walkToPlayer = new ChasePlayer(this);
 
-            return new EnemyState[] {
+            return new State[] {
                 idleState,
                 shieldIdle,
                 attackState,
