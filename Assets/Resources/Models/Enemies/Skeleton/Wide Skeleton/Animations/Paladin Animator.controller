@@ -28,11 +28,11 @@ AnimatorStateMachine:
     m_State: {fileID: -3424214663220820072}
     m_Position: {x: 430, y: 140, z: 0}
   - serializedVersion: 1
-    m_State: {fileID: 5704196357113087311}
-    m_Position: {x: 430, y: 240, z: 0}
-  - serializedVersion: 1
     m_State: {fileID: 6368053843659321043}
     m_Position: {x: 640, y: 170, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 4486599467025739691}
+    m_Position: {x: 220, y: 190, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -207,14 +207,14 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!1102 &5704196357113087311
+--- !u!1102 &4486599467025739691
 AnimatorState:
   serializedVersion: 6
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Skely Death
+  m_Name: Death
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
@@ -227,7 +227,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 084912c61d0ca864389ac53f4ed997bd, type: 2}
+  m_Motion: {fileID: 7400000, guid: 0718fd33e8d58f24d8c49b8d30783e18, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 

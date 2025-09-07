@@ -854,7 +854,7 @@ MonoBehaviour:
   _repositionBounds: {x: 7, y: 20}
   _idleAnimationKey: Archer Idle
   _runAnimationKey: Archer Run
-  _deathAnimationKey: Skely Death
+  _deathAnimationKey: Death
   _attackStateEnter: {fileID: 7400000, guid: 746580a35252aa74795c911b5b6827a1, type: 2}
   _attackStateLoop: {fileID: 7400000, guid: ec1f06529680ac9498da210629cd0ec6, type: 2}
   _attackStateExit: {fileID: 7400000, guid: acbca2ae2bff9d64ca216f7ff0532de3, type: 2}
