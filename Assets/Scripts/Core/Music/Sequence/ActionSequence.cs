@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Game;
 using Core.Music.Sequence.Components;
 using UnityEngine;
 
 namespace Core.Music.Sequence {
+    [Serializable]
     public class ActionSequence {
         private List<SequenceActor> _actions;
         private int _currentActorIndex;
@@ -47,18 +46,13 @@ namespace Core.Music.Sequence {
             // In case sequence was broken or halted during action
             if (IsFinished || IsPaused) return;
             // Check sequence reached it's end
-            if (_currentActorIndex >= _actions.Count) IsFinished = true;
+            if (_currentActorIndex >= _actions.Count) {
+                IsFinished = true;
+            }
             // If not - queue next actor
-            else AppendNextFrame();
-        }
-        // Using this prevents errors from conductor when the same list is being modified during iteration
-        private void AppendNextFrame() {
-            IEnumerator OnNextFrame() {
-                yield return null;
+            else {
                 _invoker[_actions[_currentActorIndex].Trigger]();
             }
-            
-            GameManager.Instance.StartCoroutine(OnNextFrame());
         }
         
         /// <summary>
@@ -97,7 +91,7 @@ namespace Core.Music.Sequence {
             if (setOnPause) IsPaused = true;
             else {
                 IsPaused = false;
-                Start();
+                _invoker[_actions[_currentActorIndex].Trigger]();
             }
         }
     }

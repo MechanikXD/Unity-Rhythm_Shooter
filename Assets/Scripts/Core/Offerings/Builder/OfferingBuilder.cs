@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Enemy;
 using Enemy.Base;
 using Interactable.Damageable;
 using Player;
@@ -17,8 +16,8 @@ namespace Core.Offerings.Builder {
             });
     
             EventSubscribers[EventTrigger.EnemyDefeated] = new Func<Action<EnemyDefeatedInfo>, Action>(action => {
-                EnemyEvents.EnemyDefeated += action;
-                return () => EnemyEvents.EnemyDefeated -= action;
+                EnemyBase.EnemyDefeated += action;
+                return () => EnemyBase.EnemyDefeated -= action;
             });
         }
         

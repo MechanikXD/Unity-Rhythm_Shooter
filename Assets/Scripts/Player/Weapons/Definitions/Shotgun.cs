@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using Core.Behaviour.BehaviourInjection;
-using Core.Game;
 using Core.Music;
 using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
@@ -60,15 +59,10 @@ namespace Player.Weapons.Definitions {
                 
                 if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer)) {
                     if (hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
+                        var info = DamageInfoBuilder.PlayerAttack(damageable, hit.point);
                         
-                        var player = GameManager.Instance.Player;
-                        var calculatedDamage = player.GetCalculatedDamage(damage);
-                        var damageInfo = new DamageInfo(player, damageable, calculatedDamage,
-                            ray.origin,
-                            hit.point);
-                        
-                        damageable.TakeDamage(damageInfo);
-                        PlayerEvents.OnDamageDealt(damageInfo);
+                        damageable.TakeDamage(info);
+                        PlayerEvents.OnDamageDealt(info);
                     }
                     else {
                         PlayerEvents.OnAttackFailed();

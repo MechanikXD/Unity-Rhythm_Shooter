@@ -1,7 +1,5 @@
 using System.Collections;
 using Core.Behaviour.FiniteStateMachine;
-using Core.Music;
-using Core.Music.Songs.Scriptable_Objects;
 using Interactable.Damageable;
 using Player.Interactions;
 using Player.Weapons;
@@ -19,11 +17,6 @@ namespace Player {
         [SerializeField] private WeaponBase[] _weapons;
         [SerializeField] private PlayerInteractionTrigger _interactionTrigger;
         private StateMachine _stateMachine;
-
-        [Header("MOVE SOMEWHERE ELSE")]
-        [SerializeField] private SongData _songData;
-
-        [SerializeField] private AudioSource _songSource;
 
         public PlayerStates States { get; private set; }
         public CharacterController Controller => _controller;
@@ -110,15 +103,11 @@ namespace Player {
             DashKey = _playerInput.actions["Dash"];
         }
 
-        protected override void EnterParriedState() { }
-        protected override void UpdateMoveSpeedOnCharacter() { }
-
         public override void Die() {
             throw new System.NotImplementedException();
         }
 
         private void Start() {
-            Conductor.Instance.Initialize(_songData, _songSource);
             _weaponController.Initialize(_weapons[1]);
         }
 
@@ -128,12 +117,6 @@ namespace Player {
         }
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
-
-        public int GetCalculatedDamage(int baseValue) {
-            var damage = (int)((baseValue + DamageIncrement) * DamageMultiplier);
-            if (damage <= 0) damage = 1;
-            return damage;
-        }
 
         public void OnMove(InputValue currentMoveDirection) =>
             _moveDirection = currentMoveDirection.Get<Vector2>();
