@@ -9,7 +9,9 @@ namespace Enemy.Types.SkeletonArcher {
         [Header("Enemy Specific:")]
         [SerializeField] private Transform _arrowSpawnPoint;
         [SerializeField] private EnemyArrow _enemyAttack;
+        [SerializeField] private Transform _bowPosition;
 
+        public Vector3 BowPosition => _bowPosition.position;
         public Transform ArrowSpawnPoint => _arrowSpawnPoint;
         public EnemyArrow ArrowPrefab => _enemyAttack;
 
@@ -53,8 +55,7 @@ namespace Enemy.Types.SkeletonArcher {
         protected override State[] InitializeStates() {
             var idleState = new Idle(this);
             var repositionState = new Reposition(this);
-            var attackState =
-                new Attack(this);
+            var attackState = new Attack(this);
 
             return new State[] {
                 idleState,

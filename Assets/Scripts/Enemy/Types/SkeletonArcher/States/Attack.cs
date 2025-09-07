@@ -21,8 +21,8 @@ namespace Enemy.Types.SkeletonArcher.States {
                 Enemy.PlayAnimation(Enemy.AttackStateLoop.name);
                 lockPosition = Enemy.DirectionToPlayer;
                 lockPosition.y -= Enemy.ArrowHeightCorrection;
-
-                // TODO: Create attack indicator
+                
+                Enemy.PlayAttackTelegraphParticle(Enemy.BowPosition);
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayRandomSound(Enemy.ArrowReleaseSounds);

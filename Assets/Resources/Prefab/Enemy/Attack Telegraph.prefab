@@ -47,6 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _particle: {fileID: 1638231129263875882}
   _sound: {fileID: 8300000, guid: 5cc6443e269a36146a5515f0e2eab2ef, type: 3}
+  _pitch: 1.5
   _soundDistance: 15
 --- !u!1001 &4017715699070757095
 PrefabInstance:

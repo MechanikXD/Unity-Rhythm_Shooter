@@ -11,6 +11,8 @@ namespace Enemy.Types.SkeletonTank.States {
             
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.PlayAnimation(Enemy.AttackWindUpAnimation);
+                Enemy.PlayAttackTelegraphParticle(Enemy.AxePosition);
+                Enemy.Trail.enabled = true;
             });
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 Enemy.AttackCollider.Enable();
@@ -20,6 +22,7 @@ namespace Enemy.Types.SkeletonTank.States {
             sequenceBuilder.Append(Trigger.NextBeat, _ => {
                 enemy.AttackCollider.Disable();
                 ChangeState<Shielding>();
+                Enemy.Trail.enabled = false;
             });
 
             _attackSequence = sequenceBuilder.ToSequence();

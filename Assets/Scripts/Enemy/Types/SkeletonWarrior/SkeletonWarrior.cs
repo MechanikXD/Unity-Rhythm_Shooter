@@ -11,7 +11,11 @@ namespace Enemy.Types.SkeletonWarrior {
         // First is windup, last is exit animation. the rest are actual attacks
         [SerializeField] private AnimationClip[] _attackPattern;
         [SerializeField] private EnemyAttackCollider _attackCollider;
-        
+        [SerializeField] private Transform _swordPosition;
+        [SerializeField] private TrailRenderer _trail;
+
+        public TrailRenderer Trail => _trail;
+        public Vector3 SwordPosition => _swordPosition.position;
         public AnimationClip[] AttackAnimations => _attackPattern;
         public EnemyAttackCollider AttackCollider => _attackCollider;
 
@@ -22,8 +26,8 @@ namespace Enemy.Types.SkeletonWarrior {
             { 1.224f, 1.888f, 0.4048f, -0.6601f };
         [SerializeField] private Vector2 _fleeBounds = new Vector2(3f, 5f);
         
-        public float IdleTime=>_idleTime;
-        public float RetreatSpeedMultiplier=>_retreatSpeedMultiplier;
+        public float IdleTime => _idleTime;
+        public float RetreatSpeedMultiplier => _retreatSpeedMultiplier;
         public float[] ForwardMovementDuringAttack =>_forwardMovementDuringAttack;
         public Vector2 FleeBounds =>_fleeBounds;
         

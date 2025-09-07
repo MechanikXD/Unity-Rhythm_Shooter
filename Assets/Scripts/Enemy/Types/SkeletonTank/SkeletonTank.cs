@@ -9,7 +9,11 @@ namespace Enemy.Types.SkeletonTank {
     public class SkeletonTank : EnemyBase {
         [Header("Enemy Specific:")]
         [SerializeField] private EnemyAttackCollider _attackCollider;
-        
+        [SerializeField] private Transform _axePosition;
+        [SerializeField] private TrailRenderer _trail;
+
+        public TrailRenderer Trail => _trail;
+        public Vector3 AxePosition => _axePosition.position;
         public EnemyAttackCollider AttackCollider => _attackCollider;
 
         [Header("Behaviour:")]
@@ -56,7 +60,7 @@ namespace Enemy.Types.SkeletonTank {
             var shieldIdle = new Shielding(this);
             var attackState = new Attack(this);
             var walkToPlayer = new ChasePlayer(this);
-
+            
             return new State[] {
                 idleState,
                 shieldIdle,

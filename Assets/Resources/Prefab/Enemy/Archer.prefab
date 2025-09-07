@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2312908314309130888
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3106270090650297328}
+  m_Layer: 0
+  m_Name: Attack Telegraph Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3106270090650297328
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2312908314309130888}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9063447275702425621}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5845898551878129429
 GameObject:
   m_ObjectHideFlags: 0
@@ -65,15 +96,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.8384995
+      value: 3.197938
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.25
+      value: -0.25000024
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9.866435
+      value: 9.872945
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 87f8e1b0c7a59d74694913dfc78abf97, type: 3}
       propertyPath: m_LocalRotation.w
@@ -807,6 +838,7 @@ MonoBehaviour:
   _rotationController: {fileID: 5129774005757875138}
   _animator: {fileID: 5875178550079579078}
   _crossFade: 0.2
+  _attackTelegraph: {fileID: 6907654333476005506, guid: 087a4d35730e69a4eaf4d3b3dec63e0f, type: 3}
   _walkSoundDelay: {x: 0.05, y: 0.1}
   _audioPitchChange: {x: 1, y: 1.2}
   _soundDistance: 13
@@ -816,6 +848,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
   _arrowSpawnPoint: {fileID: 1820805327317464205}
   _enemyAttack: {fileID: 6998686555477308159, guid: 45804eb2722b83845adbcf2d72da12dd, type: 3}
+  _bowPosition: {fileID: 3106270090650297328}
   _idleTime: 1
   _arrowHeightCorrection: 0.2
   _repositionBounds: {x: 7, y: 20}
@@ -908,6 +941,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7d58dd8d9be70844ea75845156e4179d, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1820805327317464205}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7d58dd8d9be70844ea75845156e4179d, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3106270090650297328}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7d58dd8d9be70844ea75845156e4179d, type: 3}
 --- !u!4 &9063447275702425621 stripped

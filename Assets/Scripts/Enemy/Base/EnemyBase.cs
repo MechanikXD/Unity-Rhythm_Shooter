@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Game;
 using Core.Game.Audio;
+using Core.Game.VisualFX;
 using Enemy.Tools;
 using Interactable.Damageable;
 using UnityEngine;
@@ -39,6 +40,9 @@ namespace Enemy.Base {
         [SerializeField] protected Animator _animator;
         [SerializeField] protected float _crossFade;
         protected Animator Animator => _animator;
+        
+        [SerializeField] protected AttackTelegraph _attackTelegraph;
+        public AttackTelegraph AttackTelegraph => _attackTelegraph;
         
         // ---------- Player Cache ----------
         public Transform PlayerTransform { get; private set; }
@@ -81,6 +85,7 @@ namespace Enemy.Base {
             UpdatePlayerReference();
             UpdateAnimationSpeed();
             InitializeStateMachine();
+            VFXManager.Instance.RegisterParticles(_attackTelegraph.Particle, 3);
         }
 
         protected abstract void UpdateAnimationSpeed();
@@ -112,6 +117,12 @@ namespace Enemy.Base {
         private IEnumerator PlayWalkSoundDelayed(float delay) {
             yield return new WaitForSeconds(delay);
             PlayRandomSound(_stepSounds);
+        }
+
+        public void PlayAttackTelegraphParticle(Vector3 position) {
+            var instance = Instantiate(_attackTelegraph, transform);
+            instance.transform.position = position;
+            instance.Play();
         }
 
         #region AI / Navigation

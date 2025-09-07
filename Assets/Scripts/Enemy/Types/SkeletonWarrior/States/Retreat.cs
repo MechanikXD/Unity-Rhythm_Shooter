@@ -6,12 +6,16 @@ using UnityEngine.AI;
 namespace Enemy.Types.SkeletonWarrior.States {
     public class Retreat : EnemyState<SkeletonWarrior> {
         private Vector3 _targetPosition;
+        private float _normalMoveSpeedMultiplier;
         
         public Retreat(SkeletonWarrior enemy) : base(enemy) { }
 
         public override void EnterState() {
             Enemy.PlayAnimation(Enemy.WalkAnimationKey);
-            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier + Enemy.MoveSpeedMultiplier);
+
+            _normalMoveSpeedMultiplier = Enemy.MoveSpeedMultiplier;
+            Enemy.SetMoveSpeedMultiplier(Enemy.RetreatSpeedMultiplier);
+            
             Enemy.Rotation.SetObservationPoint(Enemy.PlayerTransform);
             FleeFromPlayer();
             Conductor.NextBeat += Enemy.PlayWalkSound;
@@ -24,7 +28,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
         }
 
         public override void ExitState() {
-            Enemy.SetMoveSpeedMultiplier(Enemy.MoveSpeedMultiplier - Enemy.MoveSpeedMultiplier);
+            Enemy.SetMoveSpeedMultiplier(_normalMoveSpeedMultiplier);
             Conductor.NextBeat -= Enemy.PlayWalkSound;
         }
 

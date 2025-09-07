@@ -34,6 +34,8 @@ namespace Enemy.Types.SkeletonWarrior.States {
         public override void EnterState() {
             _destination = Enemy.Position;
             PlayOrRestartSequence();
+            Enemy.PlayAttackTelegraphParticle(Enemy.SwordPosition);
+            Enemy.Trail.enabled = true;
             Enemy.AttackCollider.Enable();
             Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
             Enemy.PlayAnimation(Enemy.AttackAnimations[0].name);
@@ -53,6 +55,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
 
         public override void ExitState() {
             Enemy.AttackCollider.Disable();
+            Enemy.Trail.enabled = false;
         }
 
         private void AttackPlayer(string animationKey, float forwardMovement) {

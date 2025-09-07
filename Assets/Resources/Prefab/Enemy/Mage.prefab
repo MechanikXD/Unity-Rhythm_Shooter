@@ -1058,10 +1058,13 @@ MonoBehaviour:
   _hitSounds:
   - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
   _enemyAttack: {fileID: 6454101166561272959, guid: 69680dd2e8c98254b81240e040c0dbd3, type: 3}
+  _idleTime: 3
   _teleportBounds: {x: 5, y: 10}
   _attackCount: 3
-  _teleportAnimationStartKey: {fileID: 7400000, guid: fa40adade09966b47b740e9c90828964, type: 2}
-  _teleportAnimationEndKey: {fileID: 7400000, guid: e5ade5e9ad957774c960cc88c575b523, type: 2}
+  _idleAnimationKey: Mage Idle
+  _deathAnimationKey: Skely Death
+  _teleportAnimationStart: {fileID: 7400000, guid: fa40adade09966b47b740e9c90828964, type: 2}
+  _teleportAnimationEnd: {fileID: 7400000, guid: e5ade5e9ad957774c960cc88c575b523, type: 2}
   _attackStateEnter: {fileID: 7400000, guid: 8eb62df1a2c514b488c650b99c54b5c1, type: 2}
   _attackStateLoop: {fileID: 7400000, guid: 55cd501225bdcb14f929a5da22560a30, type: 2}
   _attackStateExit: {fileID: 7400000, guid: faa9a6b03ea69e1499b4a5c5a8371999, type: 2}
@@ -1070,7 +1073,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 0116ab75f5bb7ca4cac6d0e47a249d19, type: 3}
   _teleportExitSounds:
   - {fileID: 8300000, guid: df0b707ce6f7e154aafdee329ede604f, type: 3}
-  _teleportParticle: {fileID: 797784518864179116, guid: a2a060732547fe64581bb0cb3c2bdf1d, type: 3}
+  _teleportParticle: {fileID: 1601506141239540749, guid: 48c5715f9603c3842a353516a8baefbb, type: 3}
 --- !u!54 &7348909050404882762
 Rigidbody:
   m_ObjectHideFlags: 0
