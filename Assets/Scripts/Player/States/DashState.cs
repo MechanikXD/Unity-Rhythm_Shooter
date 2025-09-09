@@ -16,6 +16,11 @@ namespace Player.States {
         
         public override void EnterState() {
             _currentDuration = 0f;
+
+            if (!Player.DashParticle.gameObject.activeInHierarchy) {
+                Player.DashParticle.gameObject.SetActive(true);
+            }
+            Player.DashParticle.Play();
             Player.PlayRandomSound(Player.DashSounds);
             OnPlayerDashed(Conductor.Instance.SongPosition);
             _dashVector = Player.GetCameraRelativeVector(Player.DashSpeed + _speedModifier);
@@ -42,6 +47,7 @@ namespace Player.States {
         public override void ExitState() {
             Player.StartDashCooldown();
             PlayerEvents.OnExitedDashEvent(); 
+            Player.DashParticle.Stop();
         }
         
         private void OnPlayerDashed(float songPosition) {

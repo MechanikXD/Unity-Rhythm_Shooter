@@ -78,6 +78,10 @@ namespace Player {
         public AudioClip[] WalkSounds => _stepSounds;
         public AudioClip[] SpecialSoundInteractionSounds => _specialSoundInteractionSounds;
 
+        [Header("Visual FX")]
+        [SerializeField] private ParticleSystem _dashParticle;
+        public ParticleSystem DashParticle => _dashParticle;
+        
         public bool IsMoving => MoveKey.IsPressed();
         public bool IsJumping => JumpKey.IsPressed();
         public bool IsGrounded => _controller.velocity.y is < 0.001f and > -0.001f;
