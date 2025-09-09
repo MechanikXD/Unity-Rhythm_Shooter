@@ -1,6 +1,8 @@
 ﻿using System;
+using Core.Game.Audio;
 using Core.Music;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Player.Weapons.Base {
     public abstract class WeaponBase : MonoBehaviour { 
@@ -9,6 +11,19 @@ namespace Player.Weapons.Base {
         [SerializeField] private bool _canDoDoubleAction;
         [SerializeField] protected float _maxShootDistance;
         [SerializeField] protected int _maxAmmo;
+
+        [Header("Audio")]
+        private const float DefaultAudioReach = 10f;
+        [SerializeField] protected Vector2 _pitchChange;
+        [SerializeField] protected AudioClip[] _emptyShot;
+        [SerializeField] protected AudioClip[] _shotSounds;
+        
+        [SerializeField] protected AudioClip _reloadStartSound;
+        protected float ReloadStartPitch;
+        [SerializeField] protected AudioClip _reloadFastSound;
+        protected float ReloadFastPitch;
+        [SerializeField] protected AudioClip _reloadSlowSound;
+        protected float ReloadSlowPitch;
         
         protected Func<Vector3, Ray> ScreenPointToRay;
         protected LayerMask IgnorePlayer;
@@ -75,18 +90,40 @@ namespace Player.Weapons.Base {
             HalfCrotchet = Conductor.Instance.SongData.HalfCrotchet;
             Crotchet = Conductor.Instance.SongData.Crotchet;
             
-            CalculateAnimationsSpeed();
+            UpdateAnimationsSpeed();
+            UpdateSoundPitch();
         }
         public virtual void OnWeaponDeselected() { }
         public virtual void WeaponUpdate() {}
+
+        protected void PlaySound(AudioClip[] sounds) {
+            var randomSound = sounds[Random.Range(0, sounds.Length)];
+            var randomPitch = Random.Range(_pitchChange.x, _pitchChange.y);
+            AudioManager.Instance.PlaySound(randomSound, transform.position, DefaultAudioReach, randomPitch);
+        }
         
-        protected virtual void CalculateAnimationsSpeed() {
+        protected void PlaySound(AudioClip sound) {
+            var randomPitch = Random.Range(_pitchChange.x, _pitchChange.y);
+            AudioManager.Instance.PlaySound(sound, transform.position, DefaultAudioReach, randomPitch);
+        }
+        
+        protected void PlaySound(AudioClip sound, float pitch) {
+            AudioManager.Instance.PlaySound(sound, transform.position, DefaultAudioReach, pitch);
+        }
+        
+        protected virtual void UpdateAnimationsSpeed() {
             // Values driven from original animation speed
             _animator.SetFloat(WalkSpeed, _walk.length / Crotchet);
             _animator.SetFloat(ShootSpeed, _action.length / HalfCrotchet);
             _animator.SetFloat(ReloadStartSpeed,  _reloadStart.length / (1.5f * Crotchet));
             _animator.SetFloat(ReloadSlowSpeed, _reloadSlow.length / (Crotchet * 2f));
             _animator.SetFloat(ReloadFastSpeed, _reloadFast.length / HalfCrotchet);
+        }
+
+        protected virtual void UpdateSoundPitch() {
+            ReloadFastPitch = _reloadFast.length / HalfCrotchet;
+            ReloadSlowPitch = _reloadSlowSound.length / (2 * Crotchet);
+            ReloadStartPitch = _reloadStartSound.length / Crotchet;
         }
     }
 }

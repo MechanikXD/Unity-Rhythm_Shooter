@@ -11,7 +11,7 @@ namespace Player {
             OnLeftAttempted(songPosition);
             var beatType = Conductor.Instance.GetBeatHitInfo(songPosition);
             
-            if (beatType.HitType == BeatHitType.Disabled || !currentWeapon.CanDoLeftAction()) return;
+            if (beatType.HitType == BeatHitType.Disabled) return;
             Conductor.Instance.SetInteractedThisBeat();
 
             switch (beatType.HitType) {
@@ -37,7 +37,7 @@ namespace Player {
             OnRightAttempted(songPosition);
             var beatType = Conductor.Instance.GetBeatHitInfo(songPosition);
             
-            if (beatType.HitType == BeatHitType.Disabled || !currentWeapon.CanDoRightAction()) return;
+            if (beatType.HitType == BeatHitType.Disabled) return;
             Conductor.Instance.SetInteractedThisBeat();
 
             switch (beatType.HitType) {
@@ -63,7 +63,7 @@ namespace Player {
             OnBothAttempted(songPosition);
             var beatType = Conductor.Instance.GetBeatHitInfo(songPosition);
             
-            if (beatType.HitType == BeatHitType.Disabled || !currentWeapon.CanDoBothAction()) return;
+            if (beatType.HitType == BeatHitType.Disabled) return;
             Conductor.Instance.SetInteractedThisBeat();
 
             switch (beatType.HitType) {

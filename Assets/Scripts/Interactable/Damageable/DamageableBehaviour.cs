@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Core.Game.Audio;
 using Interactable.Status;
 using UnityEngine;
 
@@ -36,6 +37,13 @@ namespace Interactable.Damageable {
         public int DamageIncrement { get; private set; }
         public Dictionary<StatusEffect, StatusBase> CurrentStatuses { get; private set; }
 
+        // ---------- Sounds ----------
+        protected const float DefaultSoundReach = 10f;
+        [SerializeField] protected Vector2 _audioPitchChange;
+        
+        [SerializeField] protected AudioClip[] _stepSounds;
+        [SerializeField] protected AudioClip[] _hurtSounds;
+        
         protected virtual void Awake() {
             Initialize();
             UpdateCurrentDamage();
@@ -192,6 +200,15 @@ namespace Interactable.Damageable {
         }
 
         #endregion
+
+        public void PlayRandomSound(AudioClip[] sounds) =>
+            PlayRandomSound(sounds, DefaultSoundReach);
+        
+        public void PlayRandomSound(AudioClip[] sounds, float reach) {
+            var randomSound = sounds[Random.Range(0, sounds.Length)];
+            var randomPitch = Random.Range(_audioPitchChange.x, _audioPitchChange.y);
+            AudioManager.Instance.PlaySound(randomSound, Position, reach, randomPitch);
+        }
 
         public abstract void Die();
         

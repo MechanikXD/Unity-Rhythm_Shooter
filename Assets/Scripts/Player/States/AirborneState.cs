@@ -22,6 +22,7 @@ namespace Player.States {
             if (Player.IsGrounded) {
                 AttachedStateMachine.ChangeState(Player.States.IdleState);
                 PlayerEvents.OnBecomeGrounded();
+                Player.PlayRandomSound(Player.JumpLandSounds);
                 Player.CurrentAirborneTime = 0f;
             }
             

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Core.Behaviour.FiniteStateMachine;
 using Interactable.Damageable;
@@ -17,6 +18,7 @@ namespace Player {
         [SerializeField] private WeaponBase[] _weapons;
         [SerializeField] private PlayerInteractionTrigger _interactionTrigger;
         private StateMachine _stateMachine;
+        private Action _unsubscribeFromEvents;
 
         public PlayerStates States { get; private set; }
         public CharacterController Controller => _controller;
@@ -62,6 +64,20 @@ namespace Player {
 
         #endregion
 
+        [Header("Sound FX")]
+        [SerializeField] private AudioClip[] _jumpStartSounds;
+        [SerializeField] private AudioClip[] _jumpLandSounds;
+        [SerializeField] private AudioClip[] _dashSounds;
+        [SerializeField] private AudioClip[] _dashRechargeSounds;
+        [SerializeField] private AudioClip[] _specialSoundInteractionSounds;
+        
+        public AudioClip[] JumpStartSounds => _jumpStartSounds;
+        public AudioClip[] JumpLandSounds => _jumpLandSounds;
+        public AudioClip[] DashSounds => _dashSounds;
+        public AudioClip[] DashRechargeSounds => _dashRechargeSounds;
+        public AudioClip[] WalkSounds => _stepSounds;
+        public AudioClip[] SpecialSoundInteractionSounds => _specialSoundInteractionSounds;
+
         public bool IsMoving => MoveKey.IsPressed();
         public bool IsJumping => JumpKey.IsPressed();
         public bool IsGrounded => _controller.velocity.y is < 0.001f and > -0.001f;
@@ -80,6 +96,7 @@ namespace Player {
             yield return new WaitForSeconds(_dashCooldownTime);
             yield return new WaitUntil(() => IsGrounded);
             DashInCooldown = false;
+            PlayRandomSound(DashRechargeSounds);
         }
 
         public void StartDashCooldown() {
@@ -104,11 +121,22 @@ namespace Player {
         }
 
         public override void Die() {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
+        private void OnEnable() {
+            void PlaySpecialSounds() => PlayRandomSound(SpecialSoundInteractionSounds);
+            
+            PlayerEvents.RankIncreased += PlaySpecialSounds;
+            _unsubscribeFromEvents = () => {
+                PlayerEvents.RankIncreased -= PlaySpecialSounds;
+            };
+        }
+        
         private void Start() {
-            _weaponController.Initialize(_weapons[1]);
+            var activeIndex = 0;
+            _weapons[activeIndex].gameObject.SetActive(true);
+            _weaponController.Initialize(_weapons[activeIndex]);
         }
 
         private void Update() {
@@ -118,6 +146,8 @@ namespace Player {
 
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
+        private void OnDisable() => _unsubscribeFromEvents();
+        
         public void OnMove(InputValue currentMoveDirection) =>
             _moveDirection = currentMoveDirection.Get<Vector2>();
 

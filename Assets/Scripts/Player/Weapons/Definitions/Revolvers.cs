@@ -24,6 +24,9 @@ namespace Player.Weapons.Definitions {
         private Coroutine _reloadRemoveInAnimation;
         private Action _unsubscribeFromEvents;
 
+        [SerializeField] private ParticleSystem _leftMuzzleFlash;
+        [SerializeField] private ParticleSystem _rightMuzzleFlash;
+
         public override void LeftPerfectAction() => 
             PerformAction(4, true);
         public override void LeftGoodAction() => 
@@ -44,11 +47,19 @@ namespace Player.Weapons.Definitions {
         
         private void PerformAction(int damage, bool left) {
             if (left) {
-                if (!CanDoLeftAction()) return;
+                if (!CanDoLeftAction()) {
+                    if (_leftCurrentAmmo <= 0) PlaySound(_emptyShot);
+                    
+                    return;
+                }
                 _leftInAnimation = true;
                 _leftCurrentAmmo--;
                 
                 _leftActionBehaviour.Perform(damage);
+                if (!_leftMuzzleFlash.gameObject.activeInHierarchy) {
+                    _leftMuzzleFlash.gameObject.SetActive(true);
+                }
+                _leftMuzzleFlash.Play();
                 
                 IEnumerator SetLeftNotInAnimation() {
                     yield return new WaitForSeconds(HalfCrotchet);
@@ -64,6 +75,10 @@ namespace Player.Weapons.Definitions {
                 _rightCurrentAmmo--;
                 
                 _rightActionBehaviour.Perform(damage);
+                if (!_rightMuzzleFlash.gameObject.activeInHierarchy) {
+                    _rightMuzzleFlash.gameObject.SetActive(true);
+                }
+                _rightMuzzleFlash.Play();
                 
                 IEnumerator SetRightNotInAnimation() {
                     yield return new WaitForSeconds(HalfCrotchet);
@@ -76,6 +91,7 @@ namespace Player.Weapons.Definitions {
         }
         
         private void ShootForward(int damage) {
+            PlaySound(_shotSounds);
             var ray = ScreenPointToRay(new Vector2(Screen.width / 2f, Screen.height / 2f));
             if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
@@ -98,8 +114,8 @@ namespace Player.Weapons.Definitions {
         public override void StartReload() {
             _leftInAnimation = true;
             _rightInAnimation = true;
+            PlaySound(_reloadStartSound, ReloadStartPitch);
             Conductor.Instance.DisableNextInteractions(1);
-
             var sequenceBuilder = new ActionSequenceBuilder();
             sequenceBuilder.Append(Trigger.AfterBeat, _ => CanFastReload = true);
             sequenceBuilder.Append(Trigger.AfterBeat, () => IsReloading && CanFastReload,
@@ -116,6 +132,7 @@ namespace Player.Weapons.Definitions {
         }
         public override void FastReload() {
             CanFastReload = false;
+            PlaySound(_reloadFastSound, ReloadFastPitch);
             _animator.CrossFade("Reload Fast", _crossFade, -1, 0f);
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);
@@ -133,6 +150,7 @@ namespace Player.Weapons.Definitions {
         }
         public override void SlowReload() {
             CanFastReload = false;
+            PlaySound(_reloadSlowSound, ReloadSlowPitch);
             _animator.CrossFade("Reload Slow", _crossFade, -1, 0f);
             Conductor.Instance.DisableNextInteractions(1);
             IEnumerator SetNotInAnimation() {

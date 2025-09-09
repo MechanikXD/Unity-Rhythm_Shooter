@@ -22,6 +22,9 @@ namespace Player.Weapons.Definitions {
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
         private Coroutine _reloadRemoveInAnimation;
+
+        [SerializeField] private AudioClip[] _pumpSounds;
+        [SerializeField] private ParticleSystem _muzzle;
         
         public override void LeftPerfectAction() => _leftActionBehaviour.Perform(5);
 
@@ -42,7 +45,12 @@ namespace Player.Weapons.Definitions {
         }
 
         private void Shoot(int damage) {
-            if (!CanDoLeftAction()) return;
+            if (!CanDoLeftAction()) {
+                if (_currentAmmoCount <= 0) {
+                    PlaySound(_emptyShot);
+                }
+                return;
+            }
             
             _currentAmmoCount--;
             _hasAmmoInChamber = false;
@@ -76,7 +84,12 @@ namespace Player.Weapons.Definitions {
                 yield return new WaitForSeconds(HalfCrotchet);
                 _inAnimation = false;
             }
-            
+
+            if (!_muzzle.gameObject.activeInHierarchy) {
+                _muzzle.gameObject.SetActive(true);
+            }
+            PlaySound(_shotSounds);
+            _muzzle.Play();
             _animator.CrossFade("Shoot", _crossFade, -1, 0f);
             StartCoroutine(SetNotInAnimation());
         }
@@ -93,6 +106,7 @@ namespace Player.Weapons.Definitions {
                 else _hasAmmoInChamber = true;
             }
             
+            PlaySound(_pumpSounds);
             _animator.CrossFade("Pump", _crossFade, -1, 0f);
             StartCoroutine(SetNotInAnimation());
         }
@@ -106,7 +120,7 @@ namespace Player.Weapons.Definitions {
         public override void StartReload() {
             _inAnimation = true;
             Conductor.Instance.DisableNextInteractions(1);
-            
+            PlaySound(_reloadStartSound, ReloadStartPitch);
             var sequenceBuilder = new ActionSequenceBuilder();
             sequenceBuilder.Append(Trigger.AfterBeat, _ => CanFastReload = true);
             sequenceBuilder.Append(Trigger.AfterBeat, () => IsReloading && CanFastReload,
@@ -124,6 +138,7 @@ namespace Player.Weapons.Definitions {
 
         public override void FastReload() {
             CanFastReload = false;
+            PlaySound(_reloadFastSound, ReloadFastPitch);
             _animator.CrossFade("Reload Fast", _crossFade, -1, 0f);
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);
@@ -141,6 +156,7 @@ namespace Player.Weapons.Definitions {
 
         public override void SlowReload() {
             CanFastReload = false;
+            PlaySound(_reloadSlowSound, ReloadSlowPitch);
             _animator.CrossFade("Reload Slow", _crossFade, -1, 0f);
             Conductor.Instance.DisableNextInteractions(1);
             IEnumerator SetNotInAnimation() {

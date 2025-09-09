@@ -24,6 +24,7 @@ namespace Player.States {
         public override void EnterState() {
             PlayerEvents.OnJumpedEvent();
             _currentJumpDuration = 0f;
+            Player.PlayRandomSound(Player.JumpStartSounds);
             
             _currentVelocity = Vector3.zero;
             _targetVelocity = Vector3.zero;

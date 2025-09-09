@@ -149,7 +149,7 @@ namespace Player.Weapons.Definitions {
             _unsubscribeFromEvents();
         }
 
-        protected override void CalculateAnimationsSpeed() {
+        protected override void UpdateAnimationsSpeed() {
             _animator.SetFloat(WalkSpeed, _walk.length / Crotchet);
             _animator.SetFloat(ShootSpeed, _action.length / HalfCrotchet);
         }

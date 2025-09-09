@@ -1,5 +1,6 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
 using Core.Behaviour.FiniteStateMachine.StateImplementations;
+using Core.Music;
 using UnityEngine;
 
 namespace Player.States {
@@ -7,7 +8,12 @@ namespace Player.States {
         public WalkState(StateMachine stateMachine, PlayerController controller) : base(
             stateMachine, controller) { }
 
-        public override void EnterState() => PlayerEvents.OnStartWalkingEvent();
+        public override void EnterState() {
+            Conductor.NextBeat += PlayWalkSound;
+            PlayerEvents.OnStartWalkingEvent();
+        }
+
+        private void PlayWalkSound() => Player.PlayRandomSound(Player.WalkSounds);
 
         public override void FrameUpdate() {
             if (!Player.IsGrounded) AttachedStateMachine.ChangeState(Player.States.AirborneState);
@@ -24,6 +30,9 @@ namespace Player.States {
             Player.Controller.Move((moveVector + gravityVector) * Time.deltaTime);
         }
 
-        public override void ExitState() => PlayerEvents.OnStoppedWalkingEvent();
+        public override void ExitState() {
+            PlayerEvents.OnStoppedWalkingEvent();
+            Conductor.NextBeat -= PlayWalkSound;
+        }
     }
 }

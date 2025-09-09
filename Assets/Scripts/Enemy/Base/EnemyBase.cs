@@ -53,11 +53,7 @@ namespace Enemy.Base {
         
         // ---------- Audio ----------
         [SerializeField] protected Vector2 _walkSoundDelay;
-        [SerializeField] protected Vector2 _audioPitchChange;
         [SerializeField] protected float _soundDistance;
-        
-        [SerializeField] private AudioClip[] _stepSounds;
-        [SerializeField] private AudioClip[] _hitSounds;
 
         public Vector2 WalkSoundDelay => _walkSoundDelay;
         
@@ -100,13 +96,7 @@ namespace Enemy.Base {
         
         public override void TakeDamage(DamageInfo damageInfo) {
             base.TakeDamage(damageInfo);
-            PlayRandomSound(_hitSounds);
-        }
-
-        public void PlayRandomSound(AudioClip[] sounds) {
-            var randomSound = sounds[Random.Range(0, sounds.Length)];
-            var randomPitch = Random.Range(_audioPitchChange.x, _audioPitchChange.y);
-            AudioManager.Instance.PlaySound(randomSound, Position, _soundDistance, randomPitch);
+            PlayRandomSound(_hurtSounds);
         }
         
         public void PlayWalkSound() {

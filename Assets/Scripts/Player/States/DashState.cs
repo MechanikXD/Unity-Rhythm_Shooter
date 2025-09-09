@@ -16,6 +16,7 @@ namespace Player.States {
         
         public override void EnterState() {
             _currentDuration = 0f;
+            Player.PlayRandomSound(Player.DashSounds);
             OnPlayerDashed(Conductor.Instance.SongPosition);
             _dashVector = Player.GetCameraRelativeVector(Player.DashSpeed + _speedModifier);
 
