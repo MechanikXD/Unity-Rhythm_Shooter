@@ -121,7 +121,7 @@ namespace Player.Weapons.Base {
         }
 
         protected virtual void UpdateSoundPitch() {
-            ReloadFastPitch = _reloadFast.length / HalfCrotchet;
+            ReloadFastPitch = _reloadFastSound.length / HalfCrotchet;
             ReloadSlowPitch = _reloadSlowSound.length / (2 * Crotchet);
             ReloadStartPitch = _reloadStartSound.length / Crotchet;
         }

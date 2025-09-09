@@ -32,6 +32,37 @@ namespace Core.Behaviour.BehaviourInjection {
         
         public void ChangeBehaviour(string key) => ChangeBehaviour(_behaviours[key]);
     }
+    
+    public class BehaviourInjection<TIn, TOut> {
+        private Func<TIn, TOut> _currentBehavior;
+        private readonly Func<TIn, TOut> _defaultBehavior;
+        
+        private readonly Dictionary<string, Func<TIn, TOut>> _behaviours;
+        
+        public BehaviourInjection(Func<TIn, TOut> defaultBehavior) {
+            _behaviours = new Dictionary<string, Func<TIn, TOut>> { { "Default", defaultBehavior } };
+            _currentBehavior = defaultBehavior;
+            _defaultBehavior = defaultBehavior;
+        }
+        
+        public BehaviourInjection(Func<TIn, TOut> defaultBehavior, Func<TIn, TOut> activeBehaviour) {
+            _behaviours = new Dictionary<string, Func<TIn, TOut>> { { "Default", defaultBehavior } };
+            _currentBehavior = activeBehaviour;
+            _defaultBehavior = defaultBehavior;
+        }
+
+        public void ChangeToDefaultBehaviour() => 
+            _currentBehavior = _defaultBehavior;
+
+        public TOut Perform(TIn value) => _currentBehavior(value);
+
+        public void ChangeBehaviour(Func<TIn, TOut> newBehaviour) => 
+            _currentBehavior = newBehaviour;
+        
+        public void AddBehaviour(string key, Func<TIn, TOut> behaviour) => _behaviours.Add(key, behaviour);
+        
+        public void ChangeBehaviour(string key) => ChangeBehaviour(_behaviours[key]);
+    }
 
     public class BehaviourInjection {
         private Action _currentBehavior;

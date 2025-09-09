@@ -3,7 +3,6 @@ using System.Collections;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game;
 using Core.Music;
-using Interactable;
 using Interactable.Damageable;
 using Player.Weapons.Base;
 using UnityEngine;
@@ -18,6 +17,8 @@ namespace Player.Weapons.Definitions {
         private float _currentBlockDuration;
         private DamageableBehaviour _player;
 
+        private float _playerDefaultDamageReduction;
+        [SerializeField] private float _blockAngle = 90f;
         [SerializeField] private float _passiveDamageReduction = 1f;
         [SerializeField] private float _shieldedDamageReduction = 0.6f;
         
@@ -25,9 +26,10 @@ namespace Player.Weapons.Definitions {
         private BehaviourInjection<float> _rightActionBehaviour;
 
         private bool _wasBlockingLastFrame;
-        // TODO: Finish Parry Mechanic
         private bool _canParry;
         private bool _isBlocking;
+
+        [SerializeField] private AudioClip[] _blockedAttackSounds;
         
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
@@ -61,6 +63,7 @@ namespace Player.Weapons.Definitions {
             
             _inAnimation = true;
             _attackCollider.ActivateCollider();
+            PlaySound(_shotSounds);
             
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(HalfCrotchet);
@@ -75,10 +78,37 @@ namespace Player.Weapons.Definitions {
         private void StartBlocking(float damageReduction) {
             if (!CanDoRightAction()) return;
 
-            _player.SetDamageReduction(_player.CurrentDamageReduction - _passiveDamageReduction + _shieldedDamageReduction);
             _animator.CrossFade("Shielded", _crossFade);
             _isBlocking = true;
             _animator.SetBool(IsBlocking, _isBlocking);
+            _player.DamageProcessor.ChangeBehaviour(ShieldedDamageProcessor);
+        }
+
+        private int ShieldedDamageProcessor(DamageInfo info) {
+            if (IsEnemyInFront(_player.transform, info.SourcePosition, _blockAngle)) {
+                PlaySound(_blockedAttackSounds);
+                return _currentBlockDuration < _parryWindowDuration && _canParry 
+                    ? 0 
+                    : (int)(info.DamageValue - info.DamageValue *
+                    (_player.CurrentDamageReduction - _shieldedDamageReduction));
+            }
+
+            return (int)(info.DamageValue - info.DamageValue * _player.CurrentDamageReduction);
+        }
+        
+        private static bool IsEnemyInFront(Transform player, Vector3 enemyPosition, float maxAngle) {
+            Vector3 playerForward = player.forward;
+            playerForward.y = 0;  // Ignore Y
+            playerForward.Normalize();
+    
+            Vector3 directionToEnemy = enemyPosition - player.position;
+            directionToEnemy.y = 0;  // Ignore Y
+            directionToEnemy.Normalize();
+    
+            float dot = Vector3.Dot(playerForward, directionToEnemy);
+            float cosAngle = Mathf.Cos(maxAngle * 0.5f * Mathf.Deg2Rad);
+    
+            return dot >= cosAngle;
         }
 
         public override bool CanDoLeftAction() => !_isBlocking && !_inAnimation;
@@ -99,6 +129,8 @@ namespace Player.Weapons.Definitions {
             _blockAction = _playerInput.actions["RightAction"];
             _player = GameManager.Instance.Player;
 
+            _playerDefaultDamageReduction = _player.CurrentDamageReduction;
+            _player.SetDamageReduction(_passiveDamageReduction);
             _leftActionBehaviour = new BehaviourInjection<int>(ShieldAttack);
             _rightActionBehaviour = new BehaviourInjection<float>(StartBlocking);
             
@@ -140,13 +172,13 @@ namespace Player.Weapons.Definitions {
                 _isBlocking = false;
                 _canParry = false;
                 _wasBlockingLastFrame = false;
-                _player.SetDamageReduction(_player.CurrentDamageReduction -
-                    _shieldedDamageReduction + _passiveDamageReduction);
+                _player.DamageProcessor.ChangeToDefaultBehaviour();
             }
         }
 
         public override void OnWeaponDeselected() {
             _unsubscribeFromEvents();
+            _player.SetDamageReduction(_playerDefaultDamageReduction);
         }
 
         protected override void UpdateAnimationsSpeed() {

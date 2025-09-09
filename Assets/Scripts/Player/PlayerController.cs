@@ -134,7 +134,7 @@ namespace Player {
         }
         
         private void Start() {
-            var activeIndex = 0;
+            var activeIndex = 2;
             _weapons[activeIndex].gameObject.SetActive(true);
             _weaponController.Initialize(_weapons[activeIndex]);
         }

@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using Core.Behaviour.BehaviourInjection;
 using Core.Game.Audio;
 using Interactable.Status;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Interactable.Damageable {
     public abstract class DamageableBehaviour : MonoBehaviour, IDamageable {
@@ -22,7 +24,8 @@ namespace Interactable.Damageable {
         public int HealthIncrement { get; private set; }
         public int CurrentHealth { get; private set; }
         public int MaxHealth => _currentMaxHealth;
-        
+        public BehaviourInjection<DamageInfo, int> DamageProcessor { get; private set; }
+
         [SerializeField] protected float _defaultDamageReduction;
         public float CurrentDamageReduction { get; private set; }
         private bool _canTakeDamage;
@@ -102,11 +105,15 @@ namespace Interactable.Damageable {
         protected abstract void EnterParriedState();
         */
 
+        private int DefaultDamageProcessor(DamageInfo damageInfo) {
+            return (int)(damageInfo.DamageValue - damageInfo.DamageValue * CurrentDamageReduction);
+        }
+
         public virtual void TakeDamage(DamageInfo damageInfo) {
             if (!_canTakeDamage) return;
 
-            CurrentHealth -= (int)(damageInfo.DamageValue -
-                                   damageInfo.DamageValue * CurrentDamageReduction);
+            CurrentHealth -= DamageProcessor.Perform(damageInfo);
+            
             if (CurrentHealth <= 0) {
                 CurrentHealth = 0;
                 Die();
@@ -171,7 +178,7 @@ namespace Interactable.Damageable {
             if (newValue < 0) newValue = 0;
             
             MoveSpeedMultiplier = newValue;
-            CurrentSpeed = _moveSpeed * newValue;
+            UpdateCurrentSpeed();
         }
 
         public void UpdateCurrentSpeed() {
@@ -216,6 +223,7 @@ namespace Interactable.Damageable {
             CurrentStatuses = new Dictionary<StatusEffect, StatusBase>();
 
             // _currentsStagger = _staggerThreshold;
+            DamageProcessor = new BehaviourInjection<DamageInfo, int>(DefaultDamageProcessor);
             CurrentHealth = _maxHealth;
             CurrentDamage = _damage;
             CurrentDamageReduction = _defaultDamageReduction;
