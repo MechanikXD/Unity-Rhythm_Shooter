@@ -6,6 +6,8 @@ using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
 using Interactable.Damageable;
 using Player.Weapons.Base;
+using UI;
+using UI.Views.Player;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -18,6 +20,7 @@ namespace Player.Weapons.Definitions {
 
         private BehaviourInjection<int> _leftActionBehaviour;
         private BehaviourInjection<float> _rightActionBehaviour;
+        private ShotgunView _relatedCanvas;
         
         private bool _inAnimation;
         private Action _unsubscribeFromEvents;
@@ -46,8 +49,9 @@ namespace Player.Weapons.Definitions {
 
         private void Shoot(int damage) {
             if (!CanDoLeftAction()) {
-                if (_currentAmmoCount <= 0) {
+                if (_currentAmmoCount <= 0 || !_hasAmmoInChamber) {
                     PlaySound(_emptyShot);
+                    _relatedCanvas.HighlightAmmoCount();
                 }
                 return;
             }
@@ -55,6 +59,8 @@ namespace Player.Weapons.Definitions {
             _currentAmmoCount--;
             _hasAmmoInChamber = false;
             _inAnimation = true;
+            _relatedCanvas.SetCurrentAmmoCount(_currentAmmoCount);
+            if (_currentAmmoCount > 0) _relatedCanvas.SetCurrentAmmoCountActive(false);
             
             var widthDeviation = Screen.width / 2f * (1f - _spreadAngle / 90f);
             var heightDeviation = Screen.height / 2f * (1f - _spreadAngle / 90f);
@@ -102,8 +108,17 @@ namespace Player.Weapons.Definitions {
             IEnumerator SetNotInAnimation() {
                 yield return new WaitForSeconds(duration);
                 _inAnimation = false;
-                if (_hasAmmoInChamber) _currentAmmoCount--;
-                else _hasAmmoInChamber = true;
+                if (_hasAmmoInChamber) {
+                    _currentAmmoCount--;
+                    _relatedCanvas.SetCurrentAmmoCount(_currentAmmoCount);
+                    if (_currentAmmoCount <= 0) {
+                        _relatedCanvas.SetCurrentAmmoCountActive(true);
+                    }
+                }
+                else {
+                    _hasAmmoInChamber = true;
+                    _relatedCanvas.SetCurrentAmmoCountActive(true);
+                }
             }
             
             PlaySound(_pumpSounds);
@@ -146,6 +161,8 @@ namespace Player.Weapons.Definitions {
                 
                 _currentAmmoCount = _maxAmmo;
                 _hasAmmoInChamber = true;
+                _relatedCanvas.SetCurrentAmmoCount(_currentAmmoCount);
+                _relatedCanvas.SetCurrentAmmoCountActive(true);
 
                 IsReloading = false;
             }
@@ -165,6 +182,8 @@ namespace Player.Weapons.Definitions {
                 
                 _currentAmmoCount = _maxAmmo;
                 _hasAmmoInChamber = true;
+                _relatedCanvas.SetCurrentAmmoCount(_currentAmmoCount);
+                _relatedCanvas.SetCurrentAmmoCountActive(true);
 
                 IsReloading = false;
             }
@@ -177,8 +196,13 @@ namespace Player.Weapons.Definitions {
             _currentAmmoCount = _maxAmmo;
             _hasAmmoInChamber = true;
 
-            _leftActionBehaviour = new BehaviourInjection<int>(Shoot);
             _rightActionBehaviour = new BehaviourInjection<float>(Pump);
+            _leftActionBehaviour = new BehaviourInjection<int>(Shoot);
+            
+            _relatedCanvas = UIManager.Instance.GetHUDCanvas<ShotgunView>();
+            _relatedCanvas.SetCurrentAmmoCount(_currentAmmoCount);
+            _relatedCanvas.SetMaxAmmoCount(_maxAmmo);
+            UIManager.Instance.EnterHUDCanvas<ShotgunView>();
             
             _inAnimation = true;
             _animator.CrossFade("Selected", _crossFade, -1, 0f);
@@ -207,6 +231,9 @@ namespace Player.Weapons.Definitions {
             };
         }
 
-        public override void OnWeaponDeselected() => _unsubscribeFromEvents();
+        public override void OnWeaponDeselected() {
+            UIManager.Instance.ExitHudCanvas<ShotgunView>();
+            _unsubscribeFromEvents();
+        }
     }
 }

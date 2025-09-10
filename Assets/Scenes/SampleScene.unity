@@ -246,6 +246,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ed540a866d3c42208064cd453560c8e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _disableOnStart: 0
+  _thisCanvas: {fileID: 72176904}
   _healthBar: {fileID: 324363294}
   _healthFill: {fileID: 1739982907}
   _dashIconFill: {fileID: 40820519}
@@ -834,6 +836,9 @@ MonoBehaviour:
   - {fileID: 1784268095}
   - {fileID: 1439664907}
   - {fileID: 72176902}
+  - {fileID: 2046863236}
+  - {fileID: 977341936}
+  - {fileID: 1398830899}
 --- !u!1 &241350958
 GameObject:
   m_ObjectHideFlags: 0
@@ -2437,6 +2442,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c72f32e748934d7a8569493ccdce24ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _disableOnStart: 1
+  _thisCanvas: {fileID: 464423749}
   _resumeButton: {fileID: 4670833503708685511}
   _giveUpButton: {fileID: 642442424}
   _settingsButton: {fileID: 1988741687}
@@ -4467,6 +4474,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 091d1f4722964471bf8fcb527d7167dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _disableOnStart: 1
+  _thisCanvas: {fileID: 798439612}
   _spritePool:
   - {fileID: 6963417332952463060}
   - {fileID: 894221283}
@@ -5768,6 +5777,7 @@ GameObject:
   - component: {fileID: 977341933}
   - component: {fileID: 977341935}
   - component: {fileID: 977341934}
+  - component: {fileID: 977341936}
   m_Layer: 5
   m_Name: Shotgun HUD
   m_TagString: Untagged
@@ -5841,6 +5851,26 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &977341936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 977341932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad9eeb37655047a795b719e2f9270215, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _disableOnStart: 1
+  _thisCanvas: {fileID: 977341935}
+  _maxAmmoCount: {fileID: 1212313365}
+  _currentAmmoCount: {fileID: 833162283}
+  _activeAmmoColor: {r: 1, g: 1, b: 1, a: 1}
+  _inactiveAmmoColor: {r: 0.74901974, g: 0.74901974, b: 0.74901974, a: 0.32941177}
+  _fadeInColor: {r: 0.6377357, g: 0, b: 0, a: 1}
+  _fadeInOutDuration: {x: 0.3, y: 1}
 --- !u!4 &986191306 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1972487910709877232, guid: 1f58a1dea6bbd9347843e4935585e6a2, type: 3}
@@ -7777,6 +7807,7 @@ GameObject:
   - component: {fileID: 1398830896}
   - component: {fileID: 1398830898}
   - component: {fileID: 1398830897}
+  - component: {fileID: 1398830899}
   m_Layer: 5
   m_Name: Shield HUD
   m_TagString: Untagged
@@ -7850,6 +7881,23 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &1398830899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1398830895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c46ac3d00ec24a06967332dfae4e5206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _disableOnStart: 1
+  _thisCanvas: {fileID: 1398830898}
+  _shieldIcon: {fileID: 444667931}
+  _activeIconColor: {r: 1, g: 1, b: 1, a: 1}
+  _inactiveColor: {r: 255, g: 255, b: 255, a: 0.5}
 --- !u!1 &1402446593
 GameObject:
   m_ObjectHideFlags: 0
@@ -8180,6 +8228,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a34d80661764e31b0aa52ef679c62f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _disableOnStart: 0
+  _thisCanvas: {fileID: 1439664909}
   _scoreText: {fileID: 1290244353}
   _comboText: {fileID: 1201447913}
   _rankObjects:
@@ -9989,6 +10039,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b0ef9ebb181b0f4dbe83f21ef888140, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _disableOnStart: 0
+  _thisCanvas: {fileID: 1784268094}
   _beatPrefab: {fileID: 5549502696251863017, guid: 855ac30c59d34f04583b3d49e08ff352, type: 3}
   _defaultBeatSettings: {fileID: 11400000, guid: 1bafdecf0ba66e84eb97cd0d5eaee70e, type: 2}
   _missBeatSettings: {fileID: 11400000, guid: 2fa82dc98f7bb0343b7652c0a8e7c5ae, type: 2}
@@ -10473,6 +10525,7 @@ GameObject:
   - component: {fileID: 2046863233}
   - component: {fileID: 2046863235}
   - component: {fileID: 2046863234}
+  - component: {fileID: 2046863236}
   m_Layer: 5
   m_Name: Revolver HUD
   m_TagString: Untagged
@@ -10548,6 +10601,25 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!114 &2046863236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046863232}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e29504232be4f5d99a125cb7a38ffe4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _disableOnStart: 1
+  _thisCanvas: {fileID: 2046863235}
+  _leftAmmoCount: {fileID: 774766870}
+  _rightAmmoCount: {fileID: 1402446595}
+  _maxAmmoCount: {fileID: 1300258140}
+  _fadeInColor: {r: 0.82641506, g: 0, b: 0, a: 1}
+  _fadeInOutDuration: {x: 0.3, y: 1}
 --- !u!1 &2079643704
 GameObject:
   m_ObjectHideFlags: 0

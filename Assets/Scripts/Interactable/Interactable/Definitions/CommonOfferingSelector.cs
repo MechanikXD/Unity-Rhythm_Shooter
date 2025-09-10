@@ -5,7 +5,7 @@ namespace Interactable.Interactable.Definitions {
     public class CommonOfferingSelector : InteractableBase {
         public override void Interact() {
             Destroy(gameObject);
-            UIManager.Instance.EnterCanvas<OfferingView>();
+            UIManager.Instance.EnterUICanvas<OfferingView>();
         }
     }
 }

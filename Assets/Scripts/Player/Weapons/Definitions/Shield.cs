@@ -5,6 +5,8 @@ using Core.Game;
 using Core.Music;
 using Interactable.Damageable;
 using Player.Weapons.Base;
+using UI;
+using UI.Views.Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -24,6 +26,7 @@ namespace Player.Weapons.Definitions {
         
         private BehaviourInjection<int> _leftActionBehaviour;
         private BehaviourInjection<float> _rightActionBehaviour;
+        private ShieldView _relatedCanvas;
 
         private bool _wasBlockingLastFrame;
         private bool _canParry;
@@ -78,6 +81,7 @@ namespace Player.Weapons.Definitions {
         private void StartBlocking(float damageReduction) {
             if (!CanDoRightAction()) return;
 
+            _relatedCanvas.SetShieldIconActive(true);
             _animator.CrossFade("Shielded", _crossFade);
             _isBlocking = true;
             _animator.SetBool(IsBlocking, _isBlocking);
@@ -129,6 +133,10 @@ namespace Player.Weapons.Definitions {
             _blockAction = _playerInput.actions["RightAction"];
             _player = GameManager.Instance.Player;
 
+            _relatedCanvas = UIManager.Instance.GetHUDCanvas<ShieldView>();
+            _relatedCanvas.SetShieldIconActive(false);
+            UIManager.Instance.EnterHUDCanvas<ShieldView>();
+            
             _playerDefaultDamageReduction = _player.CurrentDamageReduction;
             _player.SetDamageReduction(_passiveDamageReduction);
             _leftActionBehaviour = new BehaviourInjection<int>(ShieldAttack);
@@ -173,11 +181,13 @@ namespace Player.Weapons.Definitions {
                 _canParry = false;
                 _wasBlockingLastFrame = false;
                 _player.DamageProcessor.ChangeToDefaultBehaviour();
+                _relatedCanvas.SetShieldIconActive(false);
             }
         }
 
         public override void OnWeaponDeselected() {
             _unsubscribeFromEvents();
+            UIManager.Instance.ExitHudCanvas<ShieldView>();
             _player.SetDamageReduction(_playerDefaultDamageReduction);
         }
 

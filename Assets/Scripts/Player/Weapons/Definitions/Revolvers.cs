@@ -6,6 +6,8 @@ using Core.Music.Sequence;
 using Core.Music.Sequence.Components;
 using Interactable.Damageable;
 using Player.Weapons.Base;
+using UI;
+using UI.Views.Player;
 using UnityEngine;
 
 namespace Player.Weapons.Definitions {
@@ -23,6 +25,7 @@ namespace Player.Weapons.Definitions {
 
         private Coroutine _reloadRemoveInAnimation;
         private Action _unsubscribeFromEvents;
+        private RevolversView _relatedCanvas;
 
         [SerializeField] private ParticleSystem _leftMuzzleFlash;
         [SerializeField] private ParticleSystem _rightMuzzleFlash;
@@ -49,11 +52,13 @@ namespace Player.Weapons.Definitions {
             if (left) {
                 if (!CanDoLeftAction()) {
                     if (_leftCurrentAmmo <= 0) PlaySound(_emptyShot);
+                    _relatedCanvas.HighlightLeftAmmoCount();
                     
                     return;
                 }
                 _leftInAnimation = true;
                 _leftCurrentAmmo--;
+                _relatedCanvas.SetLeftAmmoCount(_leftCurrentAmmo);
                 
                 _leftActionBehaviour.Perform(damage);
                 if (!_leftMuzzleFlash.gameObject.activeInHierarchy) {
@@ -70,9 +75,15 @@ namespace Player.Weapons.Definitions {
                 StartCoroutine(SetLeftNotInAnimation());
             }
             else {
-                if (!CanDoRightAction()) return;
+                if (!CanDoRightAction()) {
+                    if (_rightCurrentAmmo <= 0) PlaySound(_emptyShot);
+                    _relatedCanvas.HighlightRightAmmoCount();
+                    
+                    return;
+                }
                 _rightInAnimation = true;
                 _rightCurrentAmmo--;
+                _relatedCanvas.SetRightAmmoCount(_rightCurrentAmmo);
                 
                 _rightActionBehaviour.Perform(damage);
                 if (!_rightMuzzleFlash.gameObject.activeInHierarchy) {
@@ -141,6 +152,8 @@ namespace Player.Weapons.Definitions {
                 
                 _leftCurrentAmmo = _maxAmmo;
                 _rightCurrentAmmo = _maxAmmo;
+                _relatedCanvas.SetLeftAmmoCount(_leftCurrentAmmo);
+                _relatedCanvas.SetRightAmmoCount(_rightCurrentAmmo);
 
                 IsReloading = false;
             }
@@ -160,6 +173,8 @@ namespace Player.Weapons.Definitions {
                 
                 _leftCurrentAmmo = _maxAmmo;
                 _rightCurrentAmmo = _maxAmmo;
+                _relatedCanvas.SetLeftAmmoCount(_leftCurrentAmmo);
+                _relatedCanvas.SetRightAmmoCount(_rightCurrentAmmo);
 
                 IsReloading = false;
             }
@@ -174,6 +189,12 @@ namespace Player.Weapons.Definitions {
 
             _leftActionBehaviour = new BehaviourInjection<int>(ShootForward);
             _rightActionBehaviour = new BehaviourInjection<int>(ShootForward);
+            
+            _relatedCanvas = UIManager.Instance.GetHUDCanvas<RevolversView>();
+            _relatedCanvas.SetLeftAmmoCount(_leftCurrentAmmo);
+            _relatedCanvas.SetRightAmmoCount(_rightCurrentAmmo);
+            _relatedCanvas.SetMaxAmmoCount(_maxAmmo);
+            UIManager.Instance.EnterHUDCanvas<RevolversView>();
             
             _leftInAnimation = true;
             _rightInAnimation = true;
@@ -214,6 +235,9 @@ namespace Player.Weapons.Definitions {
             }
         }
 
-        public override void OnWeaponDeselected() => _unsubscribeFromEvents();
+        public override void OnWeaponDeselected() {
+            _unsubscribeFromEvents();
+            UIManager.Instance.ExitHudCanvas<RevolversView>();
+        }
     }
 }

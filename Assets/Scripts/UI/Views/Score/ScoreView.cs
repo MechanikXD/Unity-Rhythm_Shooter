@@ -10,8 +10,7 @@ namespace UI.Views.Score {
         [SerializeField] private RankView[] _rankObjects;
         private int _currentRankIndex;
 
-        protected override void Awake() {
-            base.Awake();
+        protected void Awake() {
             SetDefaultValues();
         }
 

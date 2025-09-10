@@ -3,18 +3,17 @@
 namespace UI {
     [RequireComponent(typeof(Canvas))]
     public abstract class CanvasView : MonoBehaviour {
-        protected Canvas ThisCanvas;
-        
-        protected virtual void Awake() {
-            ThisCanvas = GetComponent<Canvas>();
-        }
+        [SerializeField] private bool _disableOnStart = true;
+        [SerializeField] protected Canvas _thisCanvas;
+
+        public bool DisableOnStart => _disableOnStart;
 
         public virtual void EnterCanvas() {
-            ThisCanvas.enabled = true;
+            _thisCanvas.enabled = true;
         }
 
         public virtual void ExitCanvas() {
-            ThisCanvas.enabled = false;
+            _thisCanvas.enabled = false;
         }
     }
 }

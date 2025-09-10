@@ -26,7 +26,7 @@ namespace UI {
         private void OnEnable() {
             void HandlePausePress() {
                 if (_isPause) ExitLastCanvas();
-                else EnterCanvas<PauseView>();
+                else EnterUICanvas<PauseView>();
             }
             
             PlayerEvents.PausePressed += HandlePausePress;
@@ -40,9 +40,8 @@ namespace UI {
             ToSingleton(false);
             SortCanvases();
             Initialize();
+            DisableCanvases();
         }
-        
-        private void Start() => DisableUICanvases();
 
         private void OnDisable() => _unsubscribeAction();
 
@@ -62,12 +61,17 @@ namespace UI {
             PauseStateExited?.Invoke();
         }
 
-        public void EnterCanvas<T>() where T : CanvasView {
+        public void EnterUICanvas<T>() where T : CanvasView {
             if (!_isPause) EnterPauseState();
             
             if (_uiStack.Count > 0) _uiStack.Peek().ExitCanvas();
-            var canvas = GetCanvas<T>();
+            var canvas = GetUICanvas<T>();
             _uiStack.Push(canvas);
+            canvas.EnterCanvas();
+        }
+
+        public void EnterHUDCanvas<T>() where T : CanvasView {
+            var canvas = GetHUDCanvas<T>();
             canvas.EnterCanvas();
         }
 
@@ -78,20 +82,12 @@ namespace UI {
             else _uiStack.Peek().EnterCanvas();
         }
 
+        public void ExitHudCanvas<T>() where T : CanvasView {
+            if (_hudCanvases.TryGetValue(typeof(T), out var hud)) hud.ExitCanvas();
+        }
+
         public T GetUICanvas<T>() where T : CanvasView => (T)_uiCanvases[typeof(T)];
         public T GetHUDCanvas<T>() where T : CanvasView => (T)_hudCanvases[typeof(T)];
-
-        private T GetCanvas<T>() where T : CanvasView {
-            if (_uiCanvases.TryGetValue(typeof(T), out var uiCanvas)) {
-                return (T)uiCanvas;
-            }
-            
-            if (_hudCanvases.TryGetValue(typeof(T), out var hudCanvas)) {
-                return (T)hudCanvas;
-            }
-            // No canvas found
-            return null;
-        }
 
         private void SortCanvases() {
             _hudCanvases = new Dictionary<Type, CanvasView>();
@@ -110,13 +106,21 @@ namespace UI {
             _uiStack = new Stack<CanvasView>();
         }
         
-        private void DisableUICanvases() {
+        private void DisableCanvases() {
             foreach (var uiCanvas in _uiCanvases.Values) {
                 // Safe exit from canvas (disables only canvas, not gameObject)
                 if (!uiCanvas.gameObject.activeInHierarchy) {
                     uiCanvas.gameObject.SetActive(true);
                 }
-                uiCanvas.ExitCanvas();
+                if (uiCanvas.DisableOnStart) uiCanvas.ExitCanvas();
+            }
+            
+            foreach (var hudCanvas in _hudCanvases.Values) {
+                // Safe exit from canvas (disables only canvas, not gameObject)
+                if (!hudCanvas.gameObject.activeInHierarchy) {
+                    hudCanvas.gameObject.SetActive(true);
+                }
+                if (hudCanvas.DisableOnStart) hudCanvas.ExitCanvas();
             }
         }
     }
