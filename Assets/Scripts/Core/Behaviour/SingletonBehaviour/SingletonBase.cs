@@ -6,7 +6,7 @@ namespace Core.Behaviour.SingletonBehaviour {
 
         protected virtual void Awake() => ToSingleton();
 
-        private void ToSingleton(bool dontDestroyOnLoad=true) {
+        protected void ToSingleton(bool dontDestroyOnLoad=true) {
             if (Instance != null) {
                 Debug.LogWarning($"Multiple Instances of {typeof(T)} was found on the scene!\n" +
                                  $"{gameObject.name} will be destroyed upon start.");

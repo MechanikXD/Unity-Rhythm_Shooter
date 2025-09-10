@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 namespace UI.Managers {
-    public class CrosshairBeat : MonoBehaviour {
+    public class CrosshairView : CanvasView {
         [SerializeField] private Image _beatPrefab;
         private BeatQueue _beatQueue;
         private Action _unsubscribeFromEventsAction;
@@ -20,7 +20,6 @@ namespace UI.Managers {
         [SerializeField] private Image _leftGradientImage;
         [SerializeField] private Image _rightGradientImage;
         [SerializeField] private Vector2 _indicatorFadeInOutTime = new Vector2(0.05f, 0.5f);
-        [SerializeField] private Vector2 _beatsFadeInOutTime = new Vector2(0.5f, 0.05f);
         private Sequence _leftGradientAnimation;
         private Sequence _rightGradientAnimation;
 
