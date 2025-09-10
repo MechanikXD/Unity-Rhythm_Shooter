@@ -78,8 +78,8 @@ namespace UI {
             else _uiStack.Peek().EnterCanvas();
         }
 
-        private T GetUICanvas<T>() where T : CanvasView => (T)_uiCanvases[typeof(T)];
-        private T GetHUDCanvas<T>() where T : CanvasView => (T)_hudCanvases[typeof(T)];
+        public T GetUICanvas<T>() where T : CanvasView => (T)_uiCanvases[typeof(T)];
+        public T GetHUDCanvas<T>() where T : CanvasView => (T)_hudCanvases[typeof(T)];
 
         private T GetCanvas<T>() where T : CanvasView {
             if (_uiCanvases.TryGetValue(typeof(T), out var uiCanvas)) {

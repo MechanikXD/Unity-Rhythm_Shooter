@@ -5,6 +5,8 @@ using Interactable.Damageable;
 using Player.Interactions;
 using Player.Weapons;
 using Player.Weapons.Base;
+using UI;
+using UI.Views.Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -97,7 +99,16 @@ namespace Player {
         }
 
         private IEnumerator RestoreDashLater() {
-            yield return new WaitForSeconds(_dashCooldownTime);
+            var currentWaitTime = 0f;
+            var playerCanvas = UIManager.Instance.GetHUDCanvas<PlayerView>();
+            
+            while (currentWaitTime < _dashCooldownTime) {
+                currentWaitTime += Time.deltaTime;
+                playerCanvas.SetDashIconFill(currentWaitTime / _dashCooldownTime);
+                yield return null;
+            }
+            
+            playerCanvas.SetDashIconFill(1f);
             yield return new WaitUntil(() => IsGrounded);
             DashInCooldown = false;
             PlayRandomSound(DashRechargeSounds);
@@ -151,7 +162,13 @@ namespace Player {
         private void FixedUpdate() => _stateMachine.CurrentState.FixedUpdate();
 
         private void OnDisable() => _unsubscribeFromEvents();
+
+        public override void TakeDamage(DamageInfo damageInfo) {
+            base.TakeDamage(damageInfo);
+            PlayerEvents.OnHealthChanged(CurrentHealth);
+        }
         
+
         public void OnMove(InputValue currentMoveDirection) =>
             _moveDirection = currentMoveDirection.Get<Vector2>();
 

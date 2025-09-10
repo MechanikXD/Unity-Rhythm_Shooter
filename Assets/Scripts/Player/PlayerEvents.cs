@@ -1,5 +1,4 @@
 ﻿using System;
-using Interactable;
 using Interactable.Damageable;
 
 namespace Player {
@@ -21,9 +20,11 @@ namespace Player {
         
         public static event Action<DamageInfo> DamageDealt;
         public static event Action AttackFailed;
+        public static event Action<int> HealthChanged;
 
         public static void OnAttackFailed() => AttackFailed?.Invoke();
         public static void OnDamageDealt(DamageInfo info) => DamageDealt?.Invoke(info);
+        public static void OnHealthChanged(int newValue) => HealthChanged?.Invoke(newValue);
         
         public static event Action<long> ScoreChanged;
         public static event Action<int> ComboCountChanged;

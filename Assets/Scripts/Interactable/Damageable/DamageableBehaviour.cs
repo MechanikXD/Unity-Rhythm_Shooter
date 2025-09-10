@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Core.Behaviour.BehaviourInjection;
 using Core.Game.Audio;
 using Interactable.Status;
@@ -25,6 +26,9 @@ namespace Interactable.Damageable {
         public int CurrentHealth { get; private set; }
         public int MaxHealth => _currentMaxHealth;
         public BehaviourInjection<DamageInfo, int> DamageProcessor { get; private set; }
+
+        public event Action<int> MaxHealthChanged;
+        public event Action<int> CurrentHealthChanged; 
 
         [SerializeField] protected float _defaultDamageReduction;
         public float CurrentDamageReduction { get; private set; }
@@ -112,7 +116,9 @@ namespace Interactable.Damageable {
         public virtual void TakeDamage(DamageInfo damageInfo) {
             if (!_canTakeDamage) return;
 
-            CurrentHealth -= DamageProcessor.Perform(damageInfo);
+            CurrentHealth = Mathf.Clamp(CurrentHealth - DamageProcessor.Perform(damageInfo), 0,
+                _currentMaxHealth);
+            CurrentHealthChanged?.Invoke(CurrentHealth);
             
             if (CurrentHealth <= 0) {
                 CurrentHealth = 0;
@@ -136,13 +142,16 @@ namespace Interactable.Damageable {
 
             var oldMaxHealth = _currentMaxHealth;
             _currentMaxHealth = newValue;
+            MaxHealthChanged?.Invoke(_currentMaxHealth);
             
             if (CurrentHealth > _currentMaxHealth) {
                 CurrentHealth = _currentMaxHealth;
+                CurrentHealthChanged?.Invoke(CurrentHealth);
             }
             else if (adjustCurrentHealth) {
                 var relativeHealth = oldMaxHealth != 0 ? CurrentHealth / oldMaxHealth : 1;
                 CurrentHealth = _currentMaxHealth * relativeHealth;
+                CurrentHealthChanged?.Invoke(CurrentHealth);
             }
         }
         
