@@ -3,7 +3,7 @@ using Enemy.Base;
 
 namespace Enemy.Types.SkeletonTank.States {
     public class ChasePlayer : EnemyState<SkeletonTank> {
-        private const float DistCorrection = 1f;  // Due to enemy size, distance should be adjusted 
+        private const float DIST_CORRECTION = 1f;  // Due to enemy size, distance should be adjusted 
 
         public ChasePlayer(SkeletonTank enemy) : base(enemy) { }
         
@@ -20,7 +20,7 @@ namespace Enemy.Types.SkeletonTank.States {
         }
 
         public override void FixedUpdate() {
-            if (Enemy.DistanceToPlayer < EnemyBase.PlayerProximity + DistCorrection) 
+            if (Enemy.DistanceToPlayer < EnemyBase.PlayerProximity + DIST_CORRECTION) 
                 ChangeState<Attack>();
             else Enemy.Agent.SetDestination(Enemy.PlayerTransform.position);
         }

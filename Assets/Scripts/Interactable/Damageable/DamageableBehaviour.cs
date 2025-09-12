@@ -122,6 +122,7 @@ namespace Interactable.Damageable {
             
             if (CurrentHealth <= 0) {
                 CurrentHealth = 0;
+                _canTakeDamage = false;
                 Die();
             }
             else if (damageInfo.Force > 0) {

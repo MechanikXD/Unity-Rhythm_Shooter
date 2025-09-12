@@ -31,21 +31,21 @@ namespace Player.Weapons.Definitions {
         [SerializeField] private ParticleSystem _rightMuzzleFlash;
 
         public override void LeftPerfectAction() => 
-            PerformAction(4, true);
+            PerformAction(6, true);
         public override void LeftGoodAction() => 
-            PerformAction(3, true);
+            PerformAction(4, true);
         public override void LeftMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            PerformAction(1, true);
+            PerformAction(2, true);
         }
 
         public override void RightPerfectAction() => 
-            PerformAction(4, false);
+            PerformAction(6, false);
         public override void RightGoodAction() => 
-            PerformAction(3, false);
+            PerformAction(4, false);
         public override void RightMissedAction() {
             Conductor.Instance.DisableNextInteractions(1);
-            PerformAction(1, false);
+            PerformAction(2, false);
         }
         
         private void PerformAction(int damage, bool left) {
@@ -107,7 +107,7 @@ namespace Player.Weapons.Definitions {
             if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer) &&
                 hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
 
-                var info = DamageInfoBuilder.PlayerAttack(damageable, hit.point);
+                var info = DamageInfoBuilder.PlayerAttack(damageable, hit.point, damage);
                 
                 damageable.TakeDamage(info);
                 PlayerEvents.OnDamageDealt(info);

@@ -7,9 +7,11 @@ namespace Player.Weapons.Definitions {
     public class ShieldAttackCollider : MonoBehaviour {
         [SerializeField] private Collider _attackCollider;
         private readonly HashSet<IDamageable> _damagedThisAttack = new HashSet<IDamageable>();
-
-        public void ActivateCollider() {
+        private int _damage;
+        
+        public void ActivateCollider(int damage) {
             _attackCollider.enabled = true;
+            _damage = damage;
         }
 
         public void DeactivateCollider() {
@@ -21,7 +23,7 @@ namespace Player.Weapons.Definitions {
             if (!other.gameObject.TryGetComponent<IDamageable>(out var damageable) ||
                 _damagedThisAttack.Contains(damageable)) return;
 
-            var info = DamageInfoBuilder.PlayerAttack(damageable, other.contacts[0].point);
+            var info = DamageInfoBuilder.PlayerAttack(damageable, other.contacts[0].point, _damage);
             damageable.TakeDamage(info);
             _damagedThisAttack.Add(damageable);
         }

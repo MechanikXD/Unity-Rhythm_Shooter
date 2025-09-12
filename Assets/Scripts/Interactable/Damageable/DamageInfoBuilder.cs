@@ -10,9 +10,9 @@ namespace Interactable.Damageable {
                 target.Position);
         }
         
-        public static DamageInfo PlayerAttack(IDamageable target, Vector3 hitPosition) {
+        public static DamageInfo PlayerAttack(IDamageable target, Vector3 hitPosition, int damage) {
             var player = GameManager.Instance.Player;
-            return new DamageInfo(player, target, player.CurrentDamage, player.Position,
+            return new DamageInfo(player, target, damage, player.Position,
                 hitPosition);
         }
 

@@ -13,18 +13,18 @@ namespace Enemy.Types.SkeletonArcher.States {
             var lockPosition = Vector3.zero;
             var sequenceBuilder = new ActionSequenceBuilder();
             
-            sequenceBuilder.Append(Trigger.NextBeat, _ => {
+            sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                 Enemy.PlayRandomSound(Enemy.ArrowLoadSounds);
                 // Wait one beat
             });
-            sequenceBuilder.Append(Trigger.NextBeat, _ => {
+            sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                 Enemy.PlayAnimation(Enemy.AttackStateLoop.name);
                 lockPosition = Enemy.DirectionToPlayer;
                 lockPosition.y -= Enemy.ArrowHeightCorrection;
                 
                 Enemy.PlayAttackTelegraphParticle(Enemy.BowPosition);
             });
-            sequenceBuilder.Append(Trigger.NextBeat, _ => {
+            sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                 Enemy.PlayRandomSound(Enemy.ArrowReleaseSounds);
                 if (_lastCreatedArrow != null) _lastCreatedArrow.Launch(Enemy, lockPosition);
 
@@ -35,12 +35,22 @@ namespace Enemy.Types.SkeletonArcher.States {
             _attackSequence = sequenceBuilder.ToSequence();
         }
 
+        private bool SequenceProtector()
+        {
+            return Enemy != null;
+        }
+
         public override void EnterState() {
             PlayOrRestartSequence();
             Enemy.Rotation.LookAt(Enemy.PlayerTransform.position);
             Enemy.PlayAnimation(Enemy.AttackStateEnter.name);
             
             _lastCreatedArrow = Object.Instantiate(Enemy.ArrowPrefab, Enemy.ArrowSpawnPoint);
+        }
+
+        public override void ExitState()
+        {
+            if (!_attackSequence.IsFinished) _attackSequence.Break();
         }
 
         private void PlayOrRestartSequence() {

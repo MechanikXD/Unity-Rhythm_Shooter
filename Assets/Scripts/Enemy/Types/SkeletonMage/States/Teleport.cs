@@ -7,6 +7,7 @@ using UnityEngine.AI;
 namespace Enemy.Types.SkeletonMage.States {
     public class Teleport : EnemyState<SkeletonMage> {
         public Teleport(SkeletonMage enemy) : base(enemy) { }
+        private Coroutine _activeCoroutine;
 
         public override void EnterState() {
             var newPosition = FindRandomVisiblePosition(Enemy.TeleportBounds.x, Enemy.TeleportBounds.y);
@@ -21,6 +22,8 @@ namespace Enemy.Types.SkeletonMage.States {
 
             IEnumerator AfterAnimationFinished() {
                 yield return new WaitForSeconds(Enemy.TeleportAnimationStart.length);
+                if (Enemy == null) yield break;
+                
                 Enemy.Agent.Warp(newPosition);
                 VFXManager.Instance.PlayParticles(Enemy.TeleportParticle, Enemy.Position);
                 Enemy.PlayAnimation(Enemy.TeleportAnimationEnd.name);
@@ -31,7 +34,7 @@ namespace Enemy.Types.SkeletonMage.States {
                 ChangeState<Idle>();
             }
 
-            Enemy.StartCoroutine(AfterAnimationFinished());
+            _activeCoroutine = Enemy.StartCoroutine(AfterAnimationFinished());
         }
 
         /// <summary>
@@ -57,6 +60,11 @@ namespace Enemy.Types.SkeletonMage.States {
             }
 
             return Vector3.zero;
+        }
+
+        public override void ExitState()
+        {
+            if (_activeCoroutine != null) Enemy.StopCoroutine(_activeCoroutine);
         }
     }
 }

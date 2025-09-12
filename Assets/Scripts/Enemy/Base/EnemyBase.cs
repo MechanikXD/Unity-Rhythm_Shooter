@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Core.Behaviour.FiniteStateMachine;
 using Core.Game;
-using Core.Game.Audio;
 using Core.Game.VisualFX;
 using Enemy.Tools;
 using Interactable.Damageable;
@@ -81,7 +80,6 @@ namespace Enemy.Base {
             UpdatePlayerReference();
             UpdateAnimationSpeed();
             InitializeStateMachine();
-            VFXManager.Instance.RegisterParticles(_attackTelegraph.Particle, 3);
         }
 
         protected abstract void UpdateAnimationSpeed();
@@ -99,15 +97,7 @@ namespace Enemy.Base {
             PlayRandomSound(_hurtSounds);
         }
         
-        public void PlayWalkSound() {
-            var randomDelay = Random.Range(WalkSoundDelay.x, WalkSoundDelay.y);
-            StartCoroutine(PlayWalkSoundDelayed(randomDelay));
-        }
-
-        private IEnumerator PlayWalkSoundDelayed(float delay) {
-            yield return new WaitForSeconds(delay);
-            PlayRandomSound(_stepSounds);
-        }
+        public void PlayWalkSound() => PlayRandomSound(_stepSounds);
 
         public void PlayAttackTelegraphParticle(Vector3 position) {
             var instance = Instantiate(_attackTelegraph, transform);

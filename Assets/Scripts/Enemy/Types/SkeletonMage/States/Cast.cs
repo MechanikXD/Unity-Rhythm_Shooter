@@ -11,23 +11,28 @@ namespace Enemy.Types.SkeletonMage.States {
         public Cast(SkeletonMage enemy) : base(enemy) {
             var sequenceBuilder = new ActionSequenceBuilder();
             
-            sequenceBuilder.Append(Trigger.NextBeat, _ => {
+            sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                 Enemy.PlayAnimation(Enemy.AttackStateLoop.name);
                 AttackPlayer();
             });
 
             for (var i = 0; i < Enemy.AttackCount - 1; i++) {
-                sequenceBuilder.Append(Trigger.NextBeat, _ => {
+                sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                     AttackPlayer();
                 });
             }
             
-            sequenceBuilder.Append(Trigger.NextBeat, _ => {
+            sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                 Enemy.PlayAnimation(Enemy.AttackStateExit.name);
                 Enemy.StartCoroutine(ForceExitStateAfter(Enemy.AttackStateExit.length, typeof(Teleport)));
             });
 
             _attackSequence = sequenceBuilder.ToSequence();
+        }
+
+        private bool SequenceProtector()
+        {
+            return Enemy != null;
         }
 
         public override void EnterState() {
@@ -40,10 +45,13 @@ namespace Enemy.Types.SkeletonMage.States {
             if (_attackSequence.IsFinished) _attackSequence.Restart();
             else _attackSequence.Start();
         }
-        
-        private void AttackPlayer() {
-            // TODO: Create Indicator
 
+        public override void ExitState()
+        {
+            if (!_attackSequence.IsFinished) _attackSequence.Break();
+        }
+
+        private void AttackPlayer() {
             var playerPos = Enemy.PlayerTransform.position;
             playerPos.y -= 0.9f;
             

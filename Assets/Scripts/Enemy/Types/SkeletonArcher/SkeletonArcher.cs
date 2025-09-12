@@ -1,4 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Game.VisualFX;
 using Core.Music;
 using Enemy.Base;
 using Enemy.Types.SkeletonArcher.States;
@@ -27,7 +28,7 @@ namespace Enemy.Types.SkeletonArcher {
         [Header("Animations:")]
         [SerializeField] private string _idleAnimationKey = "Archer Idle";
         [SerializeField] private string _runAnimationKey = "Archer Run";
-        [SerializeField] private string _deathAnimationKey = "Skely Death";
+        [SerializeField] private AnimationClip _deathAnimation;
 
         [SerializeField] private AnimationClip _attackStateEnter;
         [SerializeField] private AnimationClip _attackStateLoop;
@@ -35,7 +36,6 @@ namespace Enemy.Types.SkeletonArcher {
         
         public string IdleAnimationKey => _idleAnimationKey;
         public string RunAnimationKey => _runAnimationKey;
-        public string DeathAnimationKey => _deathAnimationKey;
         public AnimationClip AttackStateEnter => _attackStateEnter;
         public AnimationClip AttackStateLoop => _attackStateLoop;
         public AnimationClip AttackStateExit => _attackStateExit;
@@ -52,6 +52,12 @@ namespace Enemy.Types.SkeletonArcher {
 
         private int _attackStartSpeed;
 
+        protected override void Start()
+        {
+            base.Start();
+            VFXManager.Instance.RegisterParticles(_attackTelegraph.Particle, 3);
+        }
+        
         protected override State[] InitializeStates() {
             var idleState = new Idle(this);
             var repositionState = new Reposition(this);
@@ -73,9 +79,10 @@ namespace Enemy.Types.SkeletonArcher {
         
         public override void Die() {
             base.Die();
-            _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);
+            StateMachine.StopMachine();
+            _animator.CrossFade(_deathAnimation.name, _crossFade, -1, 0f);
             
-            Destroy(gameObject, _deathAnimationKey.Length);
+            Destroy(gameObject, _deathAnimation.length);
         }
     }
 }

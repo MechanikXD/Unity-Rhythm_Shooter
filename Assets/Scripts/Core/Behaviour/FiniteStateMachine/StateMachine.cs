@@ -1,5 +1,5 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core.Behaviour.FiniteStateMachine.StateImplementations;
 
 namespace Core.Behaviour.FiniteStateMachine {
     /// <summary>
@@ -32,6 +32,12 @@ namespace Core.Behaviour.FiniteStateMachine {
             _currentState.ExitState();
             _currentState = newState;
             _currentState.EnterState();
+        }
+
+        public void StopMachine()
+        {
+            var nullState = new NullState(this);
+            ChangeState(nullState);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using Core.Behaviour.FiniteStateMachine;
+using Core.Behaviour.FiniteStateMachine.StateImplementations;
 using UnityEngine;
 
 namespace Enemy.Base {
@@ -11,12 +12,14 @@ namespace Enemy.Base {
 
         protected IEnumerator ForceExitStateAfter(float delay, Type state) {
             yield return new WaitForSeconds(delay);
-            AttachedStateMachine.ChangeState(Enemy.States[state]);
+            if (AttachedStateMachine.CurrentState.GetType() != typeof(NullState))
+                AttachedStateMachine.ChangeState(Enemy.States[state]);
         }
         
         protected IEnumerator ForceExitStateAfter<T>(float delay) where T : EnemyState<TEnemy> {
             yield return new WaitForSeconds(delay);
-            ChangeState<T>();
+            if (AttachedStateMachine.CurrentState.GetType() != typeof(NullState))
+                ChangeState<T>();
         }
 
         protected void ChangeState<T>() where T : EnemyState<TEnemy> {

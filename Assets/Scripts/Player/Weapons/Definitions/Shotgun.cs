@@ -73,7 +73,7 @@ namespace Player.Weapons.Definitions {
                 
                 if (Physics.Raycast(ray, out var hit, _maxShootDistance, IgnorePlayer)) {
                     if (hit.transform.gameObject.TryGetComponent<IDamageable>(out var damageable)) {
-                        var info = DamageInfoBuilder.PlayerAttack(damageable, hit.point);
+                        var info = DamageInfoBuilder.PlayerAttack(damageable, hit.point, damage);
                         
                         damageable.TakeDamage(info);
                         PlayerEvents.OnDamageDealt(info);

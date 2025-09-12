@@ -22,7 +22,7 @@ namespace Enemy.Types.SkeletonMage {
         
         [Header("Animations:")]
         [SerializeField] private string _idleAnimationKey = "Mage Idle";
-        [SerializeField] private string _deathAnimationKey = "Skely Death";
+        [SerializeField] private AnimationClip _deathAnimation;
         
         [SerializeField] private AnimationClip _teleportAnimationStart;
         [SerializeField] private AnimationClip _teleportAnimationEnd;
@@ -32,7 +32,6 @@ namespace Enemy.Types.SkeletonMage {
         [SerializeField] private AnimationClip _attackStateExit;
         
         public string IdleAnimationKey => _idleAnimationKey;
-        public string DeathAnimationKey => _deathAnimationKey;
         public AnimationClip TeleportAnimationStart => _teleportAnimationStart;
         public AnimationClip TeleportAnimationEnd => _teleportAnimationEnd;
         public AnimationClip AttackStateEnter => _attackStateEnter;
@@ -72,9 +71,10 @@ namespace Enemy.Types.SkeletonMage {
 
         public override void Die() {
             base.Die();
-            _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);
+            StateMachine.StopMachine();
+            _animator.CrossFade(_deathAnimation.name, _crossFade, -1, 0f);
             
-            Destroy(gameObject, _deathAnimationKey.Length);
+            Destroy(gameObject, _deathAnimation.length);
         }
     }
 }

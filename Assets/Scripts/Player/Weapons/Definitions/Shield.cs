@@ -65,7 +65,7 @@ namespace Player.Weapons.Definitions {
             if (!CanDoLeftAction()) return;
             
             _inAnimation = true;
-            _attackCollider.ActivateCollider();
+            _attackCollider.ActivateCollider(damage);
             PlaySound(_shotSounds);
             
             IEnumerator SetNotInAnimation() {

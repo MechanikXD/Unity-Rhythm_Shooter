@@ -15,12 +15,12 @@ namespace Enemy.Types.SkeletonWarrior.States {
             
             for (var i = 0; i < attackCount; i++) {
                 var index = i;
-                sequenceBuilder.Append(Trigger.NextBeat, _ => {
+                sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                     AttackPlayer(Enemy.AttackAnimations[index + 1].name, Enemy.ForwardMovementDuringAttack[index]);
                 });
             }
             
-            sequenceBuilder.Append(Trigger.NextBeat, _ => {
+            sequenceBuilder.Append(Trigger.NextBeat, SequenceProtector, _ => {
                 AttackPlayer(Enemy.AttackAnimations[4].name, Enemy.ForwardMovementDuringAttack[3]);
                 
                 // Random 50/50 between idle and retreat
@@ -29,6 +29,11 @@ namespace Enemy.Types.SkeletonWarrior.States {
             });
 
             _attackSequence = sequenceBuilder.ToSequence();
+        }
+
+        private bool SequenceProtector()
+        {
+            return Enemy != null;
         }
 
         public override void EnterState() {
@@ -56,6 +61,7 @@ namespace Enemy.Types.SkeletonWarrior.States {
         public override void ExitState() {
             Enemy.AttackCollider.Disable();
             Enemy.Trail.enabled = false;
+            if (!_attackSequence.IsFinished) _attackSequence.Break();
         }
 
         private void AttackPlayer(string animationKey, float forwardMovement) {

@@ -5,10 +5,11 @@ using UnityEngine;
 namespace Enemy.Types.SkeletonTank.States {
     public class Shielding : EnemyState<SkeletonTank> {
         public Shielding(SkeletonTank enemy) : base(enemy) { }
+        private Coroutine _animation;
         
         public override void EnterState() {
             Enemy.Rotation.SetObservationPoint(Enemy.PlayerTransform);
-            Enemy.StartCoroutine(AnimationQueue());
+            _animation = Enemy.StartCoroutine(AnimationQueue());
         }
 
         /// <summary>
@@ -34,6 +35,11 @@ namespace Enemy.Types.SkeletonTank.States {
             else {
                 ChangeState<ChasePlayer>();
             }
+        }
+
+        public override void ExitState()
+        {
+            if (_animation != null) Enemy.StopCoroutine(_animation);
         }
     }
 }

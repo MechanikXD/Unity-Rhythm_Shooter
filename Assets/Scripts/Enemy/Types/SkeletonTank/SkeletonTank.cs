@@ -1,4 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Game.VisualFX;
 using Core.Music;
 using Enemy.Base;
 using Enemy.Types.SkeletonTank.States;
@@ -26,7 +27,7 @@ namespace Enemy.Types.SkeletonTank {
         [Header("Animations:")]
         [SerializeField] private string _idleAnimationKey = "Paladin Idle";
         [SerializeField] private string _walkAnimationKey = "Paladin Walk";
-        [SerializeField] private string _deathAnimationKey = "Skely Death";
+        [SerializeField] private AnimationClip _deathAnimation;
 
         [SerializeField] private AnimationClip _blockStart;
         [SerializeField] private string _blockLoopKey = "Block Loop";
@@ -37,7 +38,6 @@ namespace Enemy.Types.SkeletonTank {
         
         public string IdleAnimationKey => _idleAnimationKey;
         public string WalkAnimationKey => _walkAnimationKey;
-        public string DeathAnimationKey => _deathAnimationKey;
         public AnimationClip BlockStart => _blockStart;
         public string BlockLoopKey => _blockLoopKey;
         public string BlockExitKey => _blockExitKey;
@@ -54,6 +54,12 @@ namespace Enemy.Types.SkeletonTank {
         [SerializeField] private AudioClip[] _swingSounds;
         
         public AudioClip[] SwingSounds => _swingSounds;
+        
+        protected override void Start()
+        {
+            base.Start();
+            VFXManager.Instance.RegisterParticles(_attackTelegraph.Particle, 3);
+        }
 
         protected override State[] InitializeStates() {
             var idleState = new Idle(this);
@@ -84,9 +90,10 @@ namespace Enemy.Types.SkeletonTank {
 
         public override void Die() {
             base.Die();
-            _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);
+            StateMachine.StopMachine();
+            _animator.CrossFade(_deathAnimation.name, _crossFade, -1, 0f);
 
-            Destroy(gameObject, _deathAnimationKey.Length);
+            Destroy(gameObject, _deathAnimation.length);
         }
     }
 }

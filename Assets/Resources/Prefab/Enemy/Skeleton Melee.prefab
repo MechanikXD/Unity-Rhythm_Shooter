@@ -518,15 +518,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400062, guid: f227b5017a7c0184a96c2c26f1e4408d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.616
+      value: 0.5199132
       objectReference: {fileID: 0}
     - target: {fileID: 400062, guid: f227b5017a7c0184a96c2c26f1e4408d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.25
+      value: -0.25000024
       objectReference: {fileID: 0}
     - target: {fileID: 400062, guid: f227b5017a7c0184a96c2c26f1e4408d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 4.182
+      value: 12.426624
       objectReference: {fileID: 0}
     - target: {fileID: 400062, guid: f227b5017a7c0184a96c2c26f1e4408d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -640,6 +640,11 @@ MonoBehaviour:
   _maxHealth: 50
   _defaultDamageReduction: 0.1
   _damage: 10
+  _audioPitchChange: {x: 0.9, y: 1.1}
+  _stepSounds:
+  - {fileID: 8300000, guid: 024b75fac28903943aa156ebf6b89b45, type: 3}
+  _hurtSounds:
+  - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
   _obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 81
@@ -648,13 +653,7 @@ MonoBehaviour:
   _crossFade: 0.2
   _attackTelegraph: {fileID: 6907654333476005506, guid: 087a4d35730e69a4eaf4d3b3dec63e0f, type: 3}
   _walkSoundDelay: {x: 0, y: 0.15}
-  _audioPitchChange: {x: 0.9, y: 1.1}
   _soundDistance: 10
-  _stepSounds:
-  - {fileID: 8300000, guid: 024b75fac28903943aa156ebf6b89b45, type: 3}
-  _hitSounds:
-  - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
-  - {fileID: 8300000, guid: 1a978b2abbeed1444825817828006187, type: 3}
   _attackPattern:
   - {fileID: 7400000, guid: 32b0e8474db8ec341b6ce90ee6206920, type: 2}
   - {fileID: 7400000, guid: f25922a1ec3438349a1db565843a33a4, type: 2}
@@ -674,7 +673,7 @@ MonoBehaviour:
   _fleeBounds: {x: 3, y: 5}
   _idleAnimationKey: Skele Idle
   _walkAnimationKey: Skele Walk
-  _deathAnimationKey: Skely Death
+  _deathAnimation: {fileID: 7400000, guid: 084912c61d0ca864389ac53f4ed997bd, type: 2}
   _firstAttackSpeedKey: Combo1Speed
   _secondAttackSpeedKey: Combo2Speed
   _thirdAttackSpeedKey: Combo3Speed

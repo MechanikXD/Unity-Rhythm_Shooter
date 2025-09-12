@@ -390,31 +390,31 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.765462
+      value: -4.0550632
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.25
+      value: -0.25000024
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 3.5097804
+      value: 4.612838
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.008732322
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.9999619
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -422,7 +422,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 178.999
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
@@ -732,6 +732,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Paladin
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1254399505943607367, guid: c0e8ec4be6a4d554881a5c8bb6d0c0cf, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 5.3051386
@@ -1034,9 +1038,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _body: {fileID: 1859699982127553382}
   _moveSpeed: 3
-  _maxHealth: 150
+  _maxHealth: 100
   _defaultDamageReduction: 0.3
   _damage: 20
+  _audioPitchChange: {x: 0.8, y: 1}
+  _stepSounds:
+  - {fileID: 8300000, guid: b3691ee92dda39b428e1eb0d025f0a7c, type: 3}
+  _hurtSounds:
+  - {fileID: 8300000, guid: 1a978b2abbeed1444825817828006187, type: 3}
   _obstacleLayerMask:
     serializedVersion: 2
     m_Bits: 81
@@ -1045,13 +1054,7 @@ MonoBehaviour:
   _crossFade: 0.3
   _attackTelegraph: {fileID: 6907654333476005506, guid: 087a4d35730e69a4eaf4d3b3dec63e0f, type: 3}
   _walkSoundDelay: {x: 0.1, y: 0.2}
-  _audioPitchChange: {x: 0.8, y: 1}
   _soundDistance: 15
-  _stepSounds:
-  - {fileID: 8300000, guid: b3691ee92dda39b428e1eb0d025f0a7c, type: 3}
-  _hitSounds:
-  - {fileID: 8300000, guid: 0d79ad9a8907c434ca81be6f565f64cd, type: 3}
-  - {fileID: 8300000, guid: 1a978b2abbeed1444825817828006187, type: 3}
   _attackCollider: {fileID: 5353909512608056217}
   _axePosition: {fileID: 6597447651925232252}
   _trail: {fileID: 7927362771348282285}
@@ -1059,7 +1062,7 @@ MonoBehaviour:
   _shieldingTime: 3
   _idleAnimationKey: Paladin Idle
   _walkAnimationKey: Paladin Walk
-  _deathAnimationKey: Skely Death
+  _deathAnimation: {fileID: 7400000, guid: 0718fd33e8d58f24d8c49b8d30783e18, type: 2}
   _blockStart: {fileID: 7400000, guid: cd7b3e180e12d4c4481267552709a1fa, type: 2}
   _blockLoopKey: Block Loop
   _blockExitKey: Block Exit

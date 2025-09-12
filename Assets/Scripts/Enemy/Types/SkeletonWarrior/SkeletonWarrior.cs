@@ -1,4 +1,5 @@
 ﻿using Core.Behaviour.FiniteStateMachine;
+using Core.Game.VisualFX;
 using Core.Music;
 using Enemy.Base;
 using Enemy.Types.SkeletonWarrior.States;
@@ -35,12 +36,11 @@ namespace Enemy.Types.SkeletonWarrior {
         // ReSharper disable StringLiteralTypo
         [SerializeField] private string _idleAnimationKey = "Skele Idle";
         [SerializeField] private string _walkAnimationKey = "Skele Walk";
-        [SerializeField] private string _deathAnimationKey = "Skely Death";
+        [SerializeField] private AnimationClip _deathAnimation;
         // ReSharper restore StringLiteralTypo
         
         public string IdleAnimationKey => _idleAnimationKey;
         public string WalkAnimationKey => _walkAnimationKey;
-        public string DeathAnimationKey =>_deathAnimationKey;
 
         [Header("Animator param keys:")]
         [SerializeField] private string _firstAttackSpeedKey = "Combo1Speed";
@@ -54,6 +54,12 @@ namespace Enemy.Types.SkeletonWarrior {
         [SerializeField] private AudioClip[] _swingSounds;
         
         public AudioClip[] SwingSounds => _swingSounds;
+
+        protected override void Start()
+        {
+            base.Start();
+            VFXManager.Instance.RegisterParticles(_attackTelegraph.Particle, 3);
+        }
 
         protected override State[] InitializeStates() {
             var idleState = new Idle(this);
@@ -85,9 +91,10 @@ namespace Enemy.Types.SkeletonWarrior {
 
         public override void Die() {
             base.Die();
-            _animator.CrossFade(_deathAnimationKey, _crossFade, -1, 0f);
+            StateMachine.StopMachine();
+            _animator.CrossFade(_deathAnimation.name, _crossFade, -1, 0f);
             
-            Destroy(gameObject, _deathAnimationKey.Length);
+            Destroy(gameObject, _deathAnimation.length);
         }
     }
 }
